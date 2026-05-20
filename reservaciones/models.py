@@ -1,5 +1,6 @@
 from django.db import models
 from django.db.models import Model, ForeignKey
+from django.core.validators import MinValueValidator
 
 from parques.models import Hospedaje
 from proyectoLuciernagas import settings
@@ -15,8 +16,12 @@ class Reservacion(models.Model):
     fecha_inicio = models.DateField()
     fecha_fin = models.DateField()
 
-    num_huespedes = models.PositiveIntegerField()
-    unidades_reservadas = models.PositiveIntegerField()
+    num_huespedes = models.PositiveIntegerField(
+        validators=[MinValueValidator(1)]
+    )
+    unidades_reservadas = models.PositiveIntegerField(
+        validators=[MinValueValidator(1)]
+    )
 
     precio_total = models.DecimalField(
         max_digits=10,
@@ -37,7 +42,7 @@ class Reservacion(models.Model):
 
     usuario = models.ForeignKey(
         settings.AUTH_USER_MODEL,
-        on_delete=models.CASCADE,
+        on_delete=models.PROTECT,
         related_name="reservaciones"
     )
 

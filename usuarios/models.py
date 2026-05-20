@@ -1,6 +1,13 @@
-from django.contrib.auth.models import AbstractUser
+from django.contrib.auth.models import AbstractUser, UserManager
 from django.db import models
-from django.db.models import Model
+
+
+class UsuarioManager(UserManager):
+    def get_by_natural_key(self, identificador):
+        try:
+            return self.get(username__iexact=identificador)
+        except self.model.DoesNotExist:
+            return self.get(email__iexact=identificador)
 
 
 class Usuario(AbstractUser):
@@ -15,6 +22,8 @@ class Usuario(AbstractUser):
         choices=Rol.choices,
         default=Rol.CLIENTE
     )
+
+    objects = UsuarioManager()
 
     def es_cliente(self):
         return self.rol == self.Rol.CLIENTE

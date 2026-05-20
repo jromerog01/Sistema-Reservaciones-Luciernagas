@@ -61,8 +61,12 @@ class Hospedaje(models.Model):
         choices=TipoHospedaje.choices
     )
 
-    cantidad_unidades = models.PositiveIntegerField()
-    capacidad_unidad = models.PositiveIntegerField()
+    cantidad_unidades = models.PositiveIntegerField(
+        validators=[MinValueValidator(1)]
+    )
+    capacidad_unidad = models.PositiveIntegerField(
+        validators=[MinValueValidator(1)]
+    )
 
     precio_por_unidad = models.DecimalField(
         max_digits=10,
