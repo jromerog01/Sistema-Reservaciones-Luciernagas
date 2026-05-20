@@ -36,7 +36,6 @@ class Parque(models.Model):
     horario_apertura = models.TimeField()
     horario_cierre = models.TimeField()
     descripcion = models.TextField(blank=True)
-    activo = models.BooleanField(default=True)
 
     servicios = models.ManyToManyField(
         Servicio,
@@ -72,8 +71,6 @@ class Hospedaje(models.Model):
         max_digits=10,
         decimal_places=2
     )
-
-    activo = models.BooleanField(default=True)
 
     def __str__(self):
         return f"{self.parque.nombre} - {self.get_tipo_hospedaje_display()}"
