@@ -12,7 +12,17 @@ class Servicio(models.Model):
 
 
 class Parque(models.Model):
-    nombre = models.CharField(max_length=100)
+    class Estado(models.TextChoices):
+        TLAXCALA = "TLAXCALA", "Tlaxcala"
+        EDOMEX = "EDOMEX", "Estado de México"
+        PUEBLA = "PUEBLA", "Puebla"
+
+    nombre = models.CharField(max_length=100, unique=True)
+    estado = models.CharField(
+        max_length=20,
+        choices=Estado.choices,
+        default=Estado.TLAXCALA,
+    )
     direccion = models.CharField(max_length=300)
 
     latitud = models.DecimalField(
@@ -37,11 +47,22 @@ class Parque(models.Model):
     horario_cierre = models.TimeField()
     descripcion = models.TextField(blank=True)
 
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(
+                fields=["latitud", "longitud"],
+                name="unique_coordinates"
+            )
+        ]
+
     servicios = models.ManyToManyField(
         Servicio,
         related_name="parques",
         blank=True
     )
+
+    def __str__(self):
+        return self.nombre
 
 
 class Hospedaje(models.Model):
