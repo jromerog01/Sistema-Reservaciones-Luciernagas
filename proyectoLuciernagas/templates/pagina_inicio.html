@@ -8,6 +8,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
     <link rel="stylesheet" href="{% static 'css/prototipo_reservaciones.css' %}">
 </head>
 <body>
@@ -17,12 +18,16 @@
             <span>Luciernagas</span>
         </a>
         <div class="nav-links">
+            <a href="{% url 'inicio' %}">Inicio</a>
             <a href="{% url 'listado_parques' %}">Parques</a>
             <a href="#hospedajes">Hospedajes</a>
+            <a href="{% url 'mapa_parques' %}">Mapa</a>
             <a href="#reservar">Reservar</a>
-            <a href="#panel">Panel</a>
         </div>
-        <a class="nav-action" href="#reservar">Ver disponibilidad</a>
+        <div class="nav-actions">
+            <button class="nav-auth secondary" type="button">Iniciar sesion</button>
+            <button class="nav-auth primary" type="button">Registrarse</button>
+        </div>
     </nav>
 
     <main>
@@ -47,8 +52,8 @@
                     durante las noches de avistamiento.
                 </p>
                 <div class="hero-actions">
-                    <a class="button primary" href="#reservar">Crear reservacion</a>
-                    <a class="button ghost" href="#hospedajes">Explorar opciones</a>
+                    <a class="button primary" href="#mapa-parques">Ver mapa</a>
+                    <a class="button ghost" href="#parques-inicio">Ver parques</a>
                 </div>
             </div>
 
@@ -69,16 +74,93 @@
             </aside>
         </section>
 
-        <section id="hospedajes" class="section">
+        <section id="parques-inicio" class="section parks-home-section">
+            <div class="parks-carousel-block">
+                <div class="section-toolbar carousel-toolbar">
+                    <div class="section-heading">
+                        <span>Parques del festival</span>
+                        <h2>Elige donde vivir la experiencia</h2>
+                    </div>
+                    <a class="button secondary" href="{% url 'listado_parques' %}">Ver todos los parques</a>
+                </div>
+
+                {% if parques_carrusel %}
+                    <div class="parks-carousel-shell">
+                        <button class="carousel-control" type="button" data-carousel-prev aria-label="Parque anterior">&lt;</button>
+                        <div class="parks-carousel" data-parks-carousel>
+                            {% for item in parques_carrusel %}
+                                <article class="park-carousel-card">
+                                    <a href="{% url 'detalle_parque' item.parque.id %}" class="park-carousel-image">
+                                        <img src="{{ item.imagen }}" alt="Vista natural de {{ item.parque.nombre }}" loading="lazy">
+                                    </a>
+                                    <div class="park-carousel-content">
+                                        <div class="card-top">
+                                            <span>{{ item.parque.get_estado_display }}</span>
+                                            <strong>{{ item.parque.horario_apertura|time:"H:i" }} - {{ item.parque.horario_cierre|time:"H:i" }}</strong>
+                                        </div>
+                                        <h3>{{ item.parque.nombre }}</h3>
+                                        {% if item.parque.hospedajes.all %}
+                                            <div class="park-tag-section park-title-tags">
+                                                <span class="tag-section-label">Hospedaje</span>
+                                                <div class="service-list" aria-label="Hospedajes disponibles">
+                                                    {% for hospedaje in item.parque.hospedajes.all %}
+                                                        <span>{{ hospedaje.get_tipo_hospedaje_display }}</span>
+                                                    {% endfor %}
+                                                </div>
+                                            </div>
+                                        {% endif %}
+                                        <p>{{ item.parque.descripcion|default:"Parque registrado para consulta de disponibilidad y hospedaje durante la temporada."|truncatechars:120 }}</p>
+                                        <a class="park-carousel-action" href="{% url 'detalle_parque' item.parque.id %}">Ver parque</a>
+                                    </div>
+                                </article>
+                            {% endfor %}
+                        </div>
+                        <button class="carousel-control" type="button" data-carousel-next aria-label="Parque siguiente">&gt;</button>
+                    </div>
+                {% else %}
+                    <div class="empty-state">
+                        <h3>No hay parques registrados</h3>
+                        <p>Cuando se agreguen parques desde el administrador apareceran en este carrusel.</p>
+                    </div>
+                {% endif %}
+            </div>
+
+            <div id="mapa-parques" class="parks-map-block">
+                <div class="section-toolbar map-toolbar">
+                    <div class="section-heading">
+                        <span>Mapa de parques</span>
+                        <h2>Ubica tu visita</h2>
+                    </div>
+                    <div class="state-filters home-map-filters" aria-label="Filtros del mapa por estado">
+                        <button class="state-filter active" type="button" data-home-map-state-filter="todos" aria-pressed="true">Ver todos</button>
+                        <button class="state-filter" type="button" data-home-map-state-filter="tlaxcala" aria-pressed="false">Tlaxcala</button>
+                        <button class="state-filter" type="button" data-home-map-state-filter="puebla" aria-pressed="false">Puebla</button>
+                        <button class="state-filter" type="button" data-home-map-state-filter="edomex" aria-pressed="false">EDOMEX</button>
+                    </div>
+                </div>
+
+                <div class="parks-map-shell">
+                    <div id="parks-map" class="parks-map" aria-label="Mapa interactivo con los parques registrados"></div>
+                    {% if not mapa_parques %}
+                        <p class="map-empty">Agrega parques con coordenadas desde el administrador para mostrarlos en el mapa.</p>
+                    {% endif %}
+                </div>
+                <div class="map-action-row">
+                    <a class="button secondary" href="{% url 'mapa_parques' %}">Abrir mapa</a>
+                </div>
+            </div>
+        </section>
+
+        <section id="hospedajes" class="section lodging-options-section">
             <div class="section-toolbar">
                 <div class="section-heading">
                     <span>Hospedajes</span>
                     <h2>Opciones listas para reservar</h2>
                 </div>
                 <div class="state-filters" aria-label="Filtros por estado">
-                    <button class="state-filter active" type="button" data-state="tlaxcala" aria-pressed="true">Tlaxcala</button>
-                    <button class="state-filter" type="button" data-state="puebla" aria-pressed="false">Puebla</button>
-                    <button class="state-filter" type="button" data-state="edomex" aria-pressed="false">EDOMEX</button>
+                    <button class="state-filter active" type="button" data-lodging-state-filter="tlaxcala" aria-pressed="true">Tlaxcala</button>
+                    <button class="state-filter" type="button" data-lodging-state-filter="puebla" aria-pressed="false">Puebla</button>
+                    <button class="state-filter" type="button" data-lodging-state-filter="edomex" aria-pressed="false">EDOMEX</button>
                 </div>
             </div>
 
@@ -86,13 +168,13 @@
                 <article class="lodging-card featured">
                     <div class="card-top">
                         <span>Mas solicitado</span>
-                        <strong id="cabin-price">$1,450 MXN</strong>
+                        <strong id="cabin-price" data-lodging-field="precio" data-lodging-type="cabana">desde $1,450 MXN</strong>
                     </div>
                     <h3>Cabana Bosque Claro</h3>
                     <p>Para familias o grupos pequenos que buscan privacidad cerca del sendero nocturno.</p>
                     <ul>
-                        <li>Capacidad: 4 personas</li>
-                        <li>Disponibles: 12 unidades</li>
+                        <li data-lodging-field="capacidad" data-lodging-type="cabana">Capacidad: desde 4 personas</li>
+                        <li data-lodging-field="unidades" data-lodging-type="cabana">Disponibles: desde 12 unidades</li>
                         <li>Incluye guia de acceso</li>
                     </ul>
                     <button class="select-room" type="button" data-room="Cabana Bosque Claro">Seleccionar</button>
@@ -101,13 +183,13 @@
                 <article class="lodging-card">
                     <div class="card-top">
                         <span>Economico</span>
-                        <strong id="camping-price">$380 MXN</strong>
+                        <strong id="camping-price" data-lodging-field="precio" data-lodging-type="camping">desde $380 MXN</strong>
                     </div>
                     <h3>Zona Camping Neblina</h3>
-                    <p>Espacios delimitados para tienda de campana, con banos y punto de hidratacion cercano.</p>
+                    <p>Espacios delimitados para tienda de campaña, con banos y punto de hidratacion cercano.</p>
                     <ul>
-                        <li>Capacidad: 2 personas</li>
-                        <li>Disponibles: 54 espacios</li>
+                        <li data-lodging-field="capacidad" data-lodging-type="camping">Capacidad: desde 2 personas</li>
+                        <li data-lodging-field="unidades" data-lodging-type="camping">Disponibles: desde 54 espacios</li>
                         <li>Entrada por horario</li>
                     </ul>
                     <button class="select-room" type="button" data-room="Zona Camping Neblina">Seleccionar</button>
@@ -165,6 +247,9 @@
         </section>
     </main>
 
+    {{ mapa_parques|json_script:"parks-map-data" }}
+    {{ minimos_hospedaje|json_script:"lodging-minimums-data" }}
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <script src="{% static 'js/prototipo_reservaciones.js' %}"></script>
 </body>
 </html>

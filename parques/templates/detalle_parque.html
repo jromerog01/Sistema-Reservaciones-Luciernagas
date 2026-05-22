@@ -8,6 +8,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
     <link rel="stylesheet" href="{% static 'css/prototipo_reservaciones.css' %}">
 </head>
 <body>
@@ -21,7 +22,11 @@
             <a href="{% url 'inicio' %}#hospedajes">Hospedajes</a>
             <a href="{% url 'inicio' %}#reservar">Reservar</a>
         </div>
-        <a class="nav-action" href="{% url 'listado_parques' %}">Volver a parques</a>
+        <div class="nav-actions">
+            <a class="nav-action" href="{% url 'listado_parques' %}">Volver a parques</a>
+            <button class="nav-auth secondary" type="button">Iniciar sesion</button>
+            <button class="nav-auth primary" type="button">Registrarse</button>
+        </div>
     </nav>
 
     <main class="park-detail-page">
@@ -29,10 +34,29 @@
             <div class="park-detail-copy">
                 <span class="eyebrow">{{ parque.get_estado_display }}</span>
                 <h1>{{ parque.nombre }}</h1>
+                {% if parque.hospedajes.all %}
+                    <div class="park-tag-section park-title-tags">
+                        <span class="tag-section-label">Hospedaje</span>
+                        <div class="service-list" aria-label="Hospedajes disponibles">
+                            {% for hospedaje in parque.hospedajes.all %}
+                                <span>{{ hospedaje.get_tipo_hospedaje_display }}</span>
+                            {% endfor %}
+                        </div>
+                    </div>
+                {% endif %}
                 <p>{{ parque.descripcion|default:"Parque registrado para consulta de disponibilidad y hospedaje durante la temporada." }}</p>
-                <div class="park-detail-actions">
-                    <a class="button primary" href="{% url 'inicio' %}#reservar">Reservar visita</a>
-                    <a class="button secondary" href="{% url 'listado_parques' %}">Ver otros parques</a>
+                <div class="park-detail-reserve-block">
+                    <div class="lodging-availability lodging-availability-hero" aria-label="Unidades disponibles de hospedaje">
+                        {% for hospedaje in parque.hospedajes.all %}
+                            <span>{{ hospedaje.get_tipo_hospedaje_display }}: {{ hospedaje.cantidad_unidades }} {% if hospedaje.tipo_hospedaje == "CAMPING" %}espacios{% else %}unidades{% endif %} quedan disponibles</span>
+                        {% empty %}
+                            <span>Sin hospedajes disponibles</span>
+                        {% endfor %}
+                    </div>
+                    <div class="park-detail-actions">
+                        <a class="button primary" href="{% url 'inicio' %}#reservar">Reservar visita</a>
+                        <a class="button secondary" href="{% url 'listado_parques' %}">Ver otros parques</a>
+                    </div>
                 </div>
             </div>
             <img src="{{ imagen }}" alt="Vista natural de {{ parque.nombre }}">
@@ -52,11 +76,16 @@
                     </div>
                     <div>
                         <dt>Direccion</dt>
-                        <dd>{{ parque.direccion }}</dd>
+                        <dd>
+                            <span>{{ parque.direccion }}</span>
+                            <a class="maps-link" href="https://www.google.com/maps/search/?api=1&query={{ parque.latitud|floatformat:6 }},{{ parque.longitud|floatformat:6 }}" target="_blank" rel="noopener noreferrer">Abrir en Google Maps</a>
+                        </dd>
                     </div>
                     <div>
-                        <dt>Coordenadas</dt>
-                        <dd>{{ parque.latitud|floatformat:6 }}, {{ parque.longitud|floatformat:6 }}</dd>
+                        <dt>Mapa</dt>
+                        <dd>
+                            <div class="mini-park-map" data-mini-map data-lat="{{ parque.latitud|floatformat:6 }}" data-lng="{{ parque.longitud|floatformat:6 }}" data-title="{{ parque.nombre }}" aria-label="Mapa de {{ parque.nombre }}"></div>
+                        </dd>
                     </div>
                 </dl>
             </article>
@@ -90,5 +119,7 @@
             </article>
         </section>
     </main>
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="{% static 'js/prototipo_reservaciones.js' %}"></script>
 </body>
 </html>

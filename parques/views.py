@@ -1,42 +1,28 @@
 from django.shortcuts import get_object_or_404, render
+from django.utils.text import slugify
 
-from parques.models import Parque
+from parques.parque_cards import obtener_imagen_parque, obtener_parques_con_imagenes
+from parques.models import Hospedaje, Parque, Servicio
 
-
-UNSPLASH_IMAGES = [
-    "https://images.unsplash.com/photo-1448375240586-882707db888b?auto=format&fit=crop&w=1200&q=80",
-    "https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=1200&q=80",
-    "https://images.unsplash.com/photo-1473773508845-188df298d2d1?auto=format&fit=crop&w=1200&q=80",
-    "https://images.unsplash.com/photo-1501785888041-af3ef285b470?auto=format&fit=crop&w=1200&q=80",
-]
-
-
-def obtener_imagen_parque(parque):
-    parques_ids = Parque.objects.order_by("nombre").values_list("id", flat=True)
-
-    for index, parque_id in enumerate(parques_ids):
-        if parque_id == parque.id:
-            return UNSPLASH_IMAGES[index % len(UNSPLASH_IMAGES)]
-
-    return UNSPLASH_IMAGES[0]
-
-
-def obtener_parques_con_imagenes():
-    parques = []
-    for index, parque in enumerate(
-        Parque.objects.prefetch_related("servicios").order_by("nombre")
-    ):
-        parques.append({
-            "parque": parque,
-            "imagen": UNSPLASH_IMAGES[index % len(UNSPLASH_IMAGES)],
-        })
-    return parques
 
 def listado_parques(request):
+    servicios = [
+        {
+            "nombre": servicio.nombre,
+            "valor": slugify(servicio.nombre),
+        }
+        for servicio in Servicio.objects.order_by("nombre")
+    ]
+
     return render(
         request,
         "listado_parques.html",
-        {"parques": obtener_parques_con_imagenes()},
+        {
+            "parques": obtener_parques_con_imagenes(),
+            "estados": Parque.Estado.choices,
+            "hospedajes": Hospedaje.TipoHospedaje.choices,
+            "servicios": servicios,
+        },
     )
 
 

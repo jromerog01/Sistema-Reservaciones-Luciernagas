@@ -1,0 +1,94 @@
+{% load static %}
+<!doctype html>
+<html lang="es">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Festival de Luciernagas | Mapa</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+    <link rel="stylesheet" href="{% static 'css/prototipo_reservaciones.css' %}">
+</head>
+<body>
+    <nav class="navbar" aria-label="Navegacion principal">
+        <a class="brand" href="{% url 'inicio' %}">
+            <span class="brand-mark"></span>
+            <span>Luciernagas</span>
+        </a>
+        <div class="nav-links">
+            <a href="{% url 'inicio' %}">Inicio</a>
+            <a href="{% url 'listado_parques' %}">Parques</a>
+            <a href="{% url 'inicio' %}#hospedajes">Hospedajes</a>
+            <a href="{% url 'mapa_parques' %}" aria-current="page">Mapa</a>
+        </div>
+        <div class="nav-actions">
+            <a class="nav-action" href="{% url 'listado_parques' %}">Ver catalogo</a>
+            <button class="nav-auth secondary" type="button">Iniciar sesion</button>
+            <button class="nav-auth primary" type="button">Registrarse</button>
+        </div>
+    </nav>
+
+    <main>
+        <section class="map-page-header">
+            <div>
+                <span class="eyebrow">Mapa de parques</span>
+                <h1>Ubica los parques del festival</h1>
+                <p>Consulta la ubicacion de cada parque registrado y abre su detalle desde los marcadores del mapa.</p>
+            </div>
+            <strong data-map-parks-count>{{ mapa_parques|length }} parques</strong>
+        </section>
+
+        <section class="section map-page-section">
+            <div class="map-layout">
+                <details class="park-filter-sidebar" open>
+                    <summary>Filtros</summary>
+                    <div class="park-filter-content">
+                        <details class="park-filter-group" open>
+                            <summary>Estado</summary>
+                            {% for valor, etiqueta in estados %}
+                                <button type="button" class="park-filter-option" data-map-filter data-filter-type="estado" data-filter-value="{{ valor|lower }}" aria-pressed="false">{{ etiqueta }}</button>
+                            {% endfor %}
+                        </details>
+
+                        <details class="park-filter-group" open>
+                            <summary>Hospedaje</summary>
+                            {% for valor, etiqueta in hospedajes %}
+                                <button type="button" class="park-filter-option" data-map-filter data-filter-type="hospedaje" data-filter-value="{{ valor|lower }}" aria-pressed="false">{{ etiqueta }}</button>
+                            {% endfor %}
+                        </details>
+
+                        <details class="park-filter-group">
+                            <summary>Servicios</summary>
+                            {% for servicio in servicios %}
+                                <button type="button" class="park-filter-option" data-map-filter data-filter-type="servicio" data-filter-value="{{ servicio.valor }}" aria-pressed="false">{{ servicio.nombre }}</button>
+                            {% empty %}
+                                <p class="filter-empty">Sin servicios registrados</p>
+                            {% endfor %}
+                        </details>
+
+                        <div class="active-filter-panel" data-map-active-filter-panel hidden>
+                            <span>Filtros aplicados</span>
+                            <div class="active-filter-list" data-map-active-filters></div>
+                            <button type="button" class="filter-clear" data-clear-map-filters>Limpiar filtros</button>
+                        </div>
+                    </div>
+                </details>
+
+                <div class="parks-map-shell map-page-shell">
+                    <div id="parks-map" class="parks-map map-page-map" aria-label="Mapa interactivo con los parques registrados"></div>
+                    {% if not mapa_parques %}
+                        <p class="map-empty">Agrega parques con coordenadas desde el administrador para mostrarlos en el mapa.</p>
+                    {% endif %}
+                    <p class="map-empty" data-map-filter-empty hidden>No hay parques con esos filtros.</p>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    {{ mapa_parques|json_script:"parks-map-data" }}
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="{% static 'js/prototipo_reservaciones.js' %}"></script>
+</body>
+</html>

@@ -8,20 +8,27 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
     <link rel="stylesheet" href="{% static 'css/prototipo_reservaciones.css' %}">
 </head>
 <body>
     <nav class="navbar" aria-label="Navegacion principal">
-        <a class="brand" href="{% url 'listado_parques' %}">
+        <a class="brand" href="{% url 'inicio' %}">
             <span class="brand-mark"></span>
             <span>Luciernagas</span>
         </a>
         <div class="nav-links">
+            <a href="{% url 'inicio' %}">Inicio</a>
             <a href="#parques">Parques</a>
+            <a href="{% url 'mapa_parques' %}">Mapa</a>
             <a href="{% url 'inicio' %}#hospedajes">Hospedajes</a>
             <a href="{% url 'inicio' %}#reservar">Reservar</a>
         </div>
-        <a class="nav-action" href="{% url 'inicio' %}">Ir al inicio</a>
+        <div class="nav-actions">
+            <a class="nav-action" href="{% url 'inicio' %}">Ir al inicio</a>
+            <button class="nav-auth secondary" type="button">Iniciar sesion</button>
+            <button class="nav-auth primary" type="button">Registrarse</button>
+        </div>
     </nav>
 
     <main>
@@ -31,7 +38,7 @@
                 <h1>Parques del festival</h1>
                 <p>Explora los parques registrados, sus servicios y la informacion principal para planear tu visita.</p>
             </div>
-            <strong>{{ parques|length }} parques</strong>
+            <strong data-parks-count>{{ parques|length }} parques</strong>
         </section>
 
         <section id="parques" class="section parks-section">
@@ -39,112 +46,203 @@
                 <details class="park-filter-sidebar" open>
                     <summary>Filtros</summary>
                     <div class="park-filter-content">
-                        <span>Buscar por</span>
-                        <button type="button">Estado</button>
-                        <button type="button">Servicios</button>
-                        <button type="button">Disponibilidad</button>
+                        <details class="park-filter-group" open>
+                            <summary>Estado</summary>
+                            {% for valor, etiqueta in estados %}
+                                <button type="button" class="park-filter-option" data-park-filter data-filter-type="estado" data-filter-value="{{ valor|lower }}" aria-pressed="false">{{ etiqueta }}</button>
+                            {% endfor %}
+                        </details>
+
+                        <details class="park-filter-group" open>
+                            <summary>Hospedaje</summary>
+                            {% for valor, etiqueta in hospedajes %}
+                                <button type="button" class="park-filter-option" data-park-filter data-filter-type="hospedaje" data-filter-value="{{ valor|lower }}" aria-pressed="false">{{ etiqueta }}</button>
+                            {% endfor %}
+                        </details>
+
+                        <details class="park-filter-group">
+                            <summary>Servicios</summary>
+                            {% for servicio in servicios %}
+                                <button type="button" class="park-filter-option" data-park-filter data-filter-type="servicio" data-filter-value="{{ servicio.valor }}" aria-pressed="false">{{ servicio.nombre }}</button>
+                            {% empty %}
+                                <p class="filter-empty">Sin servicios registrados</p>
+                            {% endfor %}
+                        </details>
+
+                        <div class="active-filter-panel" data-active-filter-panel hidden>
+                            <span>Filtros aplicados</span>
+                            <div class="active-filter-list" data-active-filters></div>
+                            <button type="button" class="filter-clear" data-clear-park-filters>Limpiar filtros</button>
+                        </div>
                     </div>
                 </details>
 
                 {% if parques %}
-                    <div class="parks-gallery">
-                        {% for item in parques %}
-                            <article class="park-gallery-card">
-                                <a href="{% url 'detalle_parque' item.parque.id %}" class="park-image-link">
-                                    <img src="{{ item.imagen }}" alt="Vista natural de {{ item.parque.nombre }}" loading="lazy">
-                                </a>
-                                <div class="park-gallery-content">
-                                    <span class="park-state">{{ item.parque.get_estado_display }}</span>
-                                    <a class="park-title-link" href="{% url 'detalle_parque' item.parque.id %}">
-                                        <h2>{{ item.parque.nombre }}</h2>
+                    <div class="parks-results">
+                        <div class="parks-gallery">
+                            {% for item in parques %}
+                                <article class="park-gallery-card" data-park-card data-estado="{{ item.filtros.estado }}" data-hospedajes="{{ item.filtros.hospedajes }}" data-servicios="{{ item.filtros.servicios }}">
+                                    <a href="{% url 'detalle_parque' item.parque.id %}" class="park-image-link">
+                                        <img src="{{ item.imagen }}" alt="Vista natural de {{ item.parque.nombre }}" loading="lazy">
                                     </a>
-                                    <p>{{ item.parque.descripcion|default:"Parque registrado para consulta de disponibilidad y hospedaje durante la temporada." }}</p>
+                                    <div class="park-gallery-content">
+                                        <span class="park-state">{{ item.parque.get_estado_display }}</span>
+                                        <a class="park-title-link" href="{% url 'detalle_parque' item.parque.id %}">
+                                            <h2>{{ item.parque.nombre }}</h2>
+                                        </a>
+                                        {% if item.parque.hospedajes.all %}
+                                            <div class="park-tag-section park-title-tags">
+                                                <span class="tag-section-label">Hospedaje</span>
+                                                <div class="service-list" aria-label="Hospedajes disponibles">
+                                                    {% for hospedaje in item.parque.hospedajes.all %}
+                                                        <span>{{ hospedaje.get_tipo_hospedaje_display }}</span>
+                                                    {% endfor %}
+                                                </div>
+                                            </div>
+                                        {% endif %}
+                                        <p>{{ item.parque.descripcion|default:"Parque registrado para consulta de disponibilidad y hospedaje durante la temporada." }}</p>
 
-                                    <div class="park-meta">
-                                        <span>{{ item.parque.horario_apertura|time:"H:i" }} - {{ item.parque.horario_cierre|time:"H:i" }}</span>
-                                        <span>{{ item.parque.direccion }}</span>
+                                        <div class="park-meta">
+                                            <span>{{ item.parque.horario_apertura|time:"H:i" }} - {{ item.parque.horario_cierre|time:"H:i" }}</span>
+                                            <span>{{ item.parque.direccion }}</span>
+                                        </div>
+
+                                        {% if item.parque.servicios.all %}
+                                            <div class="park-tag-section">
+                                                <span class="tag-section-label">Servicios</span>
+                                                <div class="service-list" aria-label="Servicios disponibles">
+                                                    {% for servicio in item.parque.servicios.all %}
+                                                        <span>{{ servicio.nombre }}</span>
+                                                    {% endfor %}
+                                                </div>
+                                            </div>
+                                        {% endif %}
+
+                                        {% if not item.parque.servicios.all and not item.parque.hospedajes.all %}
+                                            <div class="service-list" aria-label="Disponibilidad registrada">
+                                                <span>Sin servicios ni hospedajes registrados</span>
+                                            </div>
+                                        {% endif %}
+
+                                        <div class="park-reserve-block">
+                                            <div class="lodging-availability" aria-label="Unidades disponibles de hospedaje">
+                                                {% for hospedaje in item.parque.hospedajes.all %}
+                                                    <span>{{ hospedaje.get_tipo_hospedaje_display }}: {{ hospedaje.cantidad_unidades }} {% if hospedaje.tipo_hospedaje == "CAMPING" %}espacios{% else %}unidades{% endif %} quedan disponibles</span>
+                                                {% empty %}
+                                                    <span>Sin hospedajes disponibles</span>
+                                                {% endfor %}
+                                            </div>
+                                            <div class="park-card-actions">
+                                                <button type="button" class="reserve-park" data-dialog-target="reserve-park-{{ forloop.counter }}">Reservar</button>
+                                                <button type="button" class="quick-view-park" data-dialog-target="park-detail-{{ forloop.counter }}">Vista rapida</button>
+                                                <a class="detail-park" href="{% url 'detalle_parque' item.parque.id %}">Ver parque</a>
+                                            </div>
+                                        </div>
                                     </div>
 
-                                    {% if item.parque.servicios.all %}
-                                        <div class="service-list" aria-label="Servicios disponibles">
-                                            {% for servicio in item.parque.servicios.all %}
-                                                <span>{{ servicio.nombre }}</span>
-                                            {% endfor %}
+                                    <dialog class="floating-dialog" id="reserve-park-{{ forloop.counter }}" aria-labelledby="reserve-title-{{ forloop.counter }}">
+                                        <div class="dialog-header">
+                                            <div>
+                                                <span>Reservacion</span>
+                                                <h2 id="reserve-title-{{ forloop.counter }}">{{ item.parque.nombre }}</h2>
+                                            </div>
+                                            <button type="button" class="dialog-close" data-dialog-close aria-label="Cerrar">x</button>
                                         </div>
-                                    {% endif %}
+                                        <form class="modal-form">
+                                            <label>
+                                                Fecha de visita
+                                                <input type="date" name="fecha">
+                                            </label>
+                                            <label>
+                                                Visitantes
+                                                <input type="number" name="visitantes" min="1" value="2">
+                                            </label>
+                                            <label>
+                                                Hospedaje
+                                                <select name="hospedaje">
+                                                    <option>Cabaña</option>
+                                                    <option>Camping</option>
+                                                </select>
+                                            </label>
+                                            <div class="lodging-availability" aria-label="Unidades disponibles de hospedaje">
+                                                {% for hospedaje in item.parque.hospedajes.all %}
+                                                    <span>{{ hospedaje.get_tipo_hospedaje_display }}: {{ hospedaje.cantidad_unidades }} {% if hospedaje.tipo_hospedaje == "CAMPING" %}espacios{% else %}unidades{% endif %} quedan disponibles</span>
+                                                {% empty %}
+                                                    <span>Sin hospedajes disponibles</span>
+                                                {% endfor %}
+                                            </div>
+                                            <button type="button">Continuar reservacion</button>
+                                        </form>
+                                    </dialog>
 
-                                    <div class="park-card-actions">
-                                        <button type="button" class="reserve-park" data-dialog-target="reserve-park-{{ forloop.counter }}">Reservar</button>
-                                        <button type="button" class="detail-park" data-dialog-target="park-detail-{{ forloop.counter }}">Ver informacion</button>
-                                    </div>
-                                </div>
-
-                                <dialog class="floating-dialog" id="reserve-park-{{ forloop.counter }}" aria-labelledby="reserve-title-{{ forloop.counter }}">
-                                    <div class="dialog-header">
-                                        <div>
-                                            <span>Reservacion</span>
-                                            <h2 id="reserve-title-{{ forloop.counter }}">{{ item.parque.nombre }}</h2>
+                                    <dialog class="floating-dialog detail-dialog" id="park-detail-{{ forloop.counter }}" aria-labelledby="detail-title-{{ forloop.counter }}">
+                                        <div class="dialog-header">
+                                            <div>
+                                                <span>Informacion del parque</span>
+                                                <h2 id="detail-title-{{ forloop.counter }}">{{ item.parque.nombre }}</h2>
+                                                <div class="park-tag-section park-title-tags">
+                                                    <span class="tag-section-label">Hospedaje</span>
+                                                <div class="service-list" aria-label="Hospedajes disponibles">
+                                                    {% for hospedaje in item.parque.hospedajes.all %}
+                                                        <span>{{ hospedaje.get_tipo_hospedaje_display }}</span>
+                                                    {% empty %}
+                                                        <span>Sin hospedajes registrados</span>
+                                                    {% endfor %}
+                                                </div>
+                                                <div class="lodging-availability" aria-label="Unidades disponibles de hospedaje">
+                                                    {% for hospedaje in item.parque.hospedajes.all %}
+                                                        <span>{{ hospedaje.get_tipo_hospedaje_display }}: {{ hospedaje.cantidad_unidades }} {% if hospedaje.tipo_hospedaje == "CAMPING" %}espacios{% else %}unidades{% endif %} quedan disponibles</span>
+                                                    {% empty %}
+                                                        <span>Sin hospedajes disponibles</span>
+                                                    {% endfor %}
+                                                </div>
+                                            </div>
+                                            </div>
+                                            <button type="button" class="dialog-close" data-dialog-close aria-label="Cerrar">x</button>
                                         </div>
-                                        <button type="button" class="dialog-close" data-dialog-close aria-label="Cerrar">x</button>
-                                    </div>
-                                    <form class="modal-form">
-                                        <label>
-                                            Fecha de visita
-                                            <input type="date" name="fecha">
-                                        </label>
-                                        <label>
-                                            Visitantes
-                                            <input type="number" name="visitantes" min="1" value="2">
-                                        </label>
-                                        <label>
-                                            Hospedaje
-                                            <select name="hospedaje">
-                                                <option>Cabana</option>
-                                                <option>Camping</option>
-                                            </select>
-                                        </label>
-                                        <button type="button">Continuar reservacion</button>
-                                    </form>
-                                </dialog>
-
-                                <dialog class="floating-dialog detail-dialog" id="park-detail-{{ forloop.counter }}" aria-labelledby="detail-title-{{ forloop.counter }}">
-                                    <div class="dialog-header">
-                                        <div>
-                                            <span>Informacion del parque</span>
-                                            <h2 id="detail-title-{{ forloop.counter }}">{{ item.parque.nombre }}</h2>
+                                        <img class="dialog-image" src="{{ item.imagen }}" alt="Vista natural de {{ item.parque.nombre }}">
+                                        <p>{{ item.parque.descripcion|default:"Parque registrado para consulta de disponibilidad y hospedaje durante la temporada." }}</p>
+                                        <dl class="dialog-details">
+                                            <div>
+                                                <dt>Estado</dt>
+                                                <dd>{{ item.parque.get_estado_display }}</dd>
+                                            </div>
+                                            <div>
+                                                <dt>Horario</dt>
+                                                <dd>{{ item.parque.horario_apertura|time:"H:i" }} - {{ item.parque.horario_cierre|time:"H:i" }}</dd>
+                                            </div>
+                                            <div>
+                                                <dt>Direccion</dt>
+                                                <dd>
+                                                    <span>{{ item.parque.direccion }}</span>
+                                                    <a class="maps-link" href="https://www.google.com/maps/search/?api=1&query={{ item.parque.latitud|floatformat:6 }},{{ item.parque.longitud|floatformat:6 }}" target="_blank" rel="noopener noreferrer">Abrir en Google Maps</a>
+                                                </dd>
+                                            </div>
+                                            <div>
+                                                <dt>Mapa</dt>
+                                                <dd>
+                                                    <div class="mini-park-map" data-mini-map data-lat="{{ item.parque.latitud|floatformat:6 }}" data-lng="{{ item.parque.longitud|floatformat:6 }}" data-title="{{ item.parque.nombre }}" aria-label="Mapa de {{ item.parque.nombre }}"></div>
+                                                </dd>
+                                            </div>
+                                        </dl>
+                                        <div class="park-tag-section">
+                                            <span class="tag-section-label">Servicios</span>
+                                            <div class="service-list" aria-label="Servicios disponibles">
+                                                {% for servicio in item.parque.servicios.all %}
+                                                    <span>{{ servicio.nombre }}</span>
+                                                {% empty %}
+                                                    <span>Sin servicios registrados</span>
+                                                {% endfor %}
+                                            </div>
                                         </div>
-                                        <button type="button" class="dialog-close" data-dialog-close aria-label="Cerrar">x</button>
-                                    </div>
-                                    <img class="dialog-image" src="{{ item.imagen }}" alt="Vista natural de {{ item.parque.nombre }}">
-                                    <p>{{ item.parque.descripcion|default:"Parque registrado para consulta de disponibilidad y hospedaje durante la temporada." }}</p>
-                                    <dl class="dialog-details">
-                                        <div>
-                                            <dt>Estado</dt>
-                                            <dd>{{ item.parque.get_estado_display }}</dd>
-                                        </div>
-                                        <div>
-                                            <dt>Horario</dt>
-                                            <dd>{{ item.parque.horario_apertura|time:"H:i" }} - {{ item.parque.horario_cierre|time:"H:i" }}</dd>
-                                        </div>
-                                        <div>
-                                            <dt>Direccion</dt>
-                                            <dd>{{ item.parque.direccion }}</dd>
-                                        </div>
-                                        <div>
-                                            <dt>Coordenadas</dt>
-                                            <dd>{{ item.parque.latitud|floatformat:6 }}, {{ item.parque.longitud|floatformat:6 }}</dd>
-                                        </div>
-                                    </dl>
-                                    <div class="service-list" aria-label="Servicios disponibles">
-                                        {% for servicio in item.parque.servicios.all %}
-                                            <span>{{ servicio.nombre }}</span>
-                                        {% empty %}
-                                            <span>Sin servicios registrados</span>
-                                        {% endfor %}
-                                    </div>
-                                </dialog>
-                            </article>
-                        {% endfor %}
+                                    </dialog>
+                                </article>
+                            {% endfor %}
+                        </div>
+                        <div class="empty-state park-filter-empty" data-filter-empty hidden>
+                            <h3>No hay parques con esos filtros</h3>
+                            <p>Quita algun filtro aplicado para ampliar los resultados.</p>
+                        </div>
                     </div>
                 {% else %}
                     <div class="empty-state">
@@ -155,6 +253,7 @@
             </div>
         </section>
     </main>
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <script src="{% static 'js/prototipo_reservaciones.js' %}"></script>
 </body>
 </html>
