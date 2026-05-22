@@ -1,0 +1,94 @@
+{% load static %}
+<!doctype html>
+<html lang="es">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Festival de Luciernagas | {{ parque.nombre }}</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'css/prototipo_reservaciones.css' %}">
+</head>
+<body>
+    <nav class="navbar" aria-label="Navegacion principal">
+        <a class="brand" href="{% url 'inicio' %}">
+            <span class="brand-mark"></span>
+            <span>Luciernagas</span>
+        </a>
+        <div class="nav-links">
+            <a href="{% url 'listado_parques' %}">Parques</a>
+            <a href="{% url 'inicio' %}#hospedajes">Hospedajes</a>
+            <a href="{% url 'inicio' %}#reservar">Reservar</a>
+        </div>
+        <a class="nav-action" href="{% url 'listado_parques' %}">Volver a parques</a>
+    </nav>
+
+    <main class="park-detail-page">
+        <section class="park-detail-hero">
+            <div class="park-detail-copy">
+                <span class="eyebrow">{{ parque.get_estado_display }}</span>
+                <h1>{{ parque.nombre }}</h1>
+                <p>{{ parque.descripcion|default:"Parque registrado para consulta de disponibilidad y hospedaje durante la temporada." }}</p>
+                <div class="park-detail-actions">
+                    <a class="button primary" href="{% url 'inicio' %}#reservar">Reservar visita</a>
+                    <a class="button secondary" href="{% url 'listado_parques' %}">Ver otros parques</a>
+                </div>
+            </div>
+            <img src="{{ imagen }}" alt="Vista natural de {{ parque.nombre }}">
+        </section>
+
+        <section class="park-detail-grid">
+            <article class="detail-panel">
+                <span>Informacion general</span>
+                <dl class="dialog-details">
+                    <div>
+                        <dt>Estado</dt>
+                        <dd>{{ parque.get_estado_display }}</dd>
+                    </div>
+                    <div>
+                        <dt>Horario</dt>
+                        <dd>{{ parque.horario_apertura|time:"H:i" }} - {{ parque.horario_cierre|time:"H:i" }}</dd>
+                    </div>
+                    <div>
+                        <dt>Direccion</dt>
+                        <dd>{{ parque.direccion }}</dd>
+                    </div>
+                    <div>
+                        <dt>Coordenadas</dt>
+                        <dd>{{ parque.latitud|floatformat:6 }}, {{ parque.longitud|floatformat:6 }}</dd>
+                    </div>
+                </dl>
+            </article>
+
+            <article class="detail-panel">
+                <span>Servicios</span>
+                <div class="service-list detail-service-list" aria-label="Servicios disponibles">
+                    {% for servicio in parque.servicios.all %}
+                        <span>{{ servicio.nombre }}</span>
+                    {% empty %}
+                        <span>Sin servicios registrados</span>
+                    {% endfor %}
+                </div>
+            </article>
+
+            <article class="detail-panel detail-panel-wide">
+                <span>Hospedajes disponibles</span>
+                {% if parque.hospedajes.all %}
+                    <div class="lodging-detail-list">
+                        {% for hospedaje in parque.hospedajes.all %}
+                            <div>
+                                <strong>{{ hospedaje.get_tipo_hospedaje_display }}</strong>
+                                <p>{{ hospedaje.cantidad_unidades }} unidades, capacidad para {{ hospedaje.capacidad_unidad }} personas por unidad.</p>
+                                <b>${{ hospedaje.precio_por_unidad|floatformat:2 }} MXN</b>
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <p class="detail-muted">No hay hospedajes registrados para este parque.</p>
+                {% endif %}
+            </article>
+        </section>
+    </main>
+</body>
+</html>

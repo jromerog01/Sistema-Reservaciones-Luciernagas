@@ -187,6 +187,11 @@ a {
     border: 1px solid rgba(255, 255, 255, .2);
 }
 
+.button.secondary {
+    color: var(--forest);
+    background: #eaf1e5;
+}
+
 .availability-card {
     padding: 1.25rem;
     border: 1px solid rgba(255, 255, 255, .16);
@@ -310,6 +315,49 @@ a {
     margin-bottom: 1.5rem;
 }
 
+.section-toolbar {
+    display: flex;
+    align-items: end;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+}
+
+.section-toolbar .section-heading {
+    margin-bottom: 0;
+}
+
+.state-filters {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    gap: .6rem;
+    transform: translateY(-5.0rem);
+}
+
+.state-filter {
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    padding: .72rem 1rem;
+    color: var(--forest);
+    background: white;
+    cursor: pointer;
+    font: inherit;
+    font-size: .82rem;
+    font-weight: 800;
+    transition: background .2s ease, color .2s ease, transform .2s ease, box-shadow .2s ease;
+}
+
+.state-filter:hover {
+    transform: translateY(-2px);
+}
+
+.state-filter.active {
+    color: white;
+    background: var(--forest);
+    box-shadow: 0 12px 28px rgba(16, 35, 28, .16);
+}
+
 .section-heading h2,
 .booking-copy h2,
 .dashboard-preview h2 {
@@ -319,13 +367,487 @@ a {
 }
 
 .lodging-grid {
+    display: flex;
+    justify-content: center;
+    align-items: stretch;
+    flex-wrap: wrap;
+    gap: 1rem;
+}
+
+.lodging-grid .lodging-card {
+    width: min(100%, 420px);
+}
+
+.parks-section {
+    background: #f5f7ee;
+}
+
+.gallery-header {
+    display: flex;
+    align-items: end;
+    justify-content: space-between;
+    gap: 1.5rem;
+    padding: clamp(2rem, 5vw, 4rem) clamp(1rem, 5vw, 4rem) clamp(1.25rem, 3vw, 2rem);
+    background: #f5f7ee;
+}
+
+.gallery-header h1 {
+    max-width: 720px;
+    margin: .45rem 0 .65rem;
+    color: var(--forest);
+    font-size: clamp(2.5rem, 6vw, 5rem);
+    line-height: .95;
+    letter-spacing: 0;
+}
+
+.gallery-header p {
+    max-width: 680px;
+    margin: 0;
+    color: var(--muted);
+    font-size: 1.05rem;
+    line-height: 1.65;
+}
+
+.gallery-header strong {
+    flex: 0 0 auto;
+    padding: .8rem 1rem;
+    border-radius: 999px;
+    color: white;
+    background: var(--forest);
+    box-shadow: 0 12px 28px rgba(16, 35, 28, .14);
+}
+
+.parks-layout {
+    display: grid;
+    grid-template-columns: 260px minmax(0, 1fr);
+    gap: 1rem;
+    align-items: start;
+}
+
+.park-filter-sidebar {
+    position: sticky;
+    top: 5.75rem;
+    border: 1px solid var(--line);
+    border-radius: 24px;
+    background: white;
+    box-shadow: 0 18px 50px rgba(16, 35, 28, .08);
+}
+
+.park-filter-sidebar summary {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1rem;
+    color: var(--forest);
+    cursor: pointer;
+    font-weight: 800;
+    list-style: none;
+}
+
+.park-filter-sidebar summary::-webkit-details-marker {
+    display: none;
+}
+
+.park-filter-sidebar summary::after {
+    content: "+";
+    display: grid;
+    width: 1.7rem;
+    height: 1.7rem;
+    place-items: center;
+    border-radius: 999px;
+    color: white;
+    background: var(--forest);
+    font-size: 1rem;
+}
+
+.park-filter-sidebar[open] summary::after {
+    content: "-";
+}
+
+.park-filter-content {
+    display: grid;
+    gap: .65rem;
+    padding: 0 1rem 1rem;
+}
+
+.park-filter-content span {
+    color: var(--forest-soft);
+    font-size: .78rem;
+    font-weight: 800;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+}
+
+.park-filter-content button {
+    width: 100%;
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    padding: .72rem 1rem;
+    color: var(--forest);
+    background: #f5f7ee;
+    cursor: pointer;
+    font: inherit;
+    font-size: .82rem;
+    font-weight: 800;
+    text-align: left;
+    transition: transform .2s ease, background .2s ease;
+}
+
+.park-filter-content button:hover {
+    background: #eaf1e5;
+    transform: translateX(3px);
+}
+
+.parks-gallery {
     display: grid;
     grid-template-columns: repeat(3, minmax(0, 1fr));
     gap: 1rem;
 }
 
-.parks-section {
+.park-gallery-card {
+    display: flex;
+    min-height: 100%;
+    overflow: hidden;
+    flex-direction: column;
+    border: 1px solid var(--line);
+    border-radius: 24px;
+    background: white;
+    box-shadow: 0 18px 50px rgba(16, 35, 28, .08);
+}
+
+.park-gallery-card img {
+    display: block;
+    width: 100%;
+    aspect-ratio: 16 / 10;
+    object-fit: cover;
+}
+
+.park-image-link,
+.park-title-link {
+    display: block;
+}
+
+.park-title-link h2 {
+    transition: color .2s ease;
+}
+
+.park-title-link:hover h2 {
+    color: var(--forest-soft);
+}
+
+.park-gallery-content {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    padding: 1.1rem;
+}
+
+.park-state {
+    width: fit-content;
+    padding: .4rem .65rem;
+    border-radius: 999px;
+    color: #10231c;
+    background: #dff8c6;
+    font-size: .76rem;
+    font-weight: 800;
+}
+
+.park-gallery-content h2 {
+    margin: 1rem 0 .4rem;
+    color: var(--forest);
+    font-size: 1.45rem;
+    letter-spacing: 0;
+}
+
+.park-gallery-content p {
+    margin: 0;
+    color: var(--muted);
+    line-height: 1.6;
+}
+
+.park-meta {
+    display: grid;
+    gap: .4rem;
+    margin: 1rem 0;
+    color: #30433b;
+    font-size: .9rem;
+    font-weight: 700;
+    line-height: 1.4;
+}
+
+.park-gallery-content .service-list {
+    margin-top: 1rem;
+}
+
+.park-card-actions {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: .65rem;
+    margin-top: auto;
+    padding-top: 1rem;
+}
+
+.park-card-actions button,
+.modal-form button {
+    border: 0;
+    border-radius: 999px;
+    padding: .82rem 1rem;
+    cursor: pointer;
+    font: inherit;
+    font-size: .86rem;
+    font-weight: 800;
+    transition: transform .2s ease, box-shadow .2s ease, background .2s ease;
+}
+
+.park-card-actions button:hover,
+.modal-form button:hover {
+    transform: translateY(-2px);
+}
+
+.reserve-park,
+.modal-form button {
+    color: #10231c;
+    background: var(--firefly);
+    box-shadow: 0 12px 28px rgba(248, 248, 113, .24);
+}
+
+.detail-park {
+    color: var(--forest);
+    background: #eaf1e5;
+}
+
+.floating-dialog {
+    width: min(92vw, 620px);
+    max-height: min(82vh, 760px);
+    overflow: auto;
+    border: 0;
+    border-radius: 24px;
+    padding: 1.25rem;
+    color: var(--ink);
+    background: white;
+    box-shadow: 0 28px 90px rgba(10, 26, 20, .35);
+}
+
+.detail-dialog {
+    width: min(94vw, 920px);
+}
+
+.floating-dialog::backdrop {
+    background: rgba(7, 29, 22, .62);
+    backdrop-filter: blur(6px);
+}
+
+.dialog-header {
+    display: flex;
+    align-items: start;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-bottom: 1rem;
+}
+
+.dialog-header span {
+    color: var(--forest-soft);
+    font-size: .76rem;
+    font-weight: 800;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+}
+
+.dialog-header h2 {
+    margin: .25rem 0 0;
+    color: var(--forest);
+    font-size: 1.7rem;
+    letter-spacing: 0;
+}
+
+.dialog-close {
+    display: grid;
+    width: 2.25rem;
+    height: 2.25rem;
+    flex: 0 0 auto;
+    place-items: center;
+    border: 0;
+    border-radius: 999px;
+    color: white;
+    background: var(--forest);
+    cursor: pointer;
+    font: inherit;
+    font-weight: 800;
+}
+
+.dialog-image {
+    display: block;
+    width: 100%;
+    margin-bottom: 1rem;
+    border-radius: 18px;
+    aspect-ratio: 16 / 9;
+    object-fit: cover;
+}
+
+.floating-dialog p {
+    color: var(--muted);
+    line-height: 1.65;
+}
+
+.dialog-details {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: .85rem;
+    margin: 1rem 0;
+}
+
+.dialog-details div {
+    padding: .85rem;
+    border-radius: 16px;
     background: #f5f7ee;
+}
+
+.dialog-details dt {
+    color: var(--forest-soft);
+    font-size: .72rem;
+    font-weight: 800;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+}
+
+.dialog-details dd {
+    margin: .25rem 0 0;
+    color: #30433b;
+    line-height: 1.4;
+}
+
+.modal-form {
+    display: grid;
+    gap: 1rem;
+}
+
+.modal-form label {
+    display: grid;
+    gap: .45rem;
+    color: #30433b;
+    font-size: .9rem;
+    font-weight: 800;
+}
+
+.modal-form input,
+.modal-form select {
+    width: 100%;
+    border: 1px solid #c9d5cf;
+    border-radius: 14px;
+    padding: .85rem .9rem;
+    font: inherit;
+}
+
+.park-detail-page {
+    background: #f5f7ee;
+}
+
+.park-detail-hero {
+    display: grid;
+    grid-template-columns: minmax(0, .95fr) minmax(320px, 1.05fr);
+    gap: 1.25rem;
+    align-items: stretch;
+    padding: clamp(2rem, 5vw, 4rem) clamp(1rem, 5vw, 4rem) 1.25rem;
+}
+
+.park-detail-copy {
+    display: flex;
+    min-height: 520px;
+    flex-direction: column;
+    justify-content: end;
+    padding: clamp(1.25rem, 4vw, 2.5rem);
+    border-radius: 24px;
+    color: white;
+    background: linear-gradient(145deg, #10231c, #22624f);
+    box-shadow: 0 18px 50px rgba(16, 35, 28, .12);
+}
+
+.park-detail-copy h1 {
+    max-width: 720px;
+    margin: .75rem 0 1rem;
+    font-size: clamp(3rem, 7vw, 6rem);
+    line-height: .92;
+    letter-spacing: 0;
+}
+
+.park-detail-copy p {
+    max-width: 680px;
+    color: rgba(255, 255, 255, .76);
+    font-size: 1.05rem;
+    line-height: 1.7;
+}
+
+.park-detail-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: .85rem;
+    margin-top: 1.5rem;
+}
+
+.park-detail-hero img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    min-height: 520px;
+    border-radius: 24px;
+    object-fit: cover;
+    box-shadow: 0 18px 50px rgba(16, 35, 28, .12);
+}
+
+.park-detail-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 1rem;
+    padding: 0 clamp(1rem, 5vw, 4rem) clamp(2rem, 5vw, 4rem);
+}
+
+.detail-panel {
+    padding: 1.25rem;
+    border: 1px solid var(--line);
+    border-radius: 24px;
+    background: white;
+    box-shadow: 0 18px 50px rgba(16, 35, 28, .08);
+}
+
+.detail-panel > span {
+    color: var(--forest-soft);
+    font-size: .78rem;
+    font-weight: 800;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+}
+
+.detail-panel-wide {
+    grid-column: 1 / -1;
+}
+
+.detail-service-list {
+    margin-top: 1rem;
+}
+
+.lodging-detail-list {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 1rem;
+    margin-top: 1rem;
+}
+
+.lodging-detail-list div {
+    padding: 1rem;
+    border-radius: 18px;
+    background: #f5f7ee;
+}
+
+.lodging-detail-list strong,
+.lodging-detail-list b {
+    display: block;
+    color: var(--forest);
+}
+
+.lodging-detail-list p,
+.detail-muted {
+    color: var(--muted);
+    line-height: 1.6;
 }
 
 .parks-grid {
@@ -560,13 +1082,21 @@ a {
     font-size: 2rem;
 }
 
+@media (max-width: 1120px) {
+    .parks-gallery {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
 @media (max-width: 860px) {
     .nav-links {
         display: none;
     }
 
     .hero,
-    .booking-section {
+    .booking-section,
+    .park-detail-hero,
+    .park-detail-grid {
         grid-template-columns: 1fr;
     }
 
@@ -579,8 +1109,36 @@ a {
         max-width: 420px;
     }
 
-    .lodging-grid {
+    .section-toolbar {
+        align-items: start;
+        flex-direction: column;
+    }
+
+    .state-filters {
+        justify-content: flex-start;
+    }
+
+    .gallery-header {
+        align-items: stretch;
+        flex-direction: column;
+    }
+
+    .parks-layout {
         grid-template-columns: 1fr;
+    }
+
+    .park-filter-sidebar {
+        position: static;
+    }
+
+    .park-detail-copy,
+    .park-detail-hero img {
+        min-height: auto;
+    }
+
+    .lodging-grid {
+        flex-direction: column;
+        align-items: center;
     }
 
     .parks-grid {
@@ -614,6 +1172,16 @@ a {
 
     .booking-form,
     .metrics {
+        grid-template-columns: 1fr;
+    }
+
+    .parks-gallery {
+        grid-template-columns: 1fr;
+    }
+
+    .park-card-actions,
+    .dialog-details,
+    .lodging-detail-list {
         grid-template-columns: 1fr;
     }
 }

@@ -16,8 +16,13 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path, include
+from parques import views as parques_views
+from proyectoLuciernagas import views
 
 urlpatterns = [
+    path('', views.inicio),
     path('admin/', admin.site.urls),
-    path('parques/', include('parques.urls'))
+    path('inicio/', views.inicio, name='inicio'),
+    path('inicio/parques/', include('parques.urls')),
+    path('parques/<int:parque_id>/', parques_views.detalle_parque, name='detalle_parque_direct'),
 ]

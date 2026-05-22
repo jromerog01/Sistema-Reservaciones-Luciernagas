@@ -1,0 +1,160 @@
+{% load static %}
+<!doctype html>
+<html lang="es">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Festival de Luciernagas | Parques</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'css/prototipo_reservaciones.css' %}">
+</head>
+<body>
+    <nav class="navbar" aria-label="Navegacion principal">
+        <a class="brand" href="{% url 'listado_parques' %}">
+            <span class="brand-mark"></span>
+            <span>Luciernagas</span>
+        </a>
+        <div class="nav-links">
+            <a href="#parques">Parques</a>
+            <a href="{% url 'inicio' %}#hospedajes">Hospedajes</a>
+            <a href="{% url 'inicio' %}#reservar">Reservar</a>
+        </div>
+        <a class="nav-action" href="{% url 'inicio' %}">Ir al inicio</a>
+    </nav>
+
+    <main>
+        <section class="gallery-header">
+            <div>
+                <span class="eyebrow">Catalogo de parques</span>
+                <h1>Parques del festival</h1>
+                <p>Explora los parques registrados, sus servicios y la informacion principal para planear tu visita.</p>
+            </div>
+            <strong>{{ parques|length }} parques</strong>
+        </section>
+
+        <section id="parques" class="section parks-section">
+            <div class="parks-layout">
+                <details class="park-filter-sidebar" open>
+                    <summary>Filtros</summary>
+                    <div class="park-filter-content">
+                        <span>Buscar por</span>
+                        <button type="button">Estado</button>
+                        <button type="button">Servicios</button>
+                        <button type="button">Disponibilidad</button>
+                    </div>
+                </details>
+
+                {% if parques %}
+                    <div class="parks-gallery">
+                        {% for item in parques %}
+                            <article class="park-gallery-card">
+                                <a href="{% url 'detalle_parque' item.parque.id %}" class="park-image-link">
+                                    <img src="{{ item.imagen }}" alt="Vista natural de {{ item.parque.nombre }}" loading="lazy">
+                                </a>
+                                <div class="park-gallery-content">
+                                    <span class="park-state">{{ item.parque.get_estado_display }}</span>
+                                    <a class="park-title-link" href="{% url 'detalle_parque' item.parque.id %}">
+                                        <h2>{{ item.parque.nombre }}</h2>
+                                    </a>
+                                    <p>{{ item.parque.descripcion|default:"Parque registrado para consulta de disponibilidad y hospedaje durante la temporada." }}</p>
+
+                                    <div class="park-meta">
+                                        <span>{{ item.parque.horario_apertura|time:"H:i" }} - {{ item.parque.horario_cierre|time:"H:i" }}</span>
+                                        <span>{{ item.parque.direccion }}</span>
+                                    </div>
+
+                                    {% if item.parque.servicios.all %}
+                                        <div class="service-list" aria-label="Servicios disponibles">
+                                            {% for servicio in item.parque.servicios.all %}
+                                                <span>{{ servicio.nombre }}</span>
+                                            {% endfor %}
+                                        </div>
+                                    {% endif %}
+
+                                    <div class="park-card-actions">
+                                        <button type="button" class="reserve-park" data-dialog-target="reserve-park-{{ forloop.counter }}">Reservar</button>
+                                        <button type="button" class="detail-park" data-dialog-target="park-detail-{{ forloop.counter }}">Ver informacion</button>
+                                    </div>
+                                </div>
+
+                                <dialog class="floating-dialog" id="reserve-park-{{ forloop.counter }}" aria-labelledby="reserve-title-{{ forloop.counter }}">
+                                    <div class="dialog-header">
+                                        <div>
+                                            <span>Reservacion</span>
+                                            <h2 id="reserve-title-{{ forloop.counter }}">{{ item.parque.nombre }}</h2>
+                                        </div>
+                                        <button type="button" class="dialog-close" data-dialog-close aria-label="Cerrar">x</button>
+                                    </div>
+                                    <form class="modal-form">
+                                        <label>
+                                            Fecha de visita
+                                            <input type="date" name="fecha">
+                                        </label>
+                                        <label>
+                                            Visitantes
+                                            <input type="number" name="visitantes" min="1" value="2">
+                                        </label>
+                                        <label>
+                                            Hospedaje
+                                            <select name="hospedaje">
+                                                <option>Cabana</option>
+                                                <option>Camping</option>
+                                            </select>
+                                        </label>
+                                        <button type="button">Continuar reservacion</button>
+                                    </form>
+                                </dialog>
+
+                                <dialog class="floating-dialog detail-dialog" id="park-detail-{{ forloop.counter }}" aria-labelledby="detail-title-{{ forloop.counter }}">
+                                    <div class="dialog-header">
+                                        <div>
+                                            <span>Informacion del parque</span>
+                                            <h2 id="detail-title-{{ forloop.counter }}">{{ item.parque.nombre }}</h2>
+                                        </div>
+                                        <button type="button" class="dialog-close" data-dialog-close aria-label="Cerrar">x</button>
+                                    </div>
+                                    <img class="dialog-image" src="{{ item.imagen }}" alt="Vista natural de {{ item.parque.nombre }}">
+                                    <p>{{ item.parque.descripcion|default:"Parque registrado para consulta de disponibilidad y hospedaje durante la temporada." }}</p>
+                                    <dl class="dialog-details">
+                                        <div>
+                                            <dt>Estado</dt>
+                                            <dd>{{ item.parque.get_estado_display }}</dd>
+                                        </div>
+                                        <div>
+                                            <dt>Horario</dt>
+                                            <dd>{{ item.parque.horario_apertura|time:"H:i" }} - {{ item.parque.horario_cierre|time:"H:i" }}</dd>
+                                        </div>
+                                        <div>
+                                            <dt>Direccion</dt>
+                                            <dd>{{ item.parque.direccion }}</dd>
+                                        </div>
+                                        <div>
+                                            <dt>Coordenadas</dt>
+                                            <dd>{{ item.parque.latitud|floatformat:6 }}, {{ item.parque.longitud|floatformat:6 }}</dd>
+                                        </div>
+                                    </dl>
+                                    <div class="service-list" aria-label="Servicios disponibles">
+                                        {% for servicio in item.parque.servicios.all %}
+                                            <span>{{ servicio.nombre }}</span>
+                                        {% empty %}
+                                            <span>Sin servicios registrados</span>
+                                        {% endfor %}
+                                    </div>
+                                </dialog>
+                            </article>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <div class="empty-state">
+                        <h3>No hay parques registrados</h3>
+                        <p>Cuando se agreguen parques desde el administrador apareceran en esta vista.</p>
+                    </div>
+                {% endif %}
+            </div>
+        </section>
+    </main>
+    <script src="{% static 'js/prototipo_reservaciones.js' %}"></script>
+</body>
+</html>

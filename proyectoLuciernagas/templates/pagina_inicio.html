@@ -8,15 +8,16 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="{% static 'parques/css/prototipo_reservaciones.css' %}">
+    <link rel="stylesheet" href="{% static 'css/prototipo_reservaciones.css' %}">
 </head>
 <body>
     <nav class="navbar" aria-label="Navegacion principal">
-        <a class="brand" href="#">
+        <a class="brand" href="{% url 'inicio' %}">
             <span class="brand-mark"></span>
             <span>Luciernagas</span>
         </a>
         <div class="nav-links">
+            <a href="{% url 'listado_parques' %}">Parques</a>
             <a href="#hospedajes">Hospedajes</a>
             <a href="#reservar">Reservar</a>
             <a href="#panel">Panel</a>
@@ -69,16 +70,23 @@
         </section>
 
         <section id="hospedajes" class="section">
-            <div class="section-heading">
-                <span>Hospedajes</span>
-                <h2>Opciones listas para reservar</h2>
+            <div class="section-toolbar">
+                <div class="section-heading">
+                    <span>Hospedajes</span>
+                    <h2>Opciones listas para reservar</h2>
+                </div>
+                <div class="state-filters" aria-label="Filtros por estado">
+                    <button class="state-filter active" type="button" data-state="tlaxcala" aria-pressed="true">Tlaxcala</button>
+                    <button class="state-filter" type="button" data-state="puebla" aria-pressed="false">Puebla</button>
+                    <button class="state-filter" type="button" data-state="edomex" aria-pressed="false">EDOMEX</button>
+                </div>
             </div>
 
             <div class="lodging-grid">
                 <article class="lodging-card featured">
                     <div class="card-top">
                         <span>Mas solicitado</span>
-                        <strong>$1,450 MXN</strong>
+                        <strong id="cabin-price">$1,450 MXN</strong>
                     </div>
                     <h3>Cabana Bosque Claro</h3>
                     <p>Para familias o grupos pequenos que buscan privacidad cerca del sendero nocturno.</p>
@@ -93,7 +101,7 @@
                 <article class="lodging-card">
                     <div class="card-top">
                         <span>Economico</span>
-                        <strong>$380 MXN</strong>
+                        <strong id="camping-price">$380 MXN</strong>
                     </div>
                     <h3>Zona Camping Neblina</h3>
                     <p>Espacios delimitados para tienda de campana, con banos y punto de hidratacion cercano.</p>
@@ -103,21 +111,6 @@
                         <li>Entrada por horario</li>
                     </ul>
                     <button class="select-room" type="button" data-room="Zona Camping Neblina">Seleccionar</button>
-                </article>
-
-                <article class="lodging-card">
-                    <div class="card-top">
-                        <span>Premium</span>
-                        <strong>$2,100 MXN</strong>
-                    </div>
-                    <h3>Cabana Mirador Verde</h3>
-                    <p>Ubicacion elevada, terraza pequena y cupo ideal para una visita de fin de semana.</p>
-                    <ul>
-                        <li>Capacidad: 6 personas</li>
-                        <li>Disponibles: 7 unidades</li>
-                        <li>Vista al corredor natural</li>
-                    </ul>
-                    <button class="select-room" type="button" data-room="Cabana Mirador Verde">Seleccionar</button>
                 </article>
             </div>
         </section>
@@ -172,6 +165,6 @@
         </section>
     </main>
 
-    <script src="{% static 'parques/js/prototipo_reservaciones.js' %}"></script>
+    <script src="{% static 'js/prototipo_reservaciones.js' %}"></script>
 </body>
 </html>

@@ -3,5 +3,6 @@ from django.urls import path
 from parques import views
 
 urlpatterns = [
-    path('prueba/', views.prueba),
+    path('', views.listado_parques, name='listado_parques'),
+    path('<int:parque_id>/', views.detalle_parque, name='detalle_parque'),
 ]
