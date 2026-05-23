@@ -9,7 +9,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
-    <link rel="stylesheet" href="{% static 'css/prototipo_reservaciones.css' %}">
+    <link rel="stylesheet" href="{% static 'css/prototipo_reservaciones.css' %}?v=reviews-carousel-2">
 </head>
 <body>
     <nav class="navbar" aria-label="Navegacion principal">
@@ -225,6 +225,140 @@
             </form>
         </section>
 
+        <section id="resenas" class="section reviews-section" aria-labelledby="reviews-title">
+            <div class="section-toolbar reviews-toolbar">
+                <div class="section-heading">
+                    <span>Resenas</span>
+                    <h2 id="reviews-title">Lo que cuentan los visitantes</h2>
+                </div>
+            </div>
+
+            <div class="reviews-carousel-shell">
+                <button class="carousel-control" type="button" data-reviews-carousel-prev aria-label="Resena anterior">&lt;</button>
+                <div class="reviews-carousel" data-reviews-carousel>
+                    <article class="review-card">
+                        <header class="review-author">
+                            <span class="review-avatar" aria-hidden="true">A</span>
+                            <div>
+                                <h3>@ana_bosque</h3>
+                                <span>Visitante verificada</span>
+                            </div>
+                        </header>
+                        <div class="review-rating" aria-label="Calificacion: 5 de 5">
+                            <div class="review-stars" aria-hidden="true">
+                                <span>★</span><span>★</span><span>★</span><span>★</span><span>★</span>
+                            </div>
+                            <strong>5.0</strong>
+                        </div>
+                        <p>La captura fue rapida y pude confirmar el cupo de la cabana sin estar llamando varias veces.</p>
+                    </article>
+
+                    <article class="review-card">
+                        <header class="review-author">
+                            <span class="review-avatar" aria-hidden="true">M</span>
+                            <div>
+                                <h3>@memo_ruta</h3>
+                                <span>Usuario frecuente</span>
+                            </div>
+                        </header>
+                        <div class="review-rating" aria-label="Calificacion: 4 de 5">
+                            <div class="review-stars" aria-hidden="true">
+                                <span>★</span><span>★</span><span>★</span><span>★</span><span class="is-empty">☆</span>
+                            </div>
+                            <strong>4.0</strong>
+                        </div>
+                        <p>Me gusto ver el hospedaje y las fechas en un solo lugar. El flujo se entiende muy facil.</p>
+                    </article>
+
+                    <article class="review-card">
+                        <header class="review-author">
+                            <span class="review-avatar" aria-hidden="true">L</span>
+                            <div>
+                                <h3>@luna_sendero</h3>
+                                <span>Reserva familiar</span>
+                            </div>
+                        </header>
+                        <div class="review-rating" aria-label="Calificacion: 5 de 5">
+                            <div class="review-stars" aria-hidden="true">
+                                <span>★</span><span>★</span><span>★</span><span>★</span><span>★</span>
+                            </div>
+                            <strong>5.0</strong>
+                        </div>
+                        <p>El mapa ayudo bastante para decidir el parque y despues validar si aun habia espacio.</p>
+                    </article>
+
+                    <article class="review-card">
+                        <header class="review-author">
+                            <span class="review-avatar" aria-hidden="true">D</span>
+                            <div>
+                                <h3>@dan_camping</h3>
+                                <span>Zona camping</span>
+                            </div>
+                        </header>
+                        <div class="review-rating" aria-label="Calificacion: 4 de 5">
+                            <div class="review-stars" aria-hidden="true">
+                                <span>★</span><span>★</span><span>★</span><span>★</span><span class="is-empty">☆</span>
+                            </div>
+                            <strong>4.0</strong>
+                        </div>
+                        <p>Buen resumen de disponibilidad. Para camping fue claro cuantos visitantes podia registrar.</p>
+                    </article>
+
+                    <article class="review-card">
+                        <header class="review-author">
+                            <span class="review-avatar" aria-hidden="true">C</span>
+                            <div>
+                                <h3>@caro_noche</h3>
+                                <span>Primera visita</span>
+                            </div>
+                        </header>
+                        <div class="review-rating" aria-label="Calificacion: 5 de 5">
+                            <div class="review-stars" aria-hidden="true">
+                                <span>★</span><span>★</span><span>★</span><span>★</span><span>★</span>
+                            </div>
+                            <strong>5.0</strong>
+                        </div>
+                        <p>La pagina se siente ordenada y encontre la opcion de hospedaje sin perderme entre tantas secciones.</p>
+                    </article>
+
+                    <article class="review-card">
+                        <header class="review-author">
+                            <span class="review-avatar" aria-hidden="true">R</span>
+                            <div>
+                                <h3>@raul_luci</h3>
+                                <span>Grupo de amigos</span>
+                            </div>
+                        </header>
+                        <div class="review-rating" aria-label="Calificacion: 4 de 5">
+                            <div class="review-stars" aria-hidden="true">
+                                <span>★</span><span>★</span><span>★</span><span>★</span><span class="is-empty">☆</span>
+                            </div>
+                            <strong>4.0</strong>
+                        </div>
+                        <p>Nos sirvio para comparar cabana y camping antes de elegir fechas. El carrusel de parques tambien ayuda.</p>
+                    </article>
+
+                    <article class="review-card">
+                        <header class="review-author">
+                            <span class="review-avatar" aria-hidden="true">S</span>
+                            <div>
+                                <h3>@sof_visita</h3>
+                                <span>Viaje en pareja</span>
+                            </div>
+                        </header>
+                        <div class="review-rating" aria-label="Calificacion: 5 de 5">
+                            <div class="review-stars" aria-hidden="true">
+                                <span>★</span><span>★</span><span>★</span><span>★</span><span>★</span>
+                            </div>
+                            <strong>5.0</strong>
+                        </div>
+                        <p>La reservacion se ve confiable porque primero valida cupo y luego ya puedes continuar con el proceso.</p>
+                    </article>
+                </div>
+                <button class="carousel-control" type="button" data-reviews-carousel-next aria-label="Resena siguiente">&gt;</button>
+            </div>
+        </section>
+
         <section id="panel" class="dashboard-preview">
             <div>
                 <span>Panel administrativo</span>
@@ -250,6 +384,6 @@
     {{ mapa_parques|json_script:"parks-map-data" }}
     {{ minimos_hospedaje|json_script:"lodging-minimums-data" }}
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-    <script src="{% static 'js/prototipo_reservaciones.js' %}"></script>
+    <script src="{% static 'js/prototipo_reservaciones.js' %}?v=reviews-carousel-2"></script>
 </body>
 </html>

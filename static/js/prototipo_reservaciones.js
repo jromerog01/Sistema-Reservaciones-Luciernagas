@@ -11,6 +11,9 @@ const mapDataElement = document.querySelector("#parks-map-data");
 const parksCarousel = document.querySelector("[data-parks-carousel]");
 const carouselPrevButton = document.querySelector("[data-carousel-prev]");
 const carouselNextButton = document.querySelector("[data-carousel-next]");
+const reviewsCarousel = document.querySelector("[data-reviews-carousel]");
+const reviewsCarouselPrevButton = document.querySelector("[data-reviews-carousel-prev]");
+const reviewsCarouselNextButton = document.querySelector("[data-reviews-carousel-next]");
 const parkFilterButtons = document.querySelectorAll("[data-park-filter]");
 const parkCards = document.querySelectorAll("[data-park-card]");
 const activeFilterPanel = document.querySelector("[data-active-filter-panel]");
@@ -398,20 +401,35 @@ const initializeParksMap = () => {
 initializeParksMap();
 initializeMiniParkMaps();
 
-const scrollParksCarousel = (direction) => {
-    if (!parksCarousel) {
+const scrollCarouselByCard = (carousel, cardSelector, direction, fallbackWidth, shouldLoop = false) => {
+    if (!carousel) {
         return;
     }
 
-    const card = parksCarousel.querySelector(".park-carousel-card");
-    const styles = window.getComputedStyle(parksCarousel);
+    const card = carousel.querySelector(cardSelector);
+    const styles = window.getComputedStyle(carousel);
     const gap = Number.parseFloat(styles.columnGap || styles.gap) || 0;
-    const scrollAmount = card ? card.getBoundingClientRect().width + gap : 420;
+    const scrollAmount = card ? card.getBoundingClientRect().width + gap : fallbackWidth;
+    const maxScroll = carousel.scrollWidth - carousel.clientWidth;
+    const nextScroll = carousel.scrollLeft + (direction * scrollAmount);
+    let targetScroll = nextScroll;
 
-    parksCarousel.scrollBy({
-        left: direction * scrollAmount,
+    if (shouldLoop && maxScroll > 0) {
+        if (direction > 0 && nextScroll >= maxScroll - 2) {
+            targetScroll = 0;
+        } else if (direction < 0 && nextScroll <= 0) {
+            targetScroll = maxScroll;
+        }
+    }
+
+    carousel.scrollTo({
+        left: targetScroll,
         behavior: "smooth",
     });
+};
+
+const scrollParksCarousel = (direction) => {
+    scrollCarouselByCard(parksCarousel, ".park-carousel-card", direction, 420);
 };
 
 carouselPrevButton?.addEventListener("click", () => {
@@ -420,6 +438,18 @@ carouselPrevButton?.addEventListener("click", () => {
 
 carouselNextButton?.addEventListener("click", () => {
     scrollParksCarousel(1);
+});
+
+const scrollReviewsCarousel = (direction) => {
+    scrollCarouselByCard(reviewsCarousel, ".review-card", direction, 360, true);
+};
+
+reviewsCarouselPrevButton?.addEventListener("click", () => {
+    scrollReviewsCarousel(-1);
+});
+
+reviewsCarouselNextButton?.addEventListener("click", () => {
+    scrollReviewsCarousel(1);
 });
 
 const splitFilterValues = (value) => String(value ?? "").split(/\s+/).filter(Boolean);
