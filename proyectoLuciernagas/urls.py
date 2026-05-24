@@ -26,4 +26,5 @@ urlpatterns = [
     path('inicio/mapa/', views.mapa, name='mapa_parques'),
     path('inicio/parques/', include('parques.urls')),
     path('parques/<int:parque_id>/', parques_views.detalle_parque, name='detalle_parque_direct'),
+    path('reservaciones/', include('reservaciones.urls')),
 ]
