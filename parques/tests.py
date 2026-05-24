@@ -185,6 +185,37 @@ class ListadoParquesFilterTests(TestCase):
         self.assertContains(response, f'href="{reverse("detalle_parque", args=[parque.id])}"')
 
 
+class InicioReservacionRapidaTests(TestCase):
+    def test_portada_muestra_parques_reservables_y_enlace_a_crear_reservacion(self):
+        parque = Parque.objects.create(
+            nombre="Bosque Inicio",
+            estado=Parque.Estado.TLAXCALA,
+            direccion="Camino inicio 5",
+            latitud=Decimal("19.651000"),
+            longitud=Decimal("-98.531000"),
+            horario_apertura=time(18, 0),
+            horario_cierre=time(23, 0),
+        )
+        hospedaje = Hospedaje.objects.create(
+            parque=parque,
+            tipo_hospedaje=Hospedaje.TipoHospedaje.CABANA,
+            cantidad_unidades=4,
+            capacidad_unidad=3,
+            precio_por_unidad=Decimal("1250.00"),
+        )
+
+        response = self.client.get(reverse("inicio"))
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'data-quick-booking-form')
+        self.assertContains(response, 'data-quick-booking-park')
+        self.assertContains(response, 'data-quick-booking-lodging')
+        self.assertContains(response, 'data-quick-booking-link')
+        self.assertContains(response, parque.nombre)
+        self.assertContains(response, reverse("crear_reservacion", args=[hospedaje.id]))
+        self.assertEqual(response.context["parques_reservables"][0]["nombre"], parque.nombre)
+
+
 class DetalleParqueTests(TestCase):
     def test_muestra_hospedajes_como_etiquetas_en_seccion_separada(self):
         servicio = Servicio.objects.create(nombre="Estacionamiento")

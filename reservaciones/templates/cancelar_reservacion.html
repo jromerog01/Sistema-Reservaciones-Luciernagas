@@ -6,6 +6,7 @@
   <title>Cancelar Reservación #{{ reservacion.id }}</title>
 </head>
 <body>
+  {% include "partials/navbar.html" %}
   <h1>Cancelar Reservación #{{ reservacion.id }}</h1>
 
   {% if error %}

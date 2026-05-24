@@ -11,21 +11,7 @@
 	<link rel="stylesheet" href="{% static 'css/prototipo_reservaciones.css' %}">
 </head>
 <body>
-	<nav class="navbar" aria-label="Navegacion principal">
-		<a class="brand" href="{% url 'inicio' %}">
-			<span class="brand-mark"></span>
-			<span>Luciernagas</span>
-		</a>
-		<div class="nav-links">
-			<a href="{% url 'inicio' %}">Inicio</a>
-			<a href="{% url 'listado_parques' %}">Parques</a>
-			<a href="{% url 'mapa_parques' %}">Mapa</a>
-			<a href="{% url 'inicio' %}#reservar">Reservar</a>
-		</div>
-		<div class="nav-actions">
-			<a class="nav-action" href="{% url 'mis_reservaciones' %}">Mis reservaciones</a>
-		</div>
-	</nav>
+	{% include "partials/navbar.html" %}
 
 	<main>
 		<section class="section booking-section">

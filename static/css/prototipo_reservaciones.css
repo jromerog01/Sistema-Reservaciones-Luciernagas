@@ -1779,6 +1779,42 @@ a {
     padding: .85rem .9rem;
 }
 
+.booking-form select {
+    width: 100%;
+    border: 1px solid #c9d5cf;
+    border-radius: 14px;
+    font: inherit;
+    padding: .85rem .9rem;
+    background: #fff;
+}
+
+.booking-feedback {
+    grid-column: 1 / -1;
+    margin: 0;
+    padding: .9rem 1rem;
+    border-radius: 16px;
+    background: #f1f6ef;
+    color: #30433b;
+    font-size: .92rem;
+    line-height: 1.45;
+}
+
+.booking-feedback.is-error {
+    background: #fff0ee;
+    color: #9d3826;
+}
+
+.booking-link {
+    grid-column: 1 / -1;
+    justify-content: center;
+}
+
+.booking-link.is-disabled {
+    pointer-events: none;
+    opacity: .56;
+    filter: grayscale(.15);
+}
+
 .booking-form button {
     grid-column: 1 / -1;
     padding: 1rem;

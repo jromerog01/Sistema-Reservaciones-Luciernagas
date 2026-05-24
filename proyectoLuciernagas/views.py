@@ -1,4 +1,5 @@
 from django.shortcuts import render
+from django.urls import reverse
 from django.db.models import Min
 from django.utils.text import slugify
 
@@ -67,6 +68,39 @@ def obtener_estados_disponibles():
     ]
 
 
+def obtener_parques_reservables():
+    parques_reservables = []
+
+    for parque in Parque.objects.prefetch_related("hospedajes").order_by("nombre"):
+        hospedajes = []
+
+        for hospedaje in parque.hospedajes.all():
+            hospedajes.append(
+                {
+                    "id": hospedaje.id,
+                    "tipo": hospedaje.get_tipo_hospedaje_display(),
+                    "tipo_valor": hospedaje.tipo_hospedaje.lower(),
+                    "cantidad_unidades": hospedaje.cantidad_unidades,
+                    "capacidad_unidad": hospedaje.capacidad_unidad,
+                    "precio_por_unidad": hospedaje.precio_por_unidad,
+                    "url": reverse("crear_reservacion", args=[hospedaje.id]),
+                }
+            )
+
+        if hospedajes:
+            parques_reservables.append(
+                {
+                    "id": parque.id,
+                    "nombre": parque.nombre,
+                    "estado": parque.get_estado_display(),
+                    "descripcion": parque.descripcion,
+                    "hospedajes": hospedajes,
+                }
+            )
+
+    return parques_reservables
+
+
 
 def inicio(request):
     mapa_service = MapaService()
@@ -78,6 +112,7 @@ def inicio(request):
             "estados_hospedaje": obtener_estados_disponibles(),
             "mapa_parques": mapa_service.obtener_marcadores(),
             "parques_carrusel": obtener_parques_con_imagenes(),
+            "parques_reservables": obtener_parques_reservables(),
             "minimos_hospedaje": obtener_minimos_hospedaje_por_estado(),
         },
     )

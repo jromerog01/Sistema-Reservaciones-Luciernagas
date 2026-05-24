@@ -131,11 +131,16 @@ def detalle_reservacion(request, reservacion_id):
         {"reservacion": reservacion, "duracion": reservacion.calcular_duracion()},
     )
 
-def seleccionar_hospedaje(request, entrada, salida, visitantes):
+def seleccionar_hospedaje(request):
+    if request.method == "POST":
+        entrada = request.POST.get("entrada")
+        salida = request.POST.get("salida")
+        visitantes = request.POST.get("visitantes")
 
-    return render(request, "reservaciones/seleccionar_hospedaje.html", {
-        "hospedajes": Hospedaje.objects.select_related("parque").all(),
-        "entrada": entrada,
-        "salida": salida,
-        "visitantes": visitantes,
-    })
+        return render(request, "reservaciones/seleccionar_hospedaje.html", {
+            "hospedajes": Hospedaje.objects.select_related("parque").all(),
+            "entrada": entrada,
+            "salida": salida,
+            "visitantes": visitantes,
+        })
+

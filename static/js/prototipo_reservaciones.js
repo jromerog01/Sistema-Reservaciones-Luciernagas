@@ -1,5 +1,14 @@
 const roomInput = document.querySelector("#hospedaje");
 const roomButtons = document.querySelectorAll(".select-room");
+const quickBookingForm = document.querySelector("[data-quick-booking-form]");
+const quickBookingParkSelect = document.querySelector("[data-quick-booking-park]");
+const quickBookingLodgingSelect = document.querySelector("[data-quick-booking-lodging]");
+const quickBookingStartInput = document.querySelector("[data-quick-booking-start]");
+const quickBookingEndInput = document.querySelector("[data-quick-booking-end]");
+const quickBookingVisitorsInput = document.querySelector("[data-quick-booking-visitors]");
+const quickBookingUnitsInput = document.querySelector("[data-quick-booking-units]");
+const quickBookingFeedback = document.querySelector("[data-quick-booking-feedback]");
+const quickBookingLink = document.querySelector("[data-quick-booking-link]");
 const stateButtons = document.querySelectorAll("[data-lodging-state-filter]");
 const homeMapStateButtons = document.querySelectorAll("[data-home-map-state-filter]");
 const lodgingMinimumsElement = document.querySelector("#lodging-minimums-data");
@@ -30,6 +39,9 @@ const mapParksCount = document.querySelector("[data-map-parks-count]");
 const miniMapElements = document.querySelectorAll("[data-mini-map]");
 
 let lodgingMinimumsByState = {};
+let quickBookingOptions = [];
+let selectedQuickBookingState = "";
+let selectedQuickBookingType = "";
 
 const escapeHtml = (value) => String(value ?? "").replace(/[&<>"']/g, (character) => ({
     "&": "&amp;",
@@ -45,6 +57,207 @@ const renderMapTags = (tags = [], emptyMessage = "Sin registros") => {
     }
 
     return tags.map((tag) => `<span>${escapeHtml(tag)}</span>`).join("");
+};
+
+const getActiveLodgingState = () => Array.from(stateButtons).find((button) => button.getAttribute("aria-pressed") === "true")?.dataset.lodgingStateFilter || stateButtons[0]?.dataset.lodgingStateFilter || "";
+
+const getActiveLodgingType = () => Array.from(roomButtons).find((button) => button.classList.contains("active"))?.dataset.lodgingType || roomButtons[0]?.dataset.lodgingType || "";
+
+const setActiveLodgingState = (state) => {
+    stateButtons.forEach((button) => {
+        const isActive = button.dataset.lodgingStateFilter === state;
+        button.classList.toggle("active", isActive);
+        button.setAttribute("aria-pressed", String(isActive));
+    });
+};
+
+const setActiveLodgingType = (type) => {
+    roomButtons.forEach((button) => {
+        const isActive = button.dataset.lodgingType === type;
+        button.classList.toggle("active", isActive);
+    });
+};
+
+const getQuickBookingSelectedOption = () => {
+    if (!quickBookingLodgingSelect) {
+        return null;
+    }
+
+    return quickBookingLodgingSelect.selectedOptions?.[0] || null;
+};
+
+const getQuickBookingNumbers = () => {
+    const visitors = Number.parseInt(quickBookingVisitorsInput?.value || "0", 10);
+    const units = Number.parseInt(quickBookingUnitsInput?.value || "0", 10);
+
+    return {
+        visitors: Number.isFinite(visitors) ? visitors : 0,
+        units: Number.isFinite(units) ? units : 0,
+    };
+};
+
+const setQuickBookingFeedback = (message, isError = false) => {
+    if (!quickBookingFeedback) {
+        return;
+    }
+
+    quickBookingFeedback.textContent = message;
+    quickBookingFeedback.classList.toggle("is-error", isError);
+};
+
+const setQuickBookingLinkState = (href, enabled) => {
+    if (!quickBookingLink) {
+        return;
+    }
+
+    quickBookingLink.href = href || "#";
+    quickBookingLink.setAttribute("aria-disabled", String(!enabled));
+    quickBookingLink.classList.toggle("is-disabled", !enabled);
+};
+
+const getQuickBookingParkOptions = () => quickBookingParkSelect ? Array.from(quickBookingParkSelect.options).filter((option) => option.dataset.state) : [];
+
+const getQuickBookingLodgingOptions = () => quickBookingLodgingSelect ? Array.from(quickBookingLodgingSelect.options).filter((option) => option.dataset.state && option.dataset.lodgingType) : [];
+
+const syncQuickBookingSelection = () => {
+    if (!quickBookingParkSelect || !quickBookingLodgingSelect) {
+        return;
+    }
+
+    selectedQuickBookingState = getActiveLodgingState();
+    selectedQuickBookingType = getActiveLodgingType();
+
+    const parkOptions = getQuickBookingParkOptions();
+    const lodgingOptions = getQuickBookingLodgingOptions();
+    const visibleParkOptions = parkOptions.filter((option) => option.dataset.state === selectedQuickBookingState);
+    const visibleLodgingOptions = lodgingOptions.filter((option) => option.dataset.state === selectedQuickBookingState);
+
+    parkOptions.forEach((option) => {
+        option.hidden = option.dataset.state !== selectedQuickBookingState;
+        option.disabled = option.hidden;
+    });
+
+    lodgingOptions.forEach((option) => {
+        option.hidden = option.dataset.state !== selectedQuickBookingState;
+        option.disabled = option.hidden;
+    });
+
+    if (!visibleParkOptions.length || !visibleLodgingOptions.length) {
+        quickBookingParkSelect.disabled = !visibleParkOptions.length;
+        quickBookingLodgingSelect.disabled = true;
+        setQuickBookingFeedback("La opción elegida todavía no tiene cupo listo para validar.", true);
+        setQuickBookingLinkState("#", false);
+        return;
+    }
+
+    quickBookingParkSelect.disabled = false;
+    quickBookingLodgingSelect.disabled = false;
+
+    const selectedParkOption = Array.from(visibleParkOptions).find((option) => option.value === quickBookingParkSelect.value) || visibleParkOptions[0];
+    quickBookingParkSelect.value = selectedParkOption.value;
+
+    const selectedLodgingOption = Array.from(visibleLodgingOptions).find((option) => option.dataset.parkId === selectedParkOption.value) || visibleLodgingOptions[0];
+    quickBookingLodgingSelect.value = selectedLodgingOption.value;
+};
+
+const syncLodgingControlsFromQuickBooking = () => {
+    if (!quickBookingParkSelect || !quickBookingLodgingSelect) {
+        return;
+    }
+
+    const selectedParkOption = quickBookingParkSelect.selectedOptions?.[0];
+    const selectedLodgingOption = quickBookingLodgingSelect.selectedOptions?.[0];
+
+    if (selectedParkOption?.dataset.state) {
+        setActiveLodgingState(selectedParkOption.dataset.state);
+    }
+
+    if (selectedLodgingOption?.dataset.lodgingType) {
+        setActiveLodgingType(selectedLodgingOption.dataset.lodgingType);
+    }
+};
+
+const updateQuickBookingLodgings = () => {
+    if (!quickBookingParkSelect || !quickBookingLodgingSelect) {
+        return;
+    }
+
+    const selectedParkId = quickBookingParkSelect.value;
+    const eligibleOptions = quickBookingOptions.filter((option) => option.dataset.parkId === selectedParkId);
+    const preferredOptions = eligibleOptions.filter((option) => option.dataset.lodgingType === selectedQuickBookingType);
+
+    quickBookingOptions.forEach((option) => {
+        option.hidden = option.dataset.parkId !== selectedParkId;
+        option.disabled = option.dataset.parkId !== selectedParkId;
+    });
+
+    if (!eligibleOptions.length) {
+        quickBookingLodgingSelect.value = "";
+        quickBookingLodgingSelect.disabled = true;
+        setQuickBookingFeedback("Ese parque no tiene hospedajes listos para reservar.", true);
+        setQuickBookingLinkState("#", false);
+        return;
+    }
+
+    quickBookingLodgingSelect.disabled = false;
+
+    const currentOption = getQuickBookingSelectedOption();
+    if (!currentOption || currentOption.hidden) {
+        quickBookingLodgingSelect.value = (preferredOptions[0] || eligibleOptions[0]).value;
+    }
+};
+
+const updateQuickBookingLink = () => {
+    if (!quickBookingForm || !quickBookingParkSelect || !quickBookingLodgingSelect || !quickBookingLink) {
+        return;
+    }
+
+    const selectedOption = getQuickBookingSelectedOption();
+    if (!selectedOption || !selectedOption.dataset.url) {
+        setQuickBookingFeedback("Selecciona un hospedaje disponible para continuar.", true);
+        setQuickBookingLinkState("#", false);
+        return;
+    }
+
+    const { visitors, units } = getQuickBookingNumbers();
+    const availableUnits = Number.parseInt(selectedOption.dataset.available || "0", 10) || 0;
+    const capacityPerUnit = Number.parseInt(selectedOption.dataset.capacity || "0", 10) || 0;
+    const fechaInicio = quickBookingStartInput?.value || "";
+    const fechaFin = quickBookingEndInput?.value || "";
+
+    if (!fechaInicio || !fechaFin) {
+        setQuickBookingFeedback("Completa las fechas para validar el cupo.", false);
+        setQuickBookingLinkState(selectedOption.dataset.url, false);
+        return;
+    }
+
+    if (fechaFin <= fechaInicio) {
+        setQuickBookingFeedback("La fecha de salida debe ser posterior a la fecha de entrada.", true);
+        setQuickBookingLinkState(selectedOption.dataset.url, false);
+        return;
+    }
+
+    if (!visitors || !units) {
+        setQuickBookingFeedback("Ingresa visitantes y unidades para validar el cupo.", true);
+        setQuickBookingLinkState(selectedOption.dataset.url, false);
+        return;
+    }
+
+    if (units > availableUnits) {
+        setQuickBookingFeedback(`Solo hay ${availableUnits} unidades disponibles en este hospedaje.`, true);
+        setQuickBookingLinkState(selectedOption.dataset.url, false);
+        return;
+    }
+
+    const maxGuests = capacityPerUnit * units;
+    if (visitors > maxGuests) {
+        setQuickBookingFeedback(`Con ${units} unidad(es) el cupo máximo es de ${maxGuests} huéspedes.`, true);
+        setQuickBookingLinkState(selectedOption.dataset.url, false);
+        return;
+    }
+
+    setQuickBookingFeedback(`Cupo validado para ${selectedOption.dataset.label || selectedOption.textContent.trim()}.`, false);
+    setQuickBookingLinkState(selectedOption.dataset.url, true);
 };
 
 const initializeMiniParkMaps = () => {
@@ -572,13 +785,52 @@ clearParkFiltersButton?.addEventListener("click", () => {
 
 roomButtons.forEach((button) => {
     button.addEventListener("click", () => {
+        setActiveLodgingType(button.dataset.lodgingType || "");
+
         if (roomInput) {
             roomInput.value = button.dataset.room;
         }
 
+        selectedQuickBookingType = button.dataset.lodgingType || selectedQuickBookingType;
+        syncQuickBookingSelection();
+        updateQuickBookingLink();
+
         document.querySelector("#reservar")?.scrollIntoView({ behavior: "smooth" });
     });
 });
+
+if (quickBookingLodgingSelect) {
+    quickBookingOptions = Array.from(quickBookingLodgingSelect.options).filter((option) => option.dataset.parkId);
+}
+
+quickBookingParkSelect?.addEventListener("change", () => {
+    syncLodgingControlsFromQuickBooking();
+    updateQuickBookingLodgings();
+    updateQuickBookingLink();
+});
+
+[quickBookingLodgingSelect, quickBookingStartInput, quickBookingEndInput, quickBookingVisitorsInput, quickBookingUnitsInput].forEach((element) => {
+    element?.addEventListener("input", () => {
+        if (element === quickBookingLodgingSelect) {
+            syncLodgingControlsFromQuickBooking();
+        }
+
+        updateQuickBookingLink();
+    });
+    element?.addEventListener("change", () => {
+        if (element === quickBookingLodgingSelect) {
+            syncLodgingControlsFromQuickBooking();
+        }
+
+        updateQuickBookingLink();
+    });
+});
+
+if (quickBookingForm) {
+    syncQuickBookingSelection();
+    syncLodgingControlsFromQuickBooking();
+    updateQuickBookingLink();
+}
 
 stateButtons.forEach((button) => {
     button.addEventListener("click", () => {
@@ -591,6 +843,10 @@ stateButtons.forEach((button) => {
 
         button.classList.add("active");
         button.setAttribute("aria-pressed", "true");
+        selectedQuickBookingState = button.dataset.lodgingStateFilter || selectedQuickBookingState;
+
+        syncQuickBookingSelection();
+        updateQuickBookingLink();
     });
 });
 

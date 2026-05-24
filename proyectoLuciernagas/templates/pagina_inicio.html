@@ -12,23 +12,7 @@
     <link rel="stylesheet" href="{% static 'css/prototipo_reservaciones.css' %}?v=reviews-carousel-2">
 </head>
 <body>
-    <nav class="navbar" aria-label="Navegacion principal">
-        <a class="brand" href="{% url 'inicio' %}">
-            <span class="brand-mark"></span>
-            <span>Luciernagas</span>
-        </a>
-        <div class="nav-links">
-            <a href="{% url 'inicio' %}">Inicio</a>
-            <a href="{% url 'listado_parques' %}">Parques</a>
-            <a href="#hospedajes">Hospedajes</a>
-            <a href="{% url 'mapa_parques' %}">Mapa</a>
-            <a href="#reservar">Reservar</a>
-        </div>
-        <div class="nav-actions">
-            <button class="nav-auth secondary" type="button">Iniciar sesion</button>
-            <button class="nav-auth primary" type="button">Registrarse</button>
-        </div>
-    </nav>
+    {% include "partials/navbar.html" %}
 
     <main>
         <section class="hero">
@@ -195,7 +179,7 @@
                         <li data-lodging-field="unidades" data-lodging-type="cabana">Disponibles: desde 12 unidades</li>
                         <li>Incluye guia de acceso</li>
                     </ul>
-                    <button class="select-room" type="button" data-room="Cabana Bosque Claro">Seleccionar</button>
+                    <button class="select-room active" type="button" data-room="Cabana Bosque Claro" data-lodging-type="cabana">Seleccionar</button>
                 </article>
 
                 <article class="lodging-card">
@@ -210,7 +194,7 @@
                         <li data-lodging-field="unidades" data-lodging-type="camping">Disponibles: desde 54 espacios</li>
                         <li>Entrada por horario</li>
                     </ul>
-                    <button class="select-room" type="button" data-room="Zona Camping Neblina">Seleccionar</button>
+                    <button class="select-room" type="button" data-room="Zona Camping Neblina" data-lodging-type="camping">Seleccionar</button>
                 </article>
             </div>
         </section>
@@ -219,30 +203,65 @@
             <div class="booking-copy">
                 <span>Reservacion</span>
                 <h2>Captura rapida para validar cupo</h2>
-                <p>Este prototipo muestra como podria sentirse el flujo antes de conectarlo con modelos, formularios y validaciones reales de Django.</p>
+                <p>Selecciona un parque, elige su hospedaje disponible y confirma que el cupo alcance antes de pasar al formulario de reservacion.</p>
             </div>
 
-            <form class="booking-form">
+            <form class="booking-form" data-quick-booking-form>
                 <label>
-                    Hospedaje
-                    <input id="hospedaje" name="hospedaje" type="text" value="Cabana Bosque Claro">
+                    Parque
+                    <select name="parque" data-quick-booking-park>
+                        {% for parque in parques_reservables %}
+                            <option value="{{ parque.id }}" data-state="{{ parque.estado|lower }}" {% if forloop.first %}selected{% endif %}>{{ parque.nombre }} - {{ parque.estado }}</option>
+                        {% empty %}
+                            <option value="">No hay parques con hospedaje disponible</option>
+                        {% endfor %}
+                    </select>
+                </label>
+                <label>
+                    Hospedaje disponible
+                    <select name="hospedaje" data-quick-booking-lodging>
+                        {% for parque in parques_reservables %}
+                            {% for hospedaje in parque.hospedajes %}
+                                <option
+                                    value="{{ hospedaje.id }}"
+                                    data-park-id="{{ parque.id }}"
+                                    data-state="{{ parque.estado|lower }}"
+                                    data-lodging-type="{{ hospedaje.tipo_valor }}"
+                                    data-url="{{ hospedaje.url }}"
+                                    data-capacity="{{ hospedaje.capacidad_unidad }}"
+                                    data-available="{{ hospedaje.cantidad_unidades }}"
+                                    data-label="{{ parque.nombre }} - {{ hospedaje.tipo }}"
+                                    {% if forloop.parentloop.first and forloop.first %}selected{% endif %}
+                                >
+                                    {{ parque.nombre }} - {{ hospedaje.tipo }} | {{ hospedaje.cantidad_unidades }} unidades | {{ hospedaje.capacidad_unidad }} personas por unidad
+                                </option>
+                            {% endfor %}
+                        {% empty %}
+                            <option value="">Primero selecciona un parque con hospedaje</option>
+                        {% endfor %}
+                    </select>
                 </label>
                 <label>
                     Fecha de entrada
-                    <input name="entrada" type="date">
+                    <input name="entrada" type="date" data-quick-booking-start>
                 </label>
                 <label>
                     Fecha de salida
-                    <input name="salida" type="date">
+                    <input name="salida" type="date" data-quick-booking-end>
                 </label>
                 <label>
                     Visitantes
-                    <input name="visitantes" type="number" min="1" value="2">
+                    <input name="visitantes" type="number" min="1" value="2" data-quick-booking-visitors>
                 </label>
-                <a class="button primary" href="{% url 'seleccionar_hospedaje' %}">Confirmar reserva</a>
+                <label>
+                    Unidades
+                    <input name="unidades" type="number" min="1" value="1" data-quick-booking-units>
+                </label>
+                <p class="booking-feedback" data-quick-booking-feedback>Selecciona un parque y completa las fechas para habilitar el enlace de reservacion.</p>
+                <a class="button primary booking-link" href="#" data-quick-booking-link aria-disabled="true">Reservar</a>
             </form>
         </section>
-
+    
         <section id="resenas" class="section reviews-section" aria-labelledby="reviews-title">
             <div class="section-toolbar reviews-toolbar">
                 <div class="section-heading">
