@@ -126,18 +126,33 @@
             </div>
 
             <div id="mapa-parques" class="parks-map-block">
-                <div class="section-toolbar map-toolbar">
-                    <div class="section-heading">
-                        <span>Mapa de parques</span>
-                        <h2>Ubica tu visita</h2>
-                    </div>
-                    <div class="state-filters home-map-filters" aria-label="Filtros del mapa por estado">
-                        <button class="state-filter active" type="button" data-home-map-state-filter="todos" aria-pressed="true">Ver todos</button>
-                        <button class="state-filter" type="button" data-home-map-state-filter="tlaxcala" aria-pressed="false">Tlaxcala</button>
-                        <button class="state-filter" type="button" data-home-map-state-filter="puebla" aria-pressed="false">Puebla</button>
-                        <button class="state-filter" type="button" data-home-map-state-filter="edomex" aria-pressed="false">EDOMEX</button>
-                    </div>
-                </div>
+<div class="section-toolbar map-toolbar">
+    <div class="section-heading">
+        <span>Mapa de parques</span>
+        <h2>Ubica tu visita</h2>
+    </div>
+    <div class="state-filters home-map-filters" aria-label="Filtros del mapa por estado">
+        <!-- Botón fijo para ver todos -->
+        <button class="state-filter active" type="button" 
+                data-home-map-state-filter="todos" aria-pressed="true">
+            Ver todos
+        </button>
+
+        <!-- Botones dinámicos por estado -->
+        {% for valor, etiqueta in estados_hospedaje %}
+            <button class="state-filter" type="button" 
+                    data-home-map-state-filter="{{ valor }}" 
+                    aria-pressed="false">
+                {{ etiqueta }}
+            </button>
+        {% empty %}
+            <span class="state-filter-empty">No hay estados disponibles</span>
+        {% endfor %}
+        <!-- ***************** Ponemos este para ver a EDOMEX-->
+        <button class="state-filter" type="button" data-home-map-state-filter="edomex" aria-pressed="false">EDOMEX</button>
+    </div>
+</div>
+
 
                 <div class="parks-map-shell">
                     <div id="parks-map" class="parks-map" aria-label="Mapa interactivo con los parques registrados"></div>
@@ -158,9 +173,12 @@
                     <h2>Opciones listas para reservar</h2>
                 </div>
                 <div class="state-filters" aria-label="Filtros por estado">
-                    <button class="state-filter active" type="button" data-lodging-state-filter="tlaxcala" aria-pressed="true">Tlaxcala</button>
-                    <button class="state-filter" type="button" data-lodging-state-filter="puebla" aria-pressed="false">Puebla</button>
-                    <button class="state-filter" type="button" data-lodging-state-filter="edomex" aria-pressed="false">EDOMEX</button>
+                    {% for valor, etiqueta in estados_hospedaje %}
+                        <button class="state-filter {% if forloop.first %}active{% endif %}" type="button" data-lodging-state-filter="{{ valor }}" aria-pressed="{% if forloop.first %}true{% else %}false{% endif %}">{{ etiqueta }}</button>
+                    {% empty %}
+                        <span class="state-filter-empty">No hay estados disponibles</span>
+                    {% endfor %}
+                    
                 </div>
             </div>
 
@@ -221,7 +239,7 @@
                     Visitantes
                     <input name="visitantes" type="number" min="1" value="2">
                 </label>
-                <button type="button">Consultar disponibilidad</button>
+                <a class="button primary" href="{% url 'seleccionar_hospedaje' %}">Confirmar reserva</a>
             </form>
         </section>
 

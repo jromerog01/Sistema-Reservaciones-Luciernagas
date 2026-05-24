@@ -55,6 +55,19 @@ def obtener_servicios_para_filtros():
     ]
 
 
+def obtener_estados_disponibles():
+    estados_disponibles = set(
+        Parque.objects.values_list("estado", flat=True).distinct()
+    )
+
+    return [
+        (valor.lower(), etiqueta)
+        for valor, etiqueta in Parque.Estado.choices
+        if valor in estados_disponibles
+    ]
+
+
+
 def inicio(request):
     mapa_service = MapaService()
 
@@ -62,6 +75,7 @@ def inicio(request):
         request,
         "pagina_inicio.html",
         {
+            "estados_hospedaje": obtener_estados_disponibles(),
             "mapa_parques": mapa_service.obtener_marcadores(),
             "parques_carrusel": obtener_parques_con_imagenes(),
             "minimos_hospedaje": obtener_minimos_hospedaje_por_estado(),
