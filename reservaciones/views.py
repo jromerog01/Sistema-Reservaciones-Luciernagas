@@ -3,9 +3,14 @@ from django.http import HttpResponseForbidden
 from django.shortcuts import get_object_or_404, redirect, render
 
 from parques.models import Hospedaje
+from django.db.models import Sum
 from reservaciones.forms import ReservacionForm
 from reservaciones.models import Reservacion
 
+
+"""Calcula el precio total de una reservación, considerando las unidades reservadas, el precio por unidad y el número de noches."""
+def calcular_precio_total(unidades_reservadas, precio_por_unidad, num_noches):
+    return precio_por_unidad * unidades_reservadas * num_noches
 
 @login_required
 def crear_reservacion(request, hospedaje_id):
@@ -14,52 +19,29 @@ def crear_reservacion(request, hospedaje_id):
     if request.method == "POST":
         form = ReservacionForm(request.POST)
         if form.is_valid():
-            fecha_inicio = form.cleaned_data["fecha_inicio"]
-            fecha_fin = form.cleaned_data["fecha_fin"]
-            num_huespedes = form.cleaned_data["num_huespedes"]
-            unidades_reservadas = form.cleaned_data["unidades_reservadas"]
-
-            errores = []
-            
-            #Verificar que no se reserven más unidades de las disponibles
-            if unidades_reservadas > hospedaje.cantidad_unidades:
-                errores.append(
-                    f"Solo hay {hospedaje.cantidad_unidades} unidades disponibles para este hospedaje."
-                )
-            
-            #Verificar que el número de huéspedes no exceda la capacidad máxima del hospedaje
-            capacidad_maxima = hospedaje.capacidad_unidad * unidades_reservadas
-            if num_huespedes > capacidad_maxima:
-                errores.append(
-                    f"Con {unidades_reservadas} unidad(es) la capacidad máxima es {capacidad_maxima} huéspedes."
-                )
-
-            if errores:
-                return render(
-                    request,
-                    "reservaciones/crear_reservacion.html",
-                    {"form": form, "hospedaje": hospedaje, "errores": errores},
-                )
-
-            duracion = (fecha_fin - fecha_inicio).days
-            precio_total = hospedaje.precio_por_unidad * unidades_reservadas * duracion
-
+            d = form.cleaned_data
+            precio_total = calcular_precio_total(
+                unidades_reservadas=d["unidades_reservadas"],
+                precio_por_unidad=hospedaje.precio_por_unidad,
+                num_noches=(d["fecha_fin"] - d["fecha_inicio"]).days,
+            )
             reservacion = Reservacion.objects.create(
-                fecha_inicio=fecha_inicio,
-                fecha_fin=fecha_fin,
-                num_huespedes=num_huespedes,
-                unidades_reservadas=unidades_reservadas,
+                fecha_inicio=d["fecha_inicio"],
+                fecha_fin=d["fecha_fin"],
+                num_huespedes=d["num_huespedes"],
+                unidades_reservadas=d["unidades_reservadas"],
                 precio_total=precio_total,
                 hospedaje=hospedaje,
                 usuario=request.user,
             )
             return redirect("detalle_reservacion", reservacion_id=reservacion.id)
     else:
-        form = ReservacionForm()
+        form = ReservacionForm(hospedaje=hospedaje)
+          
 
     return render(
         request,
-        "reservaciones/crear_reservacion.html",
+        "crear_reservacion.html",
         {"form": form, "hospedaje": hospedaje},
     )
 
@@ -81,7 +63,7 @@ def cancelar_reservacion(request, reservacion_id):
         if reservacion.estado != Reservacion.EstadoReservacion.ACTIVA:
             return render(
                 request,
-                "reservaciones/cancelar_reservacion.html",
+                "cancelar_reservacion.html",
                 {
                     "reservacion": reservacion,
                     "error": "Solo se pueden cancelar reservaciones activas.",
@@ -93,7 +75,7 @@ def cancelar_reservacion(request, reservacion_id):
 
     return render(
         request,
-        "reservaciones/cancelar_reservacion.html",
+        "cancelar_reservacion.html",
         {"reservacion": reservacion},
     )
 
@@ -107,7 +89,7 @@ def mis_reservaciones(request):
     )
     return render(
         request,
-        "reservaciones/mis_reservaciones.html",
+        "mis_reservaciones.html",
         {"reservaciones": reservaciones},
     )
 
@@ -127,20 +109,8 @@ def detalle_reservacion(request, reservacion_id):
 
     return render(
         request,
-        "reservaciones/detalle_reservacion.html",
+        "detalle_reservacion.html",
         {"reservacion": reservacion, "duracion": reservacion.calcular_duracion()},
     )
 
-def seleccionar_hospedaje(request):
-    if request.method == "POST":
-        entrada = request.POST.get("entrada")
-        salida = request.POST.get("salida")
-        visitantes = request.POST.get("visitantes")
-
-        return render(request, "reservaciones/seleccionar_hospedaje.html", {
-            "hospedajes": Hospedaje.objects.select_related("parque").all(),
-            "entrada": entrada,
-            "salida": salida,
-            "visitantes": visitantes,
-        })
 

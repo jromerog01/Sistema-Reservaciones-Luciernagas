@@ -73,7 +73,7 @@
 								<li>Direccion: {{ hospedaje.parque.direccion }}</li>
 								<li>Horario: {{ hospedaje.parque.horario_apertura|time:"H:i" }} - {{ hospedaje.parque.horario_cierre|time:"H:i" }}</li>
 							</ul>
-							<a class="button primary select-room" href="{% url 'crear_reservacion' hospedaje.id %}">Reservar este hospedaje</a>
+							  <a class="button primary select-room requires-login" href="{% url 'crear_reservacion' hospedaje.id %}">Reservar este hospedaje</a>
 						</article>
 					{% endfor %}
 				</div>

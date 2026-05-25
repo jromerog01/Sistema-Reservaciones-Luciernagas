@@ -257,7 +257,21 @@ const updateQuickBookingLink = () => {
     }
 
     setQuickBookingFeedback(`Cupo validado para ${selectedOption.dataset.label || selectedOption.textContent.trim()}.`, false);
-    setQuickBookingLinkState(selectedOption.dataset.url, true);
+    // Append quick booking params to the crear_reservacion URL so the form can be prefilled
+    try {
+        const params = new URLSearchParams({
+            entrada: fechaInicio,
+            salida: fechaFin,
+            visitantes: String(visitors),
+            unidades: String(units),
+        });
+        let href = selectedOption.dataset.url || "#";
+        href += (href.includes("?") ? "&" : "?") + params.toString();
+        setQuickBookingLinkState(href, true);
+    } catch (e) {
+        // Fallback to plain URL if URLSearchParams is unavailable for any reason
+        setQuickBookingLinkState(selectedOption.dataset.url, true);
+    }
 };
 
 const initializeMiniParkMaps = () => {
@@ -611,8 +625,26 @@ const initializeParksMap = () => {
     fitVisibleMarkers();
 };
 
+// Intercept links that require authentication and redirect to login if needed
+const enableRequiresLoginBehavior = () => {
+    document.addEventListener("click", (event) => {
+        const anchor = event.target.closest && event.target.closest("a.requires-login");
+        if (!anchor) return;
+
+        // If user is authenticated, let the link proceed
+        if (window.IS_AUTH) return;
+
+        // Prevent default navigation and redirect to login with next param
+        event.preventDefault();
+        const href = anchor.href || anchor.getAttribute("href") || window.location.href;
+        const loginUrl = ("/accounts/login/" + (href ? `?next=${encodeURIComponent(href)}` : ""));
+        window.location.href = loginUrl;
+    });
+};
+
 initializeParksMap();
 initializeMiniParkMaps();
+enableRequiresLoginBehavior();
 
 const scrollCarouselByCard = (carousel, cardSelector, direction, fallbackWidth, shouldLoop = false) => {
     if (!carousel) {
