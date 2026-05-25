@@ -1,40 +1,31 @@
 from django.contrib.auth.decorators import login_required
 from django.http import HttpResponseForbidden
 from django.shortcuts import get_object_or_404, redirect, render
+from django.conf import settings
+from urllib.parse import urlencode
 
 from parques.models import Hospedaje
 from django.db.models import Sum
 from reservaciones.forms import ReservacionForm
 from reservaciones.models import Reservacion
+from reservaciones.utils.template_method import ReservacionHospedajeTemplate
 
 
-"""Calcula el precio total de una reservación, considerando las unidades reservadas, el precio por unidad y el número de noches."""
-def calcular_precio_total(unidades_reservadas, precio_por_unidad, num_noches):
-    return precio_por_unidad * unidades_reservadas * num_noches
-
-@login_required
 def crear_reservacion(request, hospedaje_id):
+    if not request.user.is_authenticated:
+        qs = urlencode({"next": request.get_full_path()})
+        login_url = settings.LOGIN_URL
+        return redirect(f"{login_url}?{qs}")
+
     hospedaje = get_object_or_404(Hospedaje.objects.select_related("parque"), id=hospedaje_id)
 
     if request.method == "POST":
         form = ReservacionForm(request.POST)
         if form.is_valid():
-            d = form.cleaned_data
-            precio_total = calcular_precio_total(
-                unidades_reservadas=d["unidades_reservadas"],
-                precio_por_unidad=hospedaje.precio_por_unidad,
-                num_noches=(d["fecha_fin"] - d["fecha_inicio"]).days,
-            )
-            reservacion = Reservacion.objects.create(
-                fecha_inicio=d["fecha_inicio"],
-                fecha_fin=d["fecha_fin"],
-                num_huespedes=d["num_huespedes"],
-                unidades_reservadas=d["unidades_reservadas"],
-                precio_total=precio_total,
-                hospedaje=hospedaje,
-                usuario=request.user,
-            )
-            return redirect("detalle_reservacion", reservacion_id=reservacion.id)
+            processor = ReservacionHospedajeTemplate(request, hospedaje, form)
+            reservacion = processor.procesar_reservacion()
+            if reservacion:
+                return redirect("detalle_reservacion", reservacion_id=reservacion.id)
     else:
         form = ReservacionForm(hospedaje=hospedaje)
           
