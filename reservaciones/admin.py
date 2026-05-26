@@ -1,3 +1,95 @@
 from django.contrib import admin
+from django.utils.html import format_html
 
-# Register your models here.
+from reservaciones.models import Reservacion
+
+
+@admin.register(Reservacion)
+class ReservacionAdmin(admin.ModelAdmin):
+    # ── Columnas en el listado ──────────────────────────────────────────────
+    list_display = (
+        "id",
+        "usuario",
+        "parque_nombre",
+        "tipo_hospedaje",
+        "fecha_inicio",
+        "fecha_fin",
+        "num_huespedes",
+        "unidades_reservadas",
+        "precio_total",
+        "estado_badge",
+        "fecha_creacion",
+    )
+
+    # ── Filtros laterales ───────────────────────────────────────────────────
+    list_filter = (
+        "estado",
+        "hospedaje__tipo_hospedaje",
+        "hospedaje__parque",
+        "fecha_inicio",
+    )
+
+    # ── Búsqueda ────────────────────────────────────────────────────────────
+    search_fields = (
+        "usuario__username",
+        "usuario__email",
+        "usuario__first_name",
+        "usuario__last_name",
+        "hospedaje__parque__nombre",
+    )
+
+    # ── Campos de sólo lectura en el formulario de detalle ──────────────────
+    readonly_fields = (
+        "fecha_creacion",
+    )
+
+    # ── Orden por defecto ───────────────────────────────────────────────────
+    ordering = ("-fecha_creacion",)
+
+    # ── Jerarquía por fecha ─────────────────────────────────────────────────
+    date_hierarchy = "fecha_inicio"
+
+    # ── Agrupación de campos en el detalle ──────────────────────────────────
+    fieldsets = (
+        ("Estancia", {
+            "fields": (
+                "hospedaje",
+                "fecha_inicio",
+                "fecha_fin",
+                "num_huespedes",
+                "unidades_reservadas",
+                "precio_total",
+            ),
+        }),
+        ("Cliente", {
+            "fields": ("usuario",),
+        }),
+        ("Estado", {
+            "fields": ("estado", "fecha_creacion"),
+        }),
+    )
+
+    # ── Columnas calculadas ─────────────────────────────────────────────────
+
+    @admin.display(description="Parque", ordering="hospedaje__parque__nombre")
+    def parque_nombre(self, obj):
+        return obj.hospedaje.parque.nombre
+
+    @admin.display(description="Hospedaje", ordering="hospedaje__tipo_hospedaje")
+    def tipo_hospedaje(self, obj):
+        return obj.hospedaje.get_tipo_hospedaje_display()
+
+
+    @admin.display(description="Estado")
+    def estado_badge(self, obj):
+        colores = {
+            Reservacion.EstadoReservacion.ACTIVA:     "#16a34a",   # verde
+            Reservacion.EstadoReservacion.CANCELADA:  "#dc2626",   # rojo
+            Reservacion.EstadoReservacion.FINALIZADA: "#6b7280",   # gris
+        }
+        color = colores.get(obj.estado, "#6b7280")
+        return format_html(
+            '<span style="color:{}; font-weight:600;">{}</span>',
+            color,
+            obj.get_estado_display(),
+        )

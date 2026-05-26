@@ -16,9 +16,17 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path, include
+from parques import views as parques_views
+from proyectoLuciernagas import views
 
 urlpatterns = [
+    path('', views.inicio),
     path('admin/', admin.site.urls),
     path('parques/', include('parques.urls')),
     path('usuarios/', include('usuarios.urls')),
+    path('inicio/', views.inicio, name='inicio'),
+    path('inicio/mapa/', views.mapa, name='mapa_parques'),
+    path('inicio/parques/', include('parques.urls')),
+    path('parques/<int:parque_id>/', parques_views.detalle_parque, name='detalle_parque_direct'),
+    path('reservaciones/', include('reservaciones.urls')),
 ]

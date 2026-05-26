@@ -1,0 +1,32 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Reservación #{{ reservacion.id }}</title>
+</head>
+<body>
+  {% include "partials/navbar.html" %}
+  <h1>Reservación #{{ reservacion.id }}</h1>
+
+  <dl>
+    <dt>Parque</dt><dd>{{ reservacion.hospedaje.parque }}</dd>
+    <dt>Hospedaje</dt><dd>{{ reservacion.hospedaje }}</dd>
+    <dt>Huésped</dt><dd>{{ reservacion.usuario }}</dd>
+    <dt>Fecha de llegada</dt><dd>{{ reservacion.fecha_inicio }}</dd>
+    <dt>Fecha de salida</dt><dd>{{ reservacion.fecha_fin }}</dd>
+    <dt>Duración de estancia</dt><dd>{{ duracion }} noche(s)</dd>
+    <dt>Huéspedes</dt><dd>{{ reservacion.num_huespedes }}</dd>
+    <dt>Unidades reservadas</dt><dd>{{ reservacion.unidades_reservadas }}</dd>
+    <dt>Precio total</dt><dd>${{ reservacion.precio_total }} MXN</dd>
+    <dt>Estado</dt><dd>{{ reservacion.get_estado_display }}</dd>
+    <dt>Fecha de creación</dt><dd>{{ reservacion.fecha_creacion }}</dd>
+  </dl>
+
+  {% if reservacion.estado == "ACTIVA" %}
+    <a href="{% url 'cancelar_reservacion' reservacion.id %}">Cancelar reservación</a>
+  {% endif %}
+
+  <a href="{% url 'mis_reservaciones' %}">Mis reservaciones</a>
+</body>
+</html>

@@ -1,0 +1,39 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Nueva Reservación – {{ hospedaje }}</title>
+</head>
+<body>
+  {% include "partials/navbar.html" %}
+  <h1>Nueva Reservación</h1>
+  <h2>{{ hospedaje }}</h2>
+  <p>
+    Tipo: {{ hospedaje.get_tipo_hospedaje_display }} |
+    Precio por unidad: ${{ hospedaje.precio_por_unidad }} MXN/noche |
+    Capacidad por unidad: {{ hospedaje.capacidad_unidad }} huéspedes |
+    Unidades disponibles: {{ hospedaje.cantidad_unidades }}
+  </p>
+
+  {% if errores %}
+    <ul>
+      {% for error in errores %}<li>{{ error }}</li>{% endfor %}
+    </ul>
+  {% endif %}
+
+  <form method="post">
+    {% csrf_token %}
+    {% for field in form %}
+      <div>
+        {{ field.label_tag }}
+        {{ field }}
+        {% for error in field.errors %}<span>{{ error }}</span>{% endfor %}
+      </div>
+    {% endfor %}
+    <button type="submit">Confirmar reservación</button>
+  </form>
+
+  <a href="{% url 'detalle_parque' hospedaje.parque.id %}">Volver al parque</a>
+</body>
+</html>

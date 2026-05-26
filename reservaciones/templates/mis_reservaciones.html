@@ -1,0 +1,56 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Mis Reservaciones</title>
+</head>
+<body>
+  {% include "partials/navbar.html" %}
+  <h1>Mis Reservaciones</h1>
+
+  {% if reservaciones %}
+    <table>
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Parque</th>
+          <th>Hospedaje</th>
+          <th>Llegada</th>
+          <th>Salida</th>
+          <th>Duración</th>
+          <th>Huéspedes</th>
+          <th>Total</th>
+          <th>Estado</th>
+          <th>Acciones</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for r in reservaciones %}
+          <tr>
+            <td>{{ r.id }}</td>
+            <td>{{ r.hospedaje.parque }}</td>
+            <td>{{ r.hospedaje.get_tipo_hospedaje_display }}</td>
+            <td>{{ r.fecha_inicio }}</td>
+            <td>{{ r.fecha_fin }}</td>
+            <td>{{ r.calcular_duracion }} noche(s)</td>
+            <td>{{ r.num_huespedes }}</td>
+            <td>${{ r.precio_total }} MXN</td>
+            <td>{{ r.get_estado_display }}</td>
+            <td>
+              <a href="{% url 'detalle_reservacion' r.id %}">Ver</a>
+              {% if r.estado == "ACTIVA" %}
+                | <a href="{% url 'cancelar_reservacion' r.id %}">Cancelar</a>
+              {% endif %}
+            </td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  {% else %}
+    <p>No tienes reservaciones registradas.</p>
+  {% endif %}
+
+  <a href="{% url 'inicio' %}">Ir al inicio</a>
+</body>
+</html>

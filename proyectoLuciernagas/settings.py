@@ -60,7 +60,7 @@ ROOT_URLCONF = 'proyectoLuciernagas.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [BASE_DIR / 'proyectoLuciernagas' / 'templates'],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -124,3 +124,6 @@ USE_TZ = True
 STATIC_URL = 'static/'
 
 LOGIN_REDIRECT_URL = "usuarios:"
+STATICFILES_DIRS = [
+    BASE_DIR / 'static',
+]

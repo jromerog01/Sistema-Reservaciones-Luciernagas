@@ -64,6 +64,12 @@ class Parque(models.Model):
     def __str__(self):
         return self.nombre
 
+    def obtener_servicios(self):
+        return list(self.servicios.all())
+
+    def obtener_hospedajes(self):
+        return list(self.hospedajes.all())
+
 
 class Hospedaje(models.Model):
     class TipoHospedaje(models.TextChoices):

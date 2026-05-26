@@ -1,0 +1,89 @@
+{% load static %}
+<!doctype html>
+<html lang="es">
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<title>Festival de Luciernagas | Selecciona tu hospedaje</title>
+	<link rel="preconnect" href="https://fonts.googleapis.com">
+	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+	<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+	<link rel="stylesheet" href="{% static 'css/prototipo_reservaciones.css' %}">
+</head>
+<body>
+	{% include "partials/navbar.html" %}
+
+	<main>
+		<section class="section booking-section">
+			<div class="booking-copy">
+				<span>Selecciona hospedaje</span>
+				<h2>Elige la opción que quieres reservar</h2>
+				<p>
+					Revisa el parque, el tipo de hospedaje y la capacidad disponible.
+					Al elegir una opción, pasarás directamente al formulario de reservación.
+				</p>
+			</div>
+
+			<div class="booking-form" aria-label="Resumen del proceso">
+				<label>
+					Paso 1
+					<input type="text" value="Selecciona un hospedaje" readonly>
+				</label>
+				<label>
+					Paso 2
+					<input type="text" value="Completa fechas y huéspedes" readonly>
+				</label>
+				<label>
+					Paso 3
+					<input type="text" value="Confirma tu reservación" readonly>
+				</label>
+				<label>
+					Acceso rápido
+					<a class="button primary" href="{% url 'listado_parques' %}">Explorar parques</a>
+				</label>
+			</div>
+		</section>
+
+		<section class="section lodging-options-section">
+			<div class="section-toolbar">
+				<div class="section-heading">
+					<span>Hospedajes disponibles</span>
+					<h2>Selecciona el alojamiento que prefieras</h2>
+				</div>
+				<a class="button secondary" href="{% url 'inicio' %}#reservar">Volver al inicio</a>
+			</div>
+
+			{% if hospedajes %}
+				<div class="lodging-grid">
+					{% for hospedaje in hospedajes %}
+						<article class="lodging-card {% if hospedaje.tipo_hospedaje == 'CABANA' %}featured{% endif %}">
+							<div class="card-top">
+								<span>{{ hospedaje.get_tipo_hospedaje_display }}</span>
+								<strong>{{ hospedaje.parque.get_estado_display }}</strong>
+							</div>
+							<h3>{{ hospedaje.parque.nombre }}</h3>
+							<p>{{ hospedaje.parque.descripcion|default:"Hospedaje disponible para la temporada de avistamiento."|truncatechars:140 }}</p>
+							<div class="lodging-availability" aria-label="Detalles del hospedaje">
+								<span>{{ hospedaje.cantidad_unidades }} unidades disponibles</span>
+								<span>{{ hospedaje.capacidad_unidad }} personas por unidad</span>
+								<span>${{ hospedaje.precio_por_unidad|floatformat:2 }} MXN por unidad</span>
+							</div>
+							<ul>
+								<li>Parque: {{ hospedaje.parque.nombre }}</li>
+								<li>Direccion: {{ hospedaje.parque.direccion }}</li>
+								<li>Horario: {{ hospedaje.parque.horario_apertura|time:"H:i" }} - {{ hospedaje.parque.horario_cierre|time:"H:i" }}</li>
+							</ul>
+							  <a class="button primary select-room requires-login" href="{% url 'crear_reservacion' hospedaje.id %}">Reservar este hospedaje</a>
+						</article>
+					{% endfor %}
+				</div>
+			{% else %}
+				<div class="empty-state">
+					<p>No hay hospedajes registrados por ahora.</p>
+					<a class="button primary" href="{% url 'listado_parques' %}">Revisar parques disponibles</a>
+				</div>
+			{% endif %}
+		</section>
+	</main>
+</body>
+</html>
