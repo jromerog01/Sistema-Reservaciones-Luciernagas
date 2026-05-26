@@ -31,5 +31,16 @@ class Usuario(AbstractUser):
     def es_administrador(self):
         return self.rol == self.Rol.ADMINISTRADOR or self.is_staff
 
+    def update(self, **kwargs):
+        try:
+            for key, value in kwargs.items():
+                setattr(self, key, value)
+
+            self.save()
+            return True
+
+        except Exception:
+            return False
+   
     def __str__(self):
         return self.get_full_name() or self.email or self.username
