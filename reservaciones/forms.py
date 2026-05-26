@@ -106,7 +106,10 @@ class ReservacionForm(forms.Form):
 
     def clean_fecha_fin(self):
         fecha_fin = self.cleaned_data["fecha_fin"]
-        if fecha_fin <= self.cleaned_data.get("fecha_inicio"):
+        fecha_inicio = self.cleaned_data.get("fecha_inicio")
+        if fecha_inicio is None:
+            return fecha_fin  
+        if fecha_fin <= fecha_inicio:
             raise forms.ValidationError(
                 "La fecha de salida debe ser posterior a la fecha de llegada."
             )
@@ -180,3 +183,18 @@ class ReservacionForm(forms.Form):
                 )
 
         return cleaned_data
+    
+    def calcular_precio(self):
+        """
+        Retorna el precio total si el form es válido, None si no lo es.
+        Útil para mostrar una previsualización antes de confirmar.
+        """
+        if not self.is_valid():
+            return None
+        d = self.cleaned_data
+        num_noches = (d["fecha_fin"] - d["fecha_inicio"]).days
+        return calcular_precio_total(
+            unidades_reservadas=d["unidades_reservadas"],
+            precio_por_unidad=self.hospedaje.precio_por_unidad,
+            num_noches=num_noches,
+        )
