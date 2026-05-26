@@ -5,10 +5,10 @@ from django.conf import settings
 from urllib.parse import urlencode
 
 from parques.models import Hospedaje
-from django.db.models import Sum
 from reservaciones.forms import ReservacionForm
 from reservaciones.models import Reservacion
 from reservaciones.utils.template_method import ReservacionHospedajeTemplate
+from reservaciones.notificador import notificador
 
 
 def crear_reservacion(request, hospedaje_id):
@@ -20,7 +20,7 @@ def crear_reservacion(request, hospedaje_id):
     hospedaje = get_object_or_404(Hospedaje.objects.select_related("parque"), id=hospedaje_id)
 
     if request.method == "POST":
-        form = ReservacionForm(request.POST)
+        form = ReservacionForm(request.POST, hospedaje=hospedaje)
         if form.is_valid():
             processor = ReservacionHospedajeTemplate(request, hospedaje, form)
             reservacion = processor.procesar_reservacion()
@@ -28,7 +28,7 @@ def crear_reservacion(request, hospedaje_id):
                 return redirect("detalle_reservacion", reservacion_id=reservacion.id)
     else:
         form = ReservacionForm(hospedaje=hospedaje)
-          
+
 
     return render(
         request,
@@ -62,6 +62,9 @@ def cancelar_reservacion(request, reservacion_id):
             )
         reservacion.estado = Reservacion.EstadoReservacion.CANCELADA
         reservacion.save()
+
+        notificador.notificar("cancelada", reservacion)
+
         return redirect("mis_reservaciones")
 
     return render(
@@ -103,5 +106,19 @@ def detalle_reservacion(request, reservacion_id):
         "detalle_reservacion.html",
         {"reservacion": reservacion, "duracion": reservacion.calcular_duracion()},
     )
+
+
+@login_required
+def todas_las_reservaciones(request):
+    if not request.user.es_administrador():
+        return HttpResponseForbidden("Solo los administradores pueden ver todas las reservaciones.")
+
+    reservaciones = (
+        Reservacion.objects
+        .select_related("hospedaje__parque", "usuario")
+        .order_by("-fecha_creacion")
+    )
+    return render(request, "todas_las_reservaciones.html", {"reservaciones": reservaciones})
+
 
 

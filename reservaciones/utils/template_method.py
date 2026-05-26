@@ -3,6 +3,7 @@ from django.core.exceptions import ValidationError
 
 from reservaciones.models import Reservacion
 from reservaciones.forms import fechas_en_temporada
+from reservaciones.notificador import notificador
 
 
 class ReservacionTemplate(ABC):
@@ -57,6 +58,7 @@ class ReservacionTemplate(ABC):
 
     def post_procesamiento(self, reservacion):
         """Hook para acciones posteriores (notificaciones, logs, etc.)."""
+        notificador.notificar("creada", reservacion)
         return None
 
 
@@ -80,4 +82,5 @@ class ReservacionHospedajeTemplate(ReservacionTemplate):
 
     def post_procesamiento(self, reservacion):
         # Placeholder: aquí se podrían enviar emails, actualizar inventario, etc.
+        super().post_procesamiento(reservacion)
         return None

@@ -1,63 +1,76 @@
+# reservaciones/models.py
+
 from django.db import models
-from django.db.models import Model, ForeignKey
 from django.core.validators import MinValueValidator
 
 from parques.models import Hospedaje
 from proyectoLuciernagas import settings
-from usuarios.models import Usuario
 
 
 class Reservacion(models.Model):
     class EstadoReservacion(models.TextChoices):
-        ACTIVA = "ACTIVA", "Activa"
+        ACTIVA    = "ACTIVA",    "Activa"
         CANCELADA = "CANCELADA", "Cancelada"
-        FINALIZADA = "FINALIZADA", "Finalizada"
+        FINALIZADA = "FINALIZADA","Finalizada"
 
-    fecha_inicio = models.DateField()
-    fecha_fin = models.DateField()
-
-    num_huespedes = models.PositiveIntegerField(
-        validators=[MinValueValidator(1)]
-    )
-    unidades_reservadas = models.PositiveIntegerField(
-        validators=[MinValueValidator(1)]
-    )
-
-    precio_total = models.DecimalField(
-        max_digits=10,
-        decimal_places=2
-    )
-
+    fecha_inicio        = models.DateField()
+    fecha_fin           = models.DateField()
+    num_huespedes       = models.PositiveIntegerField(validators=[MinValueValidator(1)])
+    unidades_reservadas = models.PositiveIntegerField(validators=[MinValueValidator(1)])
+    precio_total        = models.DecimalField(max_digits=10, decimal_places=2)
     estado = models.CharField(
         max_length=20,
         choices=EstadoReservacion.choices,
-        default=EstadoReservacion.ACTIVA
+        default=EstadoReservacion.ACTIVA,
     )
-
     hospedaje = models.ForeignKey(
-        "parques.Hospedaje",
-        on_delete=models.PROTECT,
-        related_name="reservaciones"
+        "parques.Hospedaje", on_delete=models.PROTECT, related_name="reservaciones"
     )
-
     usuario = models.ForeignKey(
-        settings.AUTH_USER_MODEL,
-        on_delete=models.PROTECT,
-        related_name="reservaciones"
+        settings.AUTH_USER_MODEL, on_delete=models.PROTECT, related_name="reservaciones"
     )
-
     fecha_creacion = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
         return f"Reservación #{self.id} - {self.usuario}"
 
     def calcular_duracion(self):
+        """Número de noches de la estancia."""
         return (self.fecha_fin - self.fecha_inicio).days
+
+    # ── Métodos de clase que envuelven las funciones de forms.py ────────────
+    # Se exponen aquí para que los tests (y el resto del código) puedan
+    # acceder a la lógica sin importar directamente el módulo de formularios.
+
+    @staticmethod
+    def calcular_unidades_necesarias(num_huespedes, capacidad_unidad):
+        from reservaciones.forms import calcular_unidades_necesarias
+        return calcular_unidades_necesarias(num_huespedes, capacidad_unidad)
+
+    @staticmethod
+    def calcular_precio_total(unidades_reservadas, precio_por_unidad, num_noches):
+        from reservaciones.forms import calcular_precio_total
+        return calcular_precio_total(unidades_reservadas, precio_por_unidad, num_noches)
+
+    @staticmethod
+    def fechas_en_temporada(fecha_inicio, fecha_fin):
+        from reservaciones.forms import fechas_en_temporada
+        return fechas_en_temporada(fecha_inicio, fecha_fin)
+
+    @staticmethod
+    def rango_incluye_martes(fecha_inicio, fecha_fin):
+        from reservaciones.forms import rango_incluye_martes
+        return rango_incluye_martes(fecha_inicio, fecha_fin)
+
+    @staticmethod
+    def unidades_disponibles(hospedaje, fecha_inicio, fecha_fin, excluir_id=None):
+        from reservaciones.forms import unidades_disponibles
+        return unidades_disponibles(hospedaje, fecha_inicio, fecha_fin, excluir_id)
 
     class Meta:
         constraints = [
             models.CheckConstraint(
                 condition=models.Q(fecha_inicio__lt=models.F("fecha_fin")),
-                name="fecha_inicio_menor_fecha_fin"
+                name="fecha_inicio_menor_fecha_fin",
             )
         ]
