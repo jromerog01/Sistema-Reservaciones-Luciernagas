@@ -1,9 +1,11 @@
 from abc import ABC
+from decimal import Decimal, ROUND_HALF_UP
 from django.core.exceptions import ValidationError
+from django.db import transaction
 
 from reservaciones.models import Reservacion
-from reservaciones.forms import fechas_en_temporada
-from reservaciones.notificador import notificador
+from reservaciones.forms import fechas_en_temporada, unidades_disponibles
+from reservaciones.utils.notificador import notificador
 
 
 class ReservacionTemplate(ABC):
@@ -22,17 +24,32 @@ class ReservacionTemplate(ABC):
         if not self.form.is_valid():
             return None
         self.cleaned = self.form.cleaned_data
+
         try:
-            self.validar_reglas_adicionales()
+            with transaction.atomic():
+                self.hospedaje = self.hospedaje.__class__.objects.select_for_update().get(pk=self.hospedaje.pk)
+                self.validar_reglas_adicionales()
+
+                disponibles = unidades_disponibles(
+                    self.hospedaje,
+                    self.cleaned["fecha_inicio"],
+                    self.cleaned["fecha_fin"],
+                )
+                if self.cleaned["unidades_reservadas"] > disponibles:
+                    self.form.add_error(
+                        "unidades_reservadas",
+                        f"Solo quedan {disponibles} unidad(es) disponible(s) para ese periodo en este hospedaje."
+                    )
+                    return None
+
+                precio_total = self.calcular_precio_total()
+                reservacion = self.crear_reservacion(precio_total)
+                self.post_procesamiento(reservacion)
+                return reservacion
         except ValidationError as e:
             # Añadir error al formulario para ser mostrado en la vista
             self.form.add_error(None, e)
             return None
-
-        precio_total = self.calcular_precio_total()
-        reservacion = self.crear_reservacion(precio_total)
-        self.post_procesamiento(reservacion)
-        return reservacion
 
     def validar_reglas_adicionales(self):
         """Hook opcional para validaciones específicas."""
@@ -77,7 +94,7 @@ class ReservacionHospedajeTemplate(ReservacionTemplate):
     def calcular_precio_total(self):
         base = super().calcular_precio_total()
         if fechas_en_temporada(self.cleaned["fecha_inicio"], self.cleaned["fecha_fin"]):
-            return base * 1.20
+            return (base * Decimal("1.20")).quantize(Decimal("0.01"), rounding=ROUND_HALF_UP)
         return base
 
     def post_procesamiento(self, reservacion):

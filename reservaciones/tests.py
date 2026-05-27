@@ -18,6 +18,7 @@ from io import StringIO
 
 from django.core.management import call_command
 from django.test import TestCase
+from django.test import RequestFactory
 from django.urls import reverse
 
 from parques.models import Hospedaje, Parque
@@ -30,6 +31,7 @@ from reservaciones.forms import (
     unidades_disponibles,
 )
 from reservaciones.models import Reservacion
+from reservaciones.utils.template_method import ReservacionHospedajeTemplate
 from usuarios.models import Usuario
 
 
@@ -469,7 +471,8 @@ class CrearReservacionTests(TestCase):
 
     def test_redirige_a_login_si_no_autenticado(self):
         resp = self.client.get(self.url)
-        self.assertIn("/accounts/login/", resp["Location"])
+        self.assertIn(reverse("usuarios:login"), resp["Location"])
+        self.assertIn("next=", resp["Location"])
 
     def test_crea_reservacion_valida_y_redirige(self):
         self.client.force_login(self.cliente)
@@ -518,6 +521,38 @@ class CrearReservacionTests(TestCase):
         resp = self._post(num_huespedes=5, unidades_reservadas=1)
         self.assertEqual(resp.status_code, 200)
         self.assertEqual(Reservacion.objects.count(), 0)
+
+    def test_rechaza_si_el_cupo_cambia_antes_de_guardar(self):
+        self.client.force_login(self.cliente)
+        factory = RequestFactory()
+        form = ReservacionForm(
+            {
+                "fecha_inicio": JUE.isoformat(),
+                "fecha_fin": SAB.isoformat(),
+                "num_huespedes": 2,
+                "unidades_reservadas": 1,
+            },
+            hospedaje=self.hospedaje,
+        )
+        self.assertTrue(form.is_valid(), form.errors)
+
+        reservacion_directa(
+            self.hospedaje,
+            crear_cliente(username="otro-cupo", email="otro-cupo@test.com"),
+            unidades=5,
+            huespedes=4,
+            precio="8000.00",
+        )
+
+        request = factory.post(self.url)
+        request.user = self.cliente
+        processor = ReservacionHospedajeTemplate(request, self.hospedaje, form)
+
+        reservacion = processor.procesar_reservacion()
+
+        self.assertIsNone(reservacion)
+        self.assertIn("Solo quedan 0 unidad", " ".join(form.errors.get("unidades_reservadas", [])))
+        self.assertEqual(Reservacion.objects.count(), 1)
 
 
 # ============================================================================
@@ -600,7 +635,7 @@ class MisReservacionesTests(TestCase):
 
     def test_requiere_autenticacion(self):
         resp = self.client.get(self.url)
-        self.assertIn("/accounts/login/", resp["Location"])
+        self.assertIn(reverse("usuarios:login"), resp["Location"])
 
 
 # ============================================================================
@@ -622,7 +657,7 @@ class TodasLasReservacionesTests(TestCase):
 
     def test_anonimo_redirige_a_login(self):
         resp = self.client.get(self.url)
-        self.assertIn("/accounts/login/", resp["Location"])
+        self.assertIn(reverse("usuarios:login"), resp["Location"])
 
     def test_admin_ve_todas_las_reservaciones(self):
         reservacion_directa(self.hospedaje, self.cliente)

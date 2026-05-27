@@ -123,7 +123,8 @@ USE_TZ = True
 
 STATIC_URL = 'static/'
 
-LOGIN_REDIRECT_URL = "usuarios:"
+LOGIN_URL = "usuarios:login"
+LOGIN_REDIRECT_URL = "inicio"
 STATICFILES_DIRS = [
     BASE_DIR / 'static',
 ]

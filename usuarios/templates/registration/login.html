@@ -276,6 +276,7 @@
             {% load crispy_forms_tags %}
             <form method="POST">
                 {% csrf_token %}
+                <input type="hidden" name="next" value="{{ next }}">
                 {{ form|crispy }}
                 <button type="submit" class="auth-btn">Iniciar Sesión</button>
             </form>

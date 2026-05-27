@@ -631,13 +631,21 @@ const enableRequiresLoginBehavior = () => {
         const anchor = event.target.closest && event.target.closest("a.requires-login");
         if (!anchor) return;
 
-        // If user is authenticated, let the link proceed
-        if (window.IS_AUTH) return;
+        if (anchor.getAttribute("aria-disabled") === "true" || anchor.classList.contains("is-disabled")) {
+            event.preventDefault();
+            return;
+        }
+
+        // If user is authenticated, let the link proceed.
+        // Fallback checks cover templates where the global flag may not be injected.
+        const hasAuthFlag = window.IS_AUTH === true || window.IS_AUTH === "true";
+        const inferredAuthFromNavbar = !!document.querySelector("#navUserMenu, .nav-user-menu");
+        if (hasAuthFlag || inferredAuthFromNavbar) return;
 
         // Prevent default navigation and redirect to login with next param
         event.preventDefault();
         const href = anchor.href || anchor.getAttribute("href") || window.location.href;
-        const loginUrl = ("/accounts/login/" + (href ? `?next=${encodeURIComponent(href)}` : ""));
+        const loginUrl = ("/usuarios/login/" + (href ? `?next=${encodeURIComponent(href)}` : ""));
         window.location.href = loginUrl;
     });
 };

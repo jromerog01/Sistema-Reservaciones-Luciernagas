@@ -1,21 +1,22 @@
 from django.contrib.auth.decorators import login_required
 from django.http import HttpResponseForbidden
 from django.shortcuts import get_object_or_404, redirect, render
-from django.conf import settings
+from django.urls import reverse
 from urllib.parse import urlencode
 
 from parques.models import Hospedaje
 from reservaciones.forms import ReservacionForm
 from reservaciones.models import Reservacion
 from reservaciones.utils.template_method import ReservacionHospedajeTemplate
-from reservaciones.notificador import notificador
+from reservaciones.utils.notificador import notificador
 
 
 def crear_reservacion(request, hospedaje_id):
     if not request.user.is_authenticated:
-        qs = urlencode({"next": request.get_full_path()})
-        login_url = settings.LOGIN_URL
-        return redirect(f"{login_url}?{qs}")
+        #qs = urlencode({"next": request.get_full_path()})
+        #return redirect(f"{reverse('usuarios:login')}?{qs}")
+        return redirect(f"{reverse('usuarios:login')}?next={request.get_full_path()}")
+
 
     hospedaje = get_object_or_404(Hospedaje.objects.select_related("parque"), id=hospedaje_id)
 
@@ -37,7 +38,7 @@ def crear_reservacion(request, hospedaje_id):
     )
 
 
-@login_required
+@login_required(login_url="usuarios:login")
 def cancelar_reservacion(request, reservacion_id):
     reservacion = get_object_or_404(
         Reservacion.objects.select_related("hospedaje__parque", "usuario"),
@@ -73,7 +74,7 @@ def cancelar_reservacion(request, reservacion_id):
         {"reservacion": reservacion},
     )
 
-@login_required
+@login_required(login_url="usuarios:login")
 def mis_reservaciones(request):
     reservaciones = (
         Reservacion.objects
@@ -88,7 +89,7 @@ def mis_reservaciones(request):
     )
 
 
-@login_required
+@login_required(login_url="usuarios:login")
 def detalle_reservacion(request, reservacion_id):
     reservacion = get_object_or_404(
         Reservacion.objects.select_related("hospedaje__parque", "usuario"),
@@ -108,7 +109,7 @@ def detalle_reservacion(request, reservacion_id):
     )
 
 
-@login_required
+@login_required(login_url="usuarios:login")
 def todas_las_reservaciones(request):
     if not request.user.es_administrador():
         return HttpResponseForbidden("Solo los administradores pueden ver todas las reservaciones.")
