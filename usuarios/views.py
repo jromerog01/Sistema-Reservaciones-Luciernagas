@@ -1,12 +1,11 @@
 from django.shortcuts import render, redirect
 from django.contrib import messages
-# Importamos el modelo User de Django (vine por defecto no tienes que hacer algo)
-from django.contrib.auth.models import User
 from django.contrib.auth import authenticate, login, logout
 
 from .forms import RegistroForm, LoginForm
 
 def registro_view(request):
+    """Registra un usuario cliente e inicia sesion automaticamente."""
 
     if request.method == 'POST':
         form = RegistroForm(request.POST)
@@ -22,6 +21,8 @@ def registro_view(request):
     })
 
 def login_view(request):
+    """Autentica por usuario/correo y redirige segun permisos."""
+
     if request.method == 'POST':
         form = LoginForm(request, data=request.POST)
         if form.is_valid():
@@ -44,5 +45,7 @@ def login_view(request):
     })
 
 def logout_view(request):
+    """Cierra la sesion actual y regresa a la pagina de inicio."""
+
     logout(request)
     return redirect('inicio')

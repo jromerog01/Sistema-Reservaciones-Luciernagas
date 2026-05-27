@@ -1,3 +1,5 @@
+"""Formularios y reglas de negocio para crear reservaciones."""
+
 from datetime import date, timedelta
 import math
 
@@ -6,27 +8,26 @@ from django.db import models as dj_models
 
 from reservaciones.models import Reservacion
 
-# Meses considerados temporada alta (junio, julio, agosto)
 MESES_TEMPORADA = {6, 7, 8}
 
 
-# Funciones auxiliares para cálculos relacionados con reservaciones
-
-"""Calcula cuántas unidades se necesitan reservar para alojar a un número dado de huéspedes,
-considerando la capacidad por unidad del hospedaje."""
 def calcular_unidades_necesarias(num_huespedes, capacidad_unidad):
+    """Calcula las unidades de hospedaje requeridas para alojar huespedes."""
+
     if capacidad_unidad <= 0:
         raise ValueError("La capacidad por unidad debe ser mayor que cero.")
     return math.ceil(num_huespedes / capacidad_unidad)
 
 
-"""Calcula el precio total de una reservación, considerando las unidades reservadas, el precio por unidad y el número de noches."""
 def calcular_precio_total(unidades_reservadas, precio_por_unidad, num_noches):
+    """Calcula el costo base segun unidades, precio unitario y noches."""
+
     return precio_por_unidad * unidades_reservadas * num_noches
 
 
-"""Calcula cuántas unidades están ocupadas en un período específico para un hospedaje dado."""
 def unidades_ocupadas_en_periodo(hospedaje_id, fecha_inicio, fecha_fin, excluir_id=None):
+    """Suma unidades activas que se solapan con el rango solicitado."""
+
     qs = Reservacion.objects.filter(
         hospedaje_id=hospedaje_id,
         estado=Reservacion.EstadoReservacion.ACTIVA,
@@ -38,22 +39,27 @@ def unidades_ocupadas_en_periodo(hospedaje_id, fecha_inicio, fecha_fin, excluir_
     resultado = qs.aggregate(total=dj_models.Sum("unidades_reservadas"))
     return resultado["total"] or 0
 
-"""Calcula cuántas unidades están disponibles para reservar en un período específico, restando las unidades ocupadas de la capacidad total del hospedaje."""
+
 def unidades_disponibles(hospedaje, fecha_inicio, fecha_fin, excluir_id=None):
+    """Calcula disponibilidad real para un hospedaje y rango de fechas."""
+
     ocupadas = unidades_ocupadas_en_periodo(hospedaje.id, fecha_inicio, fecha_fin, excluir_id)
     return hospedaje.cantidad_unidades - ocupadas
 
 
-"""Determina si un rango de fechas incluye días de temporada de reservacion."""
 def fechas_en_temporada(fecha_inicio, fecha_fin):
+    """Valida que todas las noches de estancia caigan entre junio y agosto."""
+
     ultima_noche = fecha_fin - timedelta(days=1)
     return (
         fecha_inicio.month in MESES_TEMPORADA
         and ultima_noche.month in MESES_TEMPORADA
     )
 
-"""Determina si un rango de fechas incluye algún día martes."""
+
 def rango_incluye_martes(fecha_inicio, fecha_fin):
+    """Detecta si alguna noche de la estancia cae en martes."""
+
     dia = fecha_inicio
     while dia < fecha_fin:
         if dia.weekday() == 1:  # 1 = martes
@@ -63,6 +69,8 @@ def rango_incluye_martes(fecha_inicio, fecha_fin):
 
 
 class ReservacionForm(forms.Form):
+    """Valida fechas, capacidad y disponibilidad antes de crear una reservacion."""
+
     fecha_inicio = forms.DateField(
         widget=forms.DateInput(attrs={"type": "date"}),
         label="Fecha de llegada",
@@ -82,11 +90,13 @@ class ReservacionForm(forms.Form):
 
 
     def __init__(self, *args, hospedaje=None, reservacion_id=None, **kwargs):
+        """Inicializa el formulario con el hospedaje usado para validar cupos.
+
+        Args:
+            hospedaje: Instancia de Hospedaje requerida para validar capacidad.
+            reservacion_id: Reservacion a excluir cuando se valida una edicion.
         """
-        hospedaje   — instancia de Hospedaje requerida para validar
-                      disponibilidad y capacidad.
-        reservacion_id — id a excluir al calcular ocupación (útil en edición).
-        """
+
         super().__init__(*args, **kwargs)
         self.hospedaje = hospedaje
         self.reservacion_id = reservacion_id
@@ -96,6 +106,8 @@ class ReservacionForm(forms.Form):
     # ------------------------------------------------------------------
 
     def clean_fecha_inicio(self):
+        """Rechaza fechas de llegada anteriores al dia actual."""
+
         fecha_inicio = self.cleaned_data["fecha_inicio"]
         if fecha_inicio < date.today():
             raise forms.ValidationError(
@@ -105,6 +117,8 @@ class ReservacionForm(forms.Form):
 
 
     def clean_fecha_fin(self):
+        """Rechaza fechas de salida que no sean posteriores a la llegada."""
+
         fecha_fin = self.cleaned_data["fecha_fin"]
         fecha_inicio = self.cleaned_data.get("fecha_inicio")
         if fecha_inicio is None:
@@ -120,6 +134,8 @@ class ReservacionForm(forms.Form):
     # ------------------------------------------------------------------
 
     def clean(self):
+        """Aplica validaciones cruzadas de temporada, martes y disponibilidad."""
+
         cleaned_data = super().clean()
         fecha_inicio = cleaned_data.get("fecha_inicio")
         fecha_fin = cleaned_data.get("fecha_fin")
@@ -185,10 +201,8 @@ class ReservacionForm(forms.Form):
         return cleaned_data
     
     def calcular_precio(self):
-        """
-        Retorna el precio total si el form es válido, None si no lo es.
-        Útil para mostrar una previsualización antes de confirmar.
-        """
+        """Retorna el precio total si el formulario es valido."""
+
         if not self.is_valid():
             return None
         d = self.cleaned_data

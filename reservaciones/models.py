@@ -8,6 +8,8 @@ from proyectoLuciernagas import settings
 
 
 class Reservacion(models.Model):
+    """Estancia reservada por un usuario sobre un hospedaje del festival."""
+
     class EstadoReservacion(models.TextChoices):
         ACTIVA    = "ACTIVA",    "Activa"
         CANCELADA = "CANCELADA", "Cancelada"
@@ -35,7 +37,8 @@ class Reservacion(models.Model):
         return f"Reservación #{self.id} - {self.usuario}"
 
     def calcular_duracion(self):
-        """Número de noches de la estancia."""
+        """Retorna el numero de noches de la estancia."""
+
         return (self.fecha_fin - self.fecha_inicio).days
 
     # ── Métodos de clase que envuelven las funciones de forms.py ────────────

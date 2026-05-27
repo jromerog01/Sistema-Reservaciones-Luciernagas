@@ -9,6 +9,8 @@ from parques.parque_cards import obtener_parques_con_imagenes
 
 
 def formatear_precio(precio):
+    """Convierte un precio decimal a texto amigable para la interfaz."""
+
     if precio is None:
         return "no disponible"
 
@@ -19,6 +21,8 @@ def formatear_precio(precio):
 
 
 def obtener_minimos_hospedaje_por_estado():
+    """Calcula precios y capacidades minimas por estado y tipo de hospedaje."""
+
     minimos = {}
 
     for estado, _ in Parque.Estado.choices:
@@ -47,6 +51,8 @@ def obtener_minimos_hospedaje_por_estado():
 
 
 def obtener_servicios_para_filtros():
+    """Devuelve servicios normalizados para los filtros del mapa."""
+
     return [
         {
             "nombre": servicio.nombre,
@@ -57,6 +63,8 @@ def obtener_servicios_para_filtros():
 
 
 def obtener_estados_disponibles():
+    """Devuelve solo los estados que tienen parques registrados."""
+
     estados_disponibles = set(
         Parque.objects.values_list("estado", flat=True).distinct()
     )
@@ -69,6 +77,8 @@ def obtener_estados_disponibles():
 
 
 def obtener_parques_reservables():
+    """Construye datos de parques con hospedajes enlazados al flujo de reserva."""
+
     parques_reservables = []
 
     for parque in Parque.objects.prefetch_related("hospedajes").order_by("nombre"):
@@ -103,6 +113,8 @@ def obtener_parques_reservables():
 
 
 def inicio(request):
+    """Renderiza la portada con mapa, carrusel y acceso rapido a reservas."""
+
     mapa_service = MapaService()
 
     return render(
@@ -119,6 +131,8 @@ def inicio(request):
 
 
 def mapa(request):
+    """Renderiza el mapa completo con marcadores y filtros disponibles."""
+
     mapa_service = MapaService()
 
     return render(

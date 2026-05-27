@@ -5,6 +5,8 @@ from django.db import models
 from django.db.models import Model
 
 class Servicio(models.Model):
+    """Servicio que puede ofrecer uno o mas parques oficiales."""
+
     nombre = models.CharField(max_length=100, unique=True)
 
     def __str__(self):
@@ -12,6 +14,8 @@ class Servicio(models.Model):
 
 
 class Parque(models.Model):
+    """Parque oficial del festival con ubicacion, horarios y servicios."""
+
     class Estado(models.TextChoices):
         TLAXCALA = "TLAXCALA", "Tlaxcala"
         EDOMEX = "EDOMEX", "Estado de México"
@@ -65,13 +69,23 @@ class Parque(models.Model):
         return self.nombre
 
     def obtener_servicios(self):
+        """Devuelve los servicios asociados como lista evaluada."""
+
         return list(self.servicios.all())
 
     def obtener_hospedajes(self):
+        """Devuelve los tipos de hospedaje asociados como lista evaluada."""
+
         return list(self.hospedajes.all())
 
 
 class Hospedaje(models.Model):
+    """Tipo de alojamiento disponible en un parque.
+
+    Un registro representa un conjunto de unidades del mismo tipo, por ejemplo
+    todas las cabanas o todos los espacios de camping de un parque.
+    """
+
     class TipoHospedaje(models.TextChoices):
         CABANA = "CABANA", "Cabaña"
         CAMPING = "CAMPING", "Camping"

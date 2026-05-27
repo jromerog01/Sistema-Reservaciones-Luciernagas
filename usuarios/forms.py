@@ -4,6 +4,7 @@ from .models import Usuario
 
 
 class RegistroForm(UserCreationForm):
+    """Formulario para registrar clientes con el modelo de usuario personalizado."""
 
     email = forms.EmailField()
 
@@ -20,6 +21,7 @@ class RegistroForm(UserCreationForm):
 
 
 class LoginForm(AuthenticationForm):
+    """Formulario de autenticacion que acepta username o correo electronico."""
 
     username = forms.CharField(
         label='Usuario o Correo'

@@ -3,6 +3,7 @@ from django.utils.text import slugify
 from parques.models import Parque
 
 
+# Imagenes externas usadas como fallback visual para las tarjetas de parques.
 UNSPLASH_IMAGES = [
     "https://images.unsplash.com/photo-1448375240586-882707db888b?auto=format&fit=crop&w=1200&q=80",
     "https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=1200&q=80",
@@ -12,6 +13,8 @@ UNSPLASH_IMAGES = [
 
 
 def obtener_imagen_parque(parque):
+    """Asigna una imagen estable a un parque segun su posicion alfabetica."""
+
     parques_ids = Parque.objects.order_by("nombre").values_list("id", flat=True)
 
     for index, parque_id in enumerate(parques_ids):
@@ -22,6 +25,8 @@ def obtener_imagen_parque(parque):
 
 
 def obtener_parques_con_imagenes():
+    """Devuelve parques con imagen y valores normalizados para filtros de UI."""
+
     parques = []
     for index, parque in enumerate(
         Parque.objects.prefetch_related("servicios", "hospedajes").order_by("nombre")
