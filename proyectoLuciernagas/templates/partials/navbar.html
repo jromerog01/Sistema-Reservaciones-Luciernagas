@@ -3,6 +3,7 @@
         <span class="brand-mark"></span>
         <span>Luciernagas</span>
     </a>
+
     <div class="nav-links">
         <a href="{% url 'inicio' %}">Inicio</a>
         <a href="{% url 'listado_parques' %}">Parques</a>
@@ -10,9 +11,198 @@
         <a href="{% url 'inicio' %}#hospedajes">Hospedajes</a>
         <a href="{% url 'inicio' %}#reservar">Reservar</a>
     </div>
+
     <div class="nav-actions">
         <a class="nav-action" href="{% url 'listado_parques' %}">Explorar parques</a>
-        <button class="nav-auth secondary" type="button">Iniciar sesion</button>
-        <button class="nav-auth primary" type="button">Registrarse</button>
+
+        {% if user.is_authenticated %}
+            <!-- Usuario con sesión iniciada -->
+            <div class="nav-user-menu" id="navUserMenu">
+                <button class="nav-user-btn" type="button"
+                        aria-haspopup="true" aria-expanded="false"
+                        aria-controls="navUserDropdown"
+                        onclick="toggleNavUserMenu()">
+                    <span class="nav-user-avatar" aria-hidden="true">
+                        {{ user.get_username|first|upper }}
+                    </span>
+                    <span class="nav-user-name">{{ user.get_username }}</span>
+                    <svg class="nav-user-caret" width="12" height="12" viewBox="0 0 12 12"
+                         fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                        <path d="M2 4l4 4 4-4" stroke="currentColor" stroke-width="1.8"
+                              stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                </button>
+
+                <div class="nav-user-dropdown" id="navUserDropdown" role="menu" hidden>
+                    <div class="nav-user-dropdown-header">
+                        <strong>{{ user.get_username }}</strong>
+                        {% if user.is_staff %}
+                            <span class="nav-user-badge">Admin</span>
+                        {% endif %}
+                    </div>
+                    <a href="{% url 'mis_reservaciones' %}" class="nav-user-dropdown-item" role="menuitem">
+                        Mis reservaciones
+                    </a>
+                    {% if user.is_staff %}
+                        <a href="/admin/" class="nav-user-dropdown-item" role="menuitem">
+                            Panel de admin
+                        </a>
+                    {% endif %}
+                    <div class="nav-user-dropdown-divider"></div>
+                    <a href="{% url 'usuarios:logout' %}" class="nav-user-dropdown-item nav-user-logout" role="menuitem">
+                        Cerrar sesión
+                    </a>
+                </div>
+            </div>
+        {% else %}
+            <!-- Sin sesión -->
+            <a class="nav-auth secondary" href="{% url 'usuarios:login' %}">Iniciar sesion</a>
+            <a class="nav-auth primary" href="{% url 'usuarios:registro' %}">Registrarse</a>
+        {% endif %}
     </div>
 </nav>
+
+<style>
+/* ── Nav user menu ── */
+.nav-user-menu {
+    position: relative;
+}
+
+.nav-user-btn {
+    display: flex;
+    align-items: center;
+    gap: .5rem;
+    padding: .45rem .75rem .45rem .45rem;
+    border: 1px solid rgba(255, 255, 255, .22);
+    border-radius: 999px;
+    background: rgba(255, 255, 255, .1);
+    color: white;
+    font-family: inherit;
+    font-size: .92rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background .2s ease, transform .2s ease;
+}
+.nav-user-btn:hover {
+    background: rgba(255, 255, 255, .16);
+    transform: translateY(-1px);
+}
+
+.nav-user-avatar {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background: var(--firefly);
+    color: var(--ink);
+    font-size: .78rem;
+    font-weight: 800;
+    flex-shrink: 0;
+    box-shadow: 0 0 10px rgba(248, 248, 113, .45);
+}
+
+.nav-user-name {
+    max-width: 120px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.nav-user-caret {
+    opacity: .7;
+    transition: transform .2s ease;
+    flex-shrink: 0;
+}
+.nav-user-btn[aria-expanded="true"] .nav-user-caret {
+    transform: rotate(180deg);
+}
+
+/* Dropdown */
+.nav-user-dropdown {
+    position: absolute;
+    top: calc(100% + .6rem);
+    right: 0;
+    min-width: 200px;
+    background: rgba(15, 46, 36, .97);
+    border: 1px solid rgba(255, 255, 255, .14);
+    border-radius: 14px;
+    backdrop-filter: blur(20px);
+    box-shadow: 0 16px 48px rgba(5, 18, 13, .55);
+    overflow: hidden;
+    z-index: 1300;
+    animation: fade-scale-in .18s ease both;
+}
+
+.nav-user-dropdown-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: .5rem;
+    padding: .85rem 1rem .7rem;
+    color: rgba(255, 255, 255, .9);
+    font-size: .9rem;
+    border-bottom: 1px solid rgba(255, 255, 255, .1);
+}
+
+.nav-user-badge {
+    font-size: .7rem;
+    font-weight: 700;
+    letter-spacing: .05em;
+    text-transform: uppercase;
+    padding: .2rem .55rem;
+    border-radius: 999px;
+    background: var(--firefly);
+    color: var(--ink);
+}
+
+.nav-user-dropdown-item {
+    display: block;
+    padding: .7rem 1rem;
+    color: rgba(255, 255, 255, .75);
+    font-size: .9rem;
+    text-decoration: none;
+    transition: background .15s ease, color .15s ease;
+}
+.nav-user-dropdown-item:hover {
+    background: rgba(255, 255, 255, .08);
+    color: white;
+}
+
+.nav-user-dropdown-divider {
+    height: 1px;
+    background: rgba(255, 255, 255, .1);
+    margin: .3rem 0;
+}
+
+.nav-user-logout {
+    color: rgba(255, 143, 143, .8);
+}
+.nav-user-logout:hover {
+    background: rgba(255, 100, 100, .1);
+    color: #ffb3b3;
+}
+</style>
+
+<script>
+function toggleNavUserMenu() {
+    const btn = document.querySelector('.nav-user-btn');
+    const dropdown = document.getElementById('navUserDropdown');
+    const isOpen = !dropdown.hidden;
+
+    dropdown.hidden = isOpen;
+    btn.setAttribute('aria-expanded', String(!isOpen));
+}
+
+// Cerrar al hacer click fuera
+document.addEventListener('click', function(e) {
+    const menu = document.getElementById('navUserMenu');
+    if (menu && !menu.contains(e.target)) {
+        const dropdown = document.getElementById('navUserDropdown');
+        const btn = document.querySelector('.nav-user-btn');
+        if (dropdown) dropdown.hidden = true;
+        if (btn) btn.setAttribute('aria-expanded', 'false');
+    }
+});
+</script>

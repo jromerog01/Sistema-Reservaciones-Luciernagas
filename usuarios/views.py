@@ -34,7 +34,8 @@ def login_view(request):
             )
             if usuario is not None:
                 login(request, usuario)
-                messages.success(request, 'Bienvenido')
+                if usuario.is_staff:
+                    return redirect('/admin/')
                 return redirect('inicio')
     else:
         form = LoginForm()
@@ -44,5 +45,4 @@ def login_view(request):
 
 def logout_view(request):
     logout(request)
-    messages.success(request, 'Sesión cerrada')
-    return redirect('login')
+    return redirect('inicio')

@@ -1,54 +1,294 @@
-{% extends 'base.html' %}
+{% load static %}
+<!doctype html>
+<html lang="es">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Registro | Festival de Luciérnagas</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'css/prototipo_reservaciones.css' %}">
+    <style>
+        /* ── Auth page overrides ── */
+        body {
+            background: linear-gradient(145deg, #071912 0%, #0f2e24 55%, #183d32 100%);
+            min-height: 100vh;
+        }
 
-{% load crispy_forms_tags %}
+        .auth-page {
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: calc(100vh - 72px);
+            padding: 2rem 1rem;
+            overflow: hidden;
+        }
 
-{% block content %}
+        .auth-glow {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(72px);
+            pointer-events: none;
+            animation: soft-pulse 5s ease-in-out infinite;
+        }
+        .auth-glow-1 {
+            width: 360px; height: 360px;
+            background: rgba(126, 230, 181, .09);
+            top: -40px; left: 8%;
+            animation-delay: 0s;
+        }
+        .auth-glow-2 {
+            width: 300px; height: 300px;
+            background: rgba(248, 248, 113, .10);
+            bottom: 0; right: 8%;
+            animation-delay: 2s;
+        }
 
-<div class="row justify-content-center">
+        .auth-firefly {
+            position: absolute;
+            width: 5px; height: 5px;
+            border-radius: 50%;
+            background: var(--firefly);
+            box-shadow: 0 0 8px rgba(248, 248, 113, .7);
+            pointer-events: none;
+            animation: soft-pulse 3s ease-in-out infinite;
+        }
+        .auth-firefly:nth-child(1) { top: 14%; left: 82%; animation-delay: 0s; }
+        .auth-firefly:nth-child(2) { top: 55%; left: 6%;  animation-delay: 1.3s; }
+        .auth-firefly:nth-child(3) { top: 75%; left: 90%; animation-delay: .7s; }
+        .auth-firefly:nth-child(4) { top: 30%; left: 16%; animation-delay: 2.1s; }
 
-    <div class="col-md-6">
+        .auth-card {
+            position: relative;
+            z-index: 1;
+            width: 100%;
+            max-width: 460px;
+            background: rgba(255, 255, 255, .06);
+            border: 1px solid rgba(255, 255, 255, .13);
+            border-radius: 20px;
+            backdrop-filter: blur(20px);
+            box-shadow: 0 24px 70px rgba(5, 18, 13, .45);
+            padding: 2.5rem 2.25rem 2rem;
+            animation: fade-scale-in .45s ease both;
+            color: white;
+        }
 
-        <div class="card shadow">
+        .auth-brand {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: .6rem;
+            margin-bottom: 1.75rem;
+            text-decoration: none;
+        }
+        .auth-brand-mark {
+            width: 18px; height: 18px;
+            border-radius: 50%;
+            background: var(--firefly);
+            box-shadow: 0 0 14px rgba(248, 248, 113, .7);
+            animation: soft-pulse 3s ease-in-out infinite;
+            flex-shrink: 0;
+        }
+        .auth-brand-name {
+            font-size: 1rem;
+            font-weight: 700;
+            color: rgba(255,255,255,.75);
+            letter-spacing: .02em;
+        }
 
-            <div class="card-body">
+        .auth-card h1 {
+            font-size: 1.7rem;
+            font-weight: 800;
+            margin: 0 0 .35rem;
+            color: white;
+            text-align: center;
+        }
+        .auth-card .auth-subtitle {
+            text-align: center;
+            color: rgba(255,255,255,.55);
+            font-size: .92rem;
+            margin-bottom: 1.75rem;
+        }
 
-                <h2 class="text-center mb-4">
-                    Registro
-                </h2>
+        .auth-card label {
+            display: block;
+            font-size: .82rem;
+            font-weight: 600;
+            color: rgba(255,255,255,.65);
+            letter-spacing: .04em;
+            text-transform: uppercase;
+            margin-bottom: .4rem;
+        }
+        .auth-card input[type="text"],
+        .auth-card input[type="email"],
+        .auth-card input[type="password"] {
+            width: 100%;
+            padding: .72rem 1rem;
+            border: 1px solid rgba(255,255,255,.16);
+            border-radius: 10px;
+            background: rgba(255,255,255,.07);
+            color: white;
+            font-family: inherit;
+            font-size: .97rem;
+            transition: border-color .2s ease, background .2s ease, box-shadow .2s ease;
+            outline: none;
+            margin-bottom: 1.1rem;
+        }
+        .auth-card input:focus {
+            border-color: var(--mint);
+            background: rgba(255,255,255,.11);
+            box-shadow: 0 0 0 3px rgba(126,230,181,.15);
+        }
+        .auth-card input::placeholder { color: rgba(255,255,255,.3); }
 
-                <form method="POST">
+        /* Crispy forms overrides */
+        .auth-card .mb-3 { margin-bottom: 0 !important; }
+        .auth-card .form-control {
+            width: 100%;
+            padding: .72rem 1rem;
+            border: 1px solid rgba(255,255,255,.16);
+            border-radius: 10px;
+            background: rgba(255,255,255,.07);
+            color: white;
+            font-family: inherit;
+            font-size: .97rem;
+            transition: border-color .2s ease, background .2s ease, box-shadow .2s ease;
+            outline: none;
+            margin-bottom: .25rem;
+        }
+        .auth-card .form-control:focus {
+            border-color: var(--mint);
+            background: rgba(255,255,255,.11);
+            box-shadow: 0 0 0 3px rgba(126,230,181,.15);
+        }
+        .auth-card .form-label {
+            font-size: .82rem;
+            font-weight: 600;
+            color: rgba(255,255,255,.65);
+            letter-spacing: .04em;
+            text-transform: uppercase;
+        }
+        .auth-card .invalid-feedback,
+        .auth-card .errorlist {
+            color: #ff8f8f;
+            font-size: .83rem;
+        }
+        .auth-card ul.errorlist { list-style: none; padding: 0; margin: 0 0 .5rem; }
+        .auth-card .helptext,
+        .auth-card .form-text {
+            color: rgba(255,255,255,.35);
+            font-size: .8rem;
+        }
 
-                    {% csrf_token %}
+        .auth-btn {
+            display: block;
+            width: 100%;
+            margin-top: 1.25rem;
+            padding: .82rem 1rem;
+            border: none;
+            border-radius: 10px;
+            background: var(--mint);
+            color: var(--ink);
+            font-family: inherit;
+            font-size: 1rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: transform .2s ease, box-shadow .2s ease;
+        }
+        .auth-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 0 22px rgba(126,230,181,.4), 0 8px 22px rgba(5,18,13,.3);
+        }
 
-                    {{ form|crispy }}
+        .auth-divider {
+            display: flex;
+            align-items: center;
+            gap: .75rem;
+            margin: 1.5rem 0 1.1rem;
+            color: rgba(255,255,255,.28);
+            font-size: .82rem;
+        }
+        .auth-divider::before,
+        .auth-divider::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background: rgba(255,255,255,.12);
+        }
 
-                    <button type="submit"
-                            class="btn btn-primary w-100">
+        .auth-footer {
+            text-align: center;
+            font-size: .9rem;
+            color: rgba(255,255,255,.5);
+        }
+        .auth-footer a {
+            color: var(--firefly);
+            font-weight: 600;
+            text-decoration: none;
+            transition: color .2s ease;
+        }
+        .auth-footer a:hover { color: var(--mint); }
 
-                        Registrarse
+        .auth-alert {
+            padding: .75rem 1rem;
+            border-radius: 10px;
+            background: rgba(255, 143, 143, .12);
+            border: 1px solid rgba(255, 143, 143, .3);
+            color: #ffb3b3;
+            font-size: .88rem;
+            margin-bottom: 1rem;
+        }
+        .auth-alert.success {
+            background: rgba(126, 230, 181, .10);
+            border-color: rgba(126, 230, 181, .25);
+            color: var(--mint);
+        }
+    </style>
+</head>
+<body>
+    {% include "partials/navbar.html" %}
 
-                    </button>
+    <section class="auth-page" aria-label="Registro de cuenta">
+        <span class="auth-glow auth-glow-1" aria-hidden="true"></span>
+        <span class="auth-glow auth-glow-2" aria-hidden="true"></span>
+        <span class="auth-firefly" aria-hidden="true"></span>
+        <span class="auth-firefly" aria-hidden="true"></span>
+        <span class="auth-firefly" aria-hidden="true"></span>
+        <span class="auth-firefly" aria-hidden="true"></span>
 
-                </form>
+        <div class="auth-card">
+            <a class="auth-brand" href="{% url 'inicio' %}">
+                <span class="auth-brand-mark"></span>
+                <span class="auth-brand-name">Luciérnagas</span>
+            </a>
 
-                <hr>
+            <h1>Crea tu cuenta</h1>
+            <p class="auth-subtitle">Regístrate para reservar tu hospedaje en el festival</p>
 
-                <p class="text-center">
+            {% if messages %}
+                {% for message in messages %}
+                    <div class="auth-alert {% if message.tags == 'success' %}success{% endif %}">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            {% endif %}
 
-                    ¿Ya tienes cuenta?
+            {% load crispy_forms_tags %}
+            <form method="POST">
+                {% csrf_token %}
+                {{ form|crispy }}
+                <button type="submit" class="auth-btn">Crear cuenta</button>
+            </form>
 
-                    <a href="{% url 'usuarios:login' %}">
-                        Inicia sesión
-                    </a>
+            <div class="auth-divider">o</div>
 
-                </p>
-
-            </div>
-
+            <p class="auth-footer">
+                ¿Ya tienes cuenta?
+                <a href="{% url 'usuarios:login' %}">Inicia sesión</a>
+            </p>
         </div>
-
-    </div>
-
-</div>
-
-{% endblock %}
+    </section>
+</body>
+</html>
