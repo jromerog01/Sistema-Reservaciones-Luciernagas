@@ -187,42 +187,42 @@
 </div>
 
 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-  <div class="space-y-2 django-form-field">
-    <label class="font-label-md text-on-surface-variant block">{{ form.fecha_llegada.label }}</label>
-    <div class="relative">
-      {{ form.fecha_llegada }}
-    </div>
-    {% for error in form.fecha_llegada.errors %}<span class="field-error">{{ error }}</span>{% endfor %}
-  </div>
-  <div class="space-y-2 django-form-field">
-    <label class="font-label-md text-on-surface-variant block">{{ form.fecha_salida.label }}</label>
-    <div class="relative">
-      {{ form.fecha_salida }}
-    </div>
-    {% for error in form.fecha_salida.errors %}<span class="field-error">{{ error }}</span>{% endfor %}
-  </div>
-</div>
-
-<div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-  <div class="space-y-2 django-form-field">
-    <label class="font-label-md text-on-surface-variant block">{{ form.numero_visitantes.label }}</label>
-    <div class="relative">
-      {{ form.numero_visitantes }}
-    </div>
-    {% for error in form.numero_visitantes.errors %}<span class="field-error">{{ error }}</span>{% endfor %}
-  </div>
-  <div class="space-y-2 django-form-field">
-    <label class="font-label-md text-on-surface-variant block">{{ form.numero_unidades.label }}</label>
-    <div class="relative">
-      {{ form.numero_unidades }}
-    </div>
-    {% for error in form.numero_unidades.errors %}<span class="field-error">{{ error }}</span>{% endfor %}
-  </div>
-</div>
+	  <div class="space-y-2 django-form-field">
+	    <label class="font-label-md text-on-surface-variant block">{{ form.fecha_inicio.label }}</label>
+	    <div class="relative">
+	      {{ form.fecha_inicio }}
+	    </div>
+	    {% for error in form.fecha_inicio.errors %}<span class="field-error">{{ error }}</span>{% endfor %}
+	  </div>
+	  <div class="space-y-2 django-form-field">
+	    <label class="font-label-md text-on-surface-variant block">{{ form.fecha_fin.label }}</label>
+	    <div class="relative">
+	      {{ form.fecha_fin }}
+	    </div>
+	    {% for error in form.fecha_fin.errors %}<span class="field-error">{{ error }}</span>{% endfor %}
+	  </div>
+	</div>
+	
+	<div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+	  <div class="space-y-2 django-form-field">
+	    <label class="font-label-md text-on-surface-variant block">{{ form.num_huespedes.label }}</label>
+	    <div class="relative">
+	      {{ form.num_huespedes }}
+	    </div>
+	    {% for error in form.num_huespedes.errors %}<span class="field-error">{{ error }}</span>{% endfor %}
+	  </div>
+	  <div class="space-y-2 django-form-field">
+	    <label class="font-label-md text-on-surface-variant block">{{ form.unidades_reservadas.label }}</label>
+	    <div class="relative">
+	      {{ form.unidades_reservadas }}
+	    </div>
+	    {% for error in form.unidades_reservadas.errors %}<span class="field-error">{{ error }}</span>{% endfor %}
+	  </div>
+	</div>
 
 <!-- Any extra fields -->
 {% for field in form %}
-  {% if field.name not in 'fecha_llegada,fecha_salida,numero_visitantes,numero_unidades' %}
+  {% if field.name not in 'fecha_inicio,fecha_fin,num_huespedes,unidades_reservadas' %}
     <div class="space-y-2 django-form-field">
       <label class="font-label-md text-on-surface-variant block">{{ field.label }}</label>
       {{ field }}

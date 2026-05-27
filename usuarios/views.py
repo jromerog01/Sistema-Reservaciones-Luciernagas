@@ -36,7 +36,7 @@ def login_view(request):
             )
             if usuario is not None:
                 login(request, usuario)
-                if usuario.is_staff:
+                if usuario.is_staff and next_url == 'inicio':
                     return redirect('/admin/')
                 return redirect(next_url)
     else:
