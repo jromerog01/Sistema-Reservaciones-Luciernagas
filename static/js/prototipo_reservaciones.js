@@ -10,6 +10,7 @@ const quickBookingUnitsInput = document.querySelector("[data-quick-booking-units
 const quickBookingFeedback = document.querySelector("[data-quick-booking-feedback]");
 const quickBookingLink = document.querySelector("[data-quick-booking-link]");
 const stateButtons = document.querySelectorAll("[data-lodging-state-filter]");
+const lodgingOptionCards = document.querySelectorAll("[data-lodging-option-card][data-lodging-type]");
 const homeMapStateButtons = document.querySelectorAll("[data-home-map-state-filter]");
 const lodgingMinimumsElement = document.querySelector("#lodging-minimums-data");
 const lodgingFields = document.querySelectorAll("[data-lodging-field][data-lodging-type]");
@@ -75,6 +76,45 @@ const setActiveLodgingType = (type) => {
     roomButtons.forEach((button) => {
         const isActive = button.dataset.lodgingType === type;
         button.classList.toggle("active", isActive);
+        button.setAttribute("aria-pressed", String(isActive));
+    });
+};
+
+const getLodgingOptionsForState = (state) => quickBookingOptions.filter((option) => option.dataset.state === state);
+
+const getLodgingTypesForState = (state) => new Set(getLodgingOptionsForState(state).map((option) => option.dataset.lodgingType));
+
+const resolveLodgingTypeForState = (state, preferredType) => {
+    const availableTypes = getLodgingTypesForState(state);
+
+    if (preferredType && availableTypes.has(preferredType)) {
+        return preferredType;
+    }
+
+    return availableTypes.values().next().value || preferredType || "";
+};
+
+const updateLodgingOptionAvailability = (state = getActiveLodgingState()) => {
+    const availableTypes = getLodgingTypesForState(state);
+
+    lodgingOptionCards.forEach((card) => {
+        const type = card.dataset.lodgingType;
+        const isAvailable = availableTypes.has(type);
+        const button = card.querySelector(".select-room");
+
+        card.classList.toggle("is-unavailable", !isAvailable);
+
+        if (!button) {
+            return;
+        }
+
+        if (!button.dataset.defaultText) {
+            button.dataset.defaultText = button.textContent.trim();
+        }
+
+        button.disabled = !isAvailable;
+        button.setAttribute("aria-disabled", String(!isAvailable));
+        button.textContent = isAvailable ? button.dataset.defaultText : "No disponible en este estado";
     });
 };
 
@@ -127,23 +167,25 @@ const syncQuickBookingSelection = () => {
     selectedQuickBookingState = getActiveLodgingState();
     selectedQuickBookingType = getActiveLodgingType();
 
+    selectedQuickBookingType = resolveLodgingTypeForState(selectedQuickBookingState, selectedQuickBookingType);
+    setActiveLodgingType(selectedQuickBookingType);
+    updateLodgingOptionAvailability(selectedQuickBookingState);
+
     const parkOptions = getQuickBookingParkOptions();
     const lodgingOptions = getQuickBookingLodgingOptions();
-    const visibleParkOptions = parkOptions.filter((option) => option.dataset.state === selectedQuickBookingState);
-    const visibleLodgingOptions = lodgingOptions.filter((option) => option.dataset.state === selectedQuickBookingState);
+    const visibleLodgingOptions = lodgingOptions.filter((option) => (
+        option.dataset.state === selectedQuickBookingState
+        && (!selectedQuickBookingType || option.dataset.lodgingType === selectedQuickBookingType)
+    ));
+    const visibleParkIds = new Set(visibleLodgingOptions.map((option) => option.dataset.parkId));
 
     parkOptions.forEach((option) => {
-        option.hidden = option.dataset.state !== selectedQuickBookingState;
+        option.hidden = !visibleParkIds.has(option.value);
         option.disabled = option.hidden;
     });
 
-    lodgingOptions.forEach((option) => {
-        option.hidden = option.dataset.state !== selectedQuickBookingState;
-        option.disabled = option.hidden;
-    });
-
-    if (!visibleParkOptions.length || !visibleLodgingOptions.length) {
-        quickBookingParkSelect.disabled = !visibleParkOptions.length;
+    if (!visibleParkIds.size || !visibleLodgingOptions.length) {
+        quickBookingParkSelect.disabled = true;
         quickBookingLodgingSelect.disabled = true;
         setQuickBookingFeedback("La opción elegida todavía no tiene cupo listo para validar.", true);
         setQuickBookingLinkState("#", false);
@@ -153,10 +195,21 @@ const syncQuickBookingSelection = () => {
     quickBookingParkSelect.disabled = false;
     quickBookingLodgingSelect.disabled = false;
 
-    const selectedParkOption = Array.from(visibleParkOptions).find((option) => option.value === quickBookingParkSelect.value) || visibleParkOptions[0];
-    quickBookingParkSelect.value = selectedParkOption.value;
+    const selectedParkId = visibleParkIds.has(quickBookingParkSelect.value)
+        ? quickBookingParkSelect.value
+        : visibleLodgingOptions[0].dataset.parkId;
+    quickBookingParkSelect.value = selectedParkId;
 
-    const selectedLodgingOption = Array.from(visibleLodgingOptions).find((option) => option.dataset.parkId === selectedParkOption.value) || visibleLodgingOptions[0];
+    const eligibleLodgingOptions = visibleLodgingOptions.filter((option) => option.dataset.parkId === selectedParkId);
+
+    lodgingOptions.forEach((option) => {
+        const isEligible = eligibleLodgingOptions.includes(option);
+        option.hidden = !isEligible;
+        option.disabled = !isEligible;
+    });
+
+    const currentOption = getQuickBookingSelectedOption();
+    const selectedLodgingOption = eligibleLodgingOptions.includes(currentOption) ? currentOption : eligibleLodgingOptions[0];
     quickBookingLodgingSelect.value = selectedLodgingOption.value;
 };
 
@@ -170,11 +223,16 @@ const syncLodgingControlsFromQuickBooking = () => {
 
     if (selectedParkOption?.dataset.state) {
         setActiveLodgingState(selectedParkOption.dataset.state);
+        selectedQuickBookingState = selectedParkOption.dataset.state;
+        updateLodgingMinimums(selectedQuickBookingState);
     }
 
     if (selectedLodgingOption?.dataset.lodgingType) {
         setActiveLodgingType(selectedLodgingOption.dataset.lodgingType);
+        selectedQuickBookingType = selectedLodgingOption.dataset.lodgingType;
     }
+
+    updateLodgingOptionAvailability(selectedQuickBookingState || getActiveLodgingState());
 };
 
 const updateQuickBookingLodgings = () => {
@@ -183,12 +241,24 @@ const updateQuickBookingLodgings = () => {
     }
 
     const selectedParkId = quickBookingParkSelect.value;
-    const eligibleOptions = quickBookingOptions.filter((option) => option.dataset.parkId === selectedParkId);
-    const preferredOptions = eligibleOptions.filter((option) => option.dataset.lodgingType === selectedQuickBookingType);
+    const selectedParkState = quickBookingParkSelect.selectedOptions?.[0]?.dataset.state || getActiveLodgingState();
+    selectedQuickBookingState = selectedParkState;
+    selectedQuickBookingType = resolveLodgingTypeForState(selectedParkState, getActiveLodgingType());
+    setActiveLodgingState(selectedQuickBookingState);
+    setActiveLodgingType(selectedQuickBookingType);
+    updateLodgingMinimums(selectedQuickBookingState);
+    updateLodgingOptionAvailability(selectedQuickBookingState);
+
+    const eligibleOptions = quickBookingOptions.filter((option) => (
+        option.dataset.parkId === selectedParkId
+        && option.dataset.state === selectedQuickBookingState
+        && (!selectedQuickBookingType || option.dataset.lodgingType === selectedQuickBookingType)
+    ));
 
     quickBookingOptions.forEach((option) => {
-        option.hidden = option.dataset.parkId !== selectedParkId;
-        option.disabled = option.dataset.parkId !== selectedParkId;
+        const isEligible = eligibleOptions.includes(option);
+        option.hidden = !isEligible;
+        option.disabled = !isEligible;
     });
 
     if (!eligibleOptions.length) {
@@ -203,7 +273,7 @@ const updateQuickBookingLodgings = () => {
 
     const currentOption = getQuickBookingSelectedOption();
     if (!currentOption || currentOption.hidden) {
-        quickBookingLodgingSelect.value = (preferredOptions[0] || eligibleOptions[0]).value;
+        quickBookingLodgingSelect.value = eligibleOptions[0].value;
     }
 };
 
@@ -825,6 +895,10 @@ clearParkFiltersButton?.addEventListener("click", () => {
 
 roomButtons.forEach((button) => {
     button.addEventListener("click", () => {
+        if (button.disabled) {
+            return;
+        }
+
         setActiveLodgingType(button.dataset.lodgingType || "");
 
         if (roomInput) {
@@ -917,3 +991,217 @@ dialogs.forEach((dialog) => {
         }
     });
 });
+
+const moneyFormatter = new Intl.NumberFormat("es-MX", {
+    style: "currency",
+    currency: "MXN",
+});
+
+const getNumericValue = (value) => {
+    const number = Number.parseFloat(String(value ?? "").replace(/,/g, ""));
+    return Number.isFinite(number) ? number : 0;
+};
+
+const getLocalDate = (value) => {
+    if (!value) {
+        return null;
+    }
+
+    const date = new Date(`${value}T00:00:00`);
+    return Number.isNaN(date.getTime()) ? null : date;
+};
+
+const getReservationNights = (startValue, endValue) => {
+    const startDate = getLocalDate(startValue);
+    const endDate = getLocalDate(endValue);
+
+    if (!startDate || !endDate || endDate <= startDate) {
+        return 0;
+    }
+
+    return Math.round((endDate - startDate) / 86400000);
+};
+
+const buildReservationSwitchUrl = (baseUrl, form) => {
+    if (!baseUrl || !form) {
+        return baseUrl || "#";
+    }
+
+    const params = new URLSearchParams();
+    const fieldParams = {
+        fecha_inicio: "entrada",
+        fecha_fin: "salida",
+        num_huespedes: "visitantes",
+        unidades_reservadas: "unidades",
+    };
+
+    Object.entries(fieldParams).forEach(([fieldName, paramName]) => {
+        const value = form.elements[fieldName]?.value;
+
+        if (value) {
+            params.set(paramName, value);
+        }
+    });
+
+    const query = params.toString();
+    return query ? `${baseUrl}${baseUrl.includes("?") ? "&" : "?"}${query}` : baseUrl;
+};
+
+const initializeReservationForm = () => {
+    const form = document.querySelector("[data-reservation-form]");
+
+    if (!form) {
+        return;
+    }
+
+    const lodgingSwitcher = form.querySelector("[data-reservation-lodging-switch]");
+
+    const params = new URLSearchParams(window.location.search);
+    const fieldParams = {
+        fecha_inicio: "entrada",
+        fecha_fin: "salida",
+        num_huespedes: "visitantes",
+        unidades_reservadas: "unidades",
+    };
+
+    Object.entries(fieldParams).forEach(([fieldName, paramName]) => {
+        const field = form.elements[fieldName];
+        const value = params.get(paramName);
+
+        if (field && value && !field.value) {
+            field.value = value;
+        }
+    });
+
+    lodgingSwitcher?.addEventListener("change", () => {
+        const targetUrl = buildReservationSwitchUrl(lodgingSwitcher.value, form);
+
+        if (targetUrl && targetUrl !== "#") {
+            window.location.href = targetUrl;
+        }
+    });
+
+    const pricePerUnit = getNumericValue(form.dataset.price);
+    const capacityPerUnit = Number.parseInt(form.dataset.capacity || "0", 10) || 0;
+    const availableUnits = Number.parseInt(form.dataset.available || "0", 10) || 0;
+    const preview = document.querySelector("[data-reservation-preview]");
+    const totalElement = document.querySelector("[data-preview-total]");
+    const nightsElement = document.querySelector("[data-preview-nights]");
+    const unitsElement = document.querySelector("[data-preview-units]");
+    const guestsElement = document.querySelector("[data-preview-guests]");
+    const messageElement = document.querySelector("[data-preview-message]");
+
+    const updatePreview = () => {
+        const nights = getReservationNights(form.elements.fecha_inicio?.value, form.elements.fecha_fin?.value);
+        const guests = Number.parseInt(form.elements.num_huespedes?.value || "0", 10) || 0;
+        const units = Number.parseInt(form.elements.unidades_reservadas?.value || "0", 10) || 0;
+        const total = nights * units * pricePerUnit;
+        let message = "Completa fechas, huéspedes y unidades para calcular una estimación visual.";
+        let isWarning = false;
+
+        if (nights && guests && units) {
+            message = `${nights} noche(s), ${units} unidad(es) y ${guests} huésped(es).`;
+
+            if (capacityPerUnit && units < Math.ceil(guests / capacityPerUnit)) {
+                message = `Con esa capacidad necesitas más unidades para ${guests} huésped(es).`;
+                isWarning = true;
+            } else if (availableUnits && units > availableUnits) {
+                message = `Solo hay ${availableUnits} unidad(es) disponible(s) en este hospedaje.`;
+                isWarning = true;
+            }
+        }
+
+        if (totalElement) {
+            totalElement.textContent = moneyFormatter.format(total);
+        }
+
+        if (nightsElement) {
+            nightsElement.textContent = String(nights);
+        }
+
+        if (unitsElement) {
+            unitsElement.textContent = String(units);
+        }
+
+        if (guestsElement) {
+            guestsElement.textContent = String(guests);
+        }
+
+        if (messageElement) {
+            messageElement.textContent = message;
+        }
+
+        preview?.classList.toggle("is-warning", isWarning);
+    };
+
+    ["fecha_inicio", "fecha_fin", "num_huespedes", "unidades_reservadas"].forEach((fieldName) => {
+        form.elements[fieldName]?.addEventListener("input", updatePreview);
+        form.elements[fieldName]?.addEventListener("change", updatePreview);
+    });
+
+    updatePreview();
+};
+
+const initializeReservationTables = () => {
+    document.querySelectorAll("[data-reservation-list]").forEach((list) => {
+        const rows = Array.from(list.querySelectorAll("[data-reservation-row]"));
+        const searchInput = list.querySelector("[data-reservation-search]");
+        const filterButtons = Array.from(list.querySelectorAll("[data-reservation-status-filter]"));
+        const emptyState = list.querySelector("[data-reservation-filter-empty]");
+        let activeStatus = filterButtons.find((button) => button.classList.contains("active"))?.dataset.reservationStatusFilter || "todos";
+
+        const updateRows = () => {
+            const query = (searchInput?.value || "").trim().toLowerCase();
+            let visibleCount = 0;
+
+            rows.forEach((row) => {
+                const matchesStatus = activeStatus === "todos" || row.dataset.status === activeStatus;
+                const matchesSearch = !query || String(row.dataset.search || "").toLowerCase().includes(query);
+                const isVisible = matchesStatus && matchesSearch;
+
+                row.hidden = !isVisible;
+
+                if (isVisible) {
+                    visibleCount += 1;
+                }
+            });
+
+            if (emptyState) {
+                emptyState.hidden = visibleCount > 0;
+            }
+        };
+
+        filterButtons.forEach((button) => {
+            button.addEventListener("click", () => {
+                activeStatus = button.dataset.reservationStatusFilter || "todos";
+
+                filterButtons.forEach((item) => {
+                    const isActive = item === button;
+                    item.classList.toggle("active", isActive);
+                    item.setAttribute("aria-pressed", String(isActive));
+                });
+
+                updateRows();
+            });
+        });
+
+        searchInput?.addEventListener("input", updateRows);
+        updateRows();
+    });
+};
+
+const initializeReservationCancelForms = () => {
+    document.querySelectorAll("[data-reservation-cancel-form]").forEach((form) => {
+        form.addEventListener("submit", (event) => {
+            const message = form.dataset.confirmMessage;
+
+            if (message && !window.confirm(message)) {
+                event.preventDefault();
+            }
+        });
+    });
+};
+
+initializeReservationForm();
+initializeReservationTables();
+initializeReservationCancelForms();

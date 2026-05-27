@@ -3,61 +3,113 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
-  <title>Todas las Reservaciones – Admin</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Todas las Reservaciones | Admin</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{% static 'css/prototipo_reservaciones.css' %}?v=reservaciones-ui">
 </head>
 <body>
   {% include "partials/navbar.html" %}
-  <h1>Todas las Reservaciones</h1>
-  <p>Total: {{ reservaciones|length }}</p>
 
-  {% if reservaciones %}
-    <table>
-      <thead>
-        <tr>
-          <th>#</th>
-          <th>Cliente</th>
-          <th>Parque</th>
-          <th>Hospedaje</th>
-          <th>Llegada</th>
-          <th>Salida</th>
-          <th>Duración</th>
-          <th>Huéspedes</th>
-          <th>Unidades</th>
-          <th>Total</th>
-          <th>Estado</th>
-          <th>Creada</th>
-          <th>Acciones</th>
-        </tr>
-      </thead>
-      <tbody>
-        {% for r in reservaciones %}
-          <tr>
-            <td>{{ r.id }}</td>
-            <td>{{ r.usuario }}</td>
-            <td>{{ r.hospedaje.parque }}</td>
-            <td>{{ r.hospedaje.get_tipo_hospedaje_display }}</td>
-            <td>{{ r.fecha_inicio }}</td>
-            <td>{{ r.fecha_fin }}</td>
-            <td>{{ r.calcular_duracion }} noche(s)</td>
-            <td>{{ r.num_huespedes }}</td>
-            <td>{{ r.unidades_reservadas }}</td>
-            <td>${{ r.precio_total }} MXN</td>
-            <td>{{ r.get_estado_display }}</td>
-            <td>{{ r.fecha_creacion }}</td>
-            <td>
-              <a href="{% url 'detalle_reservacion' r.id %}">Ver</a>
-              {% if r.estado == "ACTIVA" %}
-                | <a href="{% url 'cancelar_reservacion' r.id %}">Cancelar</a>
-              {% endif %}
-            </td>
-          </tr>
-        {% endfor %}
-      </tbody>
-    </table>
-  {% else %}
-    <p>No hay reservaciones registradas.</p>
-  {% endif %}
+  <main class="reservation-page">
+    <section class="reservation-hero reservation-hero-admin">
+      <div>
+        <span class="eyebrow">Panel administrativo</span>
+        <h1>Todas las reservaciones</h1>
+        <p>Vista general para revisar reservas, clientes y estados registrados.</p>
+      </div>
+      <div class="reservation-hero-card">
+        <span class="reservation-role-badge">Administrador</span>
+        <strong>{{ reservaciones|length }}</strong>
+        <span>reservaciones totales</span>
+      </div>
+    </section>
 
-  <a href="{% url 'inicio' %}">Ir al inicio</a>
+    <section class="reservation-shell" data-reservation-list>
+      <div class="reservation-toolbar">
+        <div class="reservation-search">
+          <label for="admin-reservation-search">Buscar</label>
+          <input id="admin-reservation-search" type="search" placeholder="Cliente, parque, hospedaje o estado" data-reservation-search>
+        </div>
+        <div class="reservation-filters" aria-label="Filtros por estado">
+          <button class="state-filter active" type="button" data-reservation-status-filter="todos" aria-pressed="true">Todas</button>
+          <button class="state-filter" type="button" data-reservation-status-filter="activa" aria-pressed="false">Activas</button>
+          <button class="state-filter" type="button" data-reservation-status-filter="cancelada" aria-pressed="false">Canceladas</button>
+          <button class="state-filter" type="button" data-reservation-status-filter="finalizada" aria-pressed="false">Finalizadas</button>
+        </div>
+      </div>
+
+      {% if reservaciones %}
+        <div class="reservation-table-shell reservation-table-wide">
+          <table class="reservation-table" data-reservation-table>
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>Cliente</th>
+                <th>Parque</th>
+                <th>Hospedaje</th>
+                <th>Llegada</th>
+                <th>Salida</th>
+                <th>Duración</th>
+                <th>Huéspedes</th>
+                <th>Unidades</th>
+                <th>Total</th>
+                <th>Estado</th>
+                <th>Creada</th>
+                <th>Acciones</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for r in reservaciones %}
+                <tr
+                  data-reservation-row
+                  data-status="{{ r.estado|lower }}"
+                  data-search="{{ r.id }} {{ r.usuario }} {{ r.hospedaje.parque }} {{ r.hospedaje.get_tipo_hospedaje_display }} {{ r.get_estado_display }}"
+                >
+                  <td>#{{ r.id }}</td>
+                  <td>{{ r.usuario }}</td>
+                  <td>{{ r.hospedaje.parque }}</td>
+                  <td>{{ r.hospedaje.get_tipo_hospedaje_display }}</td>
+                  <td>{{ r.fecha_inicio }}</td>
+                  <td>{{ r.fecha_fin }}</td>
+                  <td>{{ r.calcular_duracion }} noche(s)</td>
+                  <td>{{ r.num_huespedes }}</td>
+                  <td>{{ r.unidades_reservadas }}</td>
+                  <td>${{ r.precio_total }} MXN</td>
+                  <td><span class="reservation-status status-{{ r.estado|lower }}">{{ r.get_estado_display }}</span></td>
+                  <td>{{ r.fecha_creacion }}</td>
+                  <td>
+                    <div class="table-actions">
+                      <a class="button secondary" href="{% url 'detalle_reservacion' r.id %}">Ver</a>
+                      {% if r.estado == "ACTIVA" %}
+                        <a class="button danger-outline" href="{% url 'cancelar_reservacion' r.id %}">Cancelar</a>
+                      {% endif %}
+                    </div>
+                  </td>
+                </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+        <div class="empty-state reservation-empty" data-reservation-filter-empty hidden>
+          <h3>No hay reservaciones con esos filtros</h3>
+          <p>Modifica la búsqueda o el estado seleccionado para ver más resultados.</p>
+        </div>
+      {% else %}
+        <div class="empty-state reservation-empty">
+          <h3>No hay reservaciones registradas</h3>
+          <p>Cuando los usuarios confirmen estancias aparecerán en esta vista.</p>
+        </div>
+      {% endif %}
+
+      <div class="reservation-actions reservation-actions-footer">
+        <a class="button secondary" href="{% url 'inicio' %}">Ir al inicio</a>
+      </div>
+    </section>
+  </main>
+  <script>window.IS_AUTH = {{ user.is_authenticated|yesno:"true,false" }};</script>
+  <script src="{% static 'js/prototipo_reservaciones.js' %}?v=reservaciones-ui"></script>
 </body>
 </html>

@@ -3,37 +3,157 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
-  <title>Nueva Reservación – {{ hospedaje }}</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Nueva Reservación | {{ hospedaje }}</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+  <link rel="stylesheet" href="{% static 'css/prototipo_reservaciones.css' %}?v=reservacion-mini-mapa">
 </head>
 <body>
   {% include "partials/navbar.html" %}
-  <h1>Nueva Reservación</h1>
-  <h2>{{ hospedaje }}</h2>
-  <p>
-    Tipo: {{ hospedaje.get_tipo_hospedaje_display }} |
-    Precio por unidad: ${{ hospedaje.precio_por_unidad }} MXN/noche |
-    Capacidad por unidad: {{ hospedaje.capacidad_unidad }} huéspedes |
-    Unidades disponibles: {{ hospedaje.cantidad_unidades }}
-  </p>
 
-  {% if errores %}
-    <ul>
-      {% for error in errores %}<li>{{ error }}</li>{% endfor %}
-    </ul>
-  {% endif %}
-
-  <form method="post">
-    {% csrf_token %}
-    {% for field in form %}
+  <main class="reservation-page">
+    <section class="reservation-hero reservation-hero-booking">
       <div>
-        {{ field.label_tag }}
-        {{ field }}
-        {% for error in field.errors %}<span>{{ error }}</span>{% endfor %}
+        <span class="eyebrow">Nueva reservación</span>
+        <h1>{{ hospedaje.parque.nombre }}</h1>
+        <p>{{ hospedaje.get_tipo_hospedaje_display }} disponible para registrar una estancia durante la temporada.</p>
       </div>
-    {% endfor %}
-    <button type="submit">Confirmar reservación</button>
-  </form>
+      <div class="reservation-hero-card" aria-label="Resumen del hospedaje">
+        <span class="reservation-role-badge">
+          {% if user.es_administrador %}Administrador{% else %}Usuario autorizado{% endif %}
+        </span>
+        <strong>${{ hospedaje.precio_por_unidad|floatformat:2 }} MXN</strong>
+        <span>por unidad / noche</span>
+      </div>
+    </section>
 
-  <a href="{% url 'detalle_parque' hospedaje.parque.id %}">Volver al parque</a>
+    <section class="reservation-shell">
+      <div class="reservation-layout">
+        <article class="reservation-panel">
+          <div class="reservation-panel-header">
+            <div>
+              <span>Datos de estancia</span>
+              <h2>Completa tu reservación</h2>
+            </div>
+          </div>
+
+          {% if errores %}
+            <ul class="form-errors">
+              {% for error in errores %}<li>{{ error }}</li>{% endfor %}
+            </ul>
+          {% endif %}
+
+          {% if form.non_field_errors %}
+            <ul class="form-errors">
+              {% for error in form.non_field_errors %}<li>{{ error }}</li>{% endfor %}
+            </ul>
+          {% endif %}
+
+          <form
+            class="reservation-form"
+            method="post"
+            data-reservation-form
+            data-price="{{ hospedaje.precio_por_unidad }}"
+            data-capacity="{{ hospedaje.capacidad_unidad }}"
+            data-available="{{ hospedaje.cantidad_unidades }}"
+          >
+            {% csrf_token %}
+            <div class="reservation-field reservation-field-wide">
+              <label for="reservation-lodging-switch">Tipo de hospedaje</label>
+              <select id="reservation-lodging-switch" data-reservation-lodging-switch>
+                {% for opcion in hospedaje.parque.hospedajes.all %}
+                  <option
+                    value="{% url 'crear_reservacion' opcion.id %}"
+                    {% if opcion.id == hospedaje.id %}selected{% endif %}
+                  >
+                    {{ opcion.get_tipo_hospedaje_display }} | ${{ opcion.precio_por_unidad|floatformat:2 }} MXN | {{ opcion.capacidad_unidad }} huéspedes por unidad | {{ opcion.cantidad_unidades }} disponibles
+                  </option>
+                {% endfor %}
+              </select>
+              <small>Cambia el hospedaje para continuar la reservación con otra opción del mismo parque.</small>
+            </div>
+            {% for field in form %}
+              <div class="reservation-field">
+                {{ field.label_tag }}
+                {{ field }}
+                {% if field.help_text %}<small>{{ field.help_text }}</small>{% endif %}
+                {% for error in field.errors %}<span class="field-error">{{ error }}</span>{% endfor %}
+              </div>
+            {% endfor %}
+            <div class="reservation-actions">
+              <button class="button primary" type="submit">Confirmar reservación</button>
+              <a class="button secondary" href="{% url 'detalle_parque' hospedaje.parque.id %}">Volver al parque</a>
+            </div>
+          </form>
+        </article>
+
+        <aside class="reservation-panel reservation-summary" aria-label="Resumen de reservación">
+          <div class="reservation-panel-header">
+            <div>
+              <span>Hospedaje seleccionado</span>
+              <h2>{{ hospedaje }}</h2>
+            </div>
+          </div>
+
+          <dl class="reservation-meta-grid">
+            <div>
+              <dt>Tipo</dt>
+              <dd>{{ hospedaje.get_tipo_hospedaje_display }}</dd>
+            </div>
+            <div>
+              <dt>Capacidad</dt>
+              <dd>{{ hospedaje.capacidad_unidad }} huéspedes por unidad</dd>
+            </div>
+            <div>
+              <dt>Disponibles</dt>
+              <dd>{{ hospedaje.cantidad_unidades }} unidades</dd>
+            </div>
+            <div>
+              <dt>Parque</dt>
+              <dd>{{ hospedaje.parque.nombre }}</dd>
+            </div>
+          </dl>
+
+          <div class="reservation-map-card">
+            <span>Ubicación</span>
+            <div
+              class="mini-park-map"
+              data-mini-map
+              data-lat="{{ hospedaje.parque.latitud|floatformat:6 }}"
+              data-lng="{{ hospedaje.parque.longitud|floatformat:6 }}"
+              data-title="{{ hospedaje.parque.nombre }}"
+              aria-label="Mapa de {{ hospedaje.parque.nombre }}"
+            ></div>
+          </div>
+
+          <div class="reservation-estimate" data-reservation-preview>
+            <span>Estimación</span>
+            <strong data-preview-total>$0.00 MXN</strong>
+            <p data-preview-message>Completa fechas, huéspedes y unidades para calcular una estimación visual.</p>
+            <div class="reservation-preview-grid">
+              <div>
+                <small>Noches</small>
+                <b data-preview-nights>0</b>
+              </div>
+              <div>
+                <small>Unidades</small>
+                <b data-preview-units>0</b>
+              </div>
+              <div>
+                <small>Huéspedes</small>
+                <b data-preview-guests>0</b>
+              </div>
+            </div>
+          </div>
+        </aside>
+      </div>
+    </section>
+  </main>
+  <script>window.IS_AUTH = {{ user.is_authenticated|yesno:"true,false" }};</script>
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script src="{% static 'js/prototipo_reservaciones.js' %}?v=reservacion-mini-mapa"></script>
 </body>
 </html>

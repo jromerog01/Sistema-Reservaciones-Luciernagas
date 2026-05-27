@@ -1,14 +1,21 @@
 from django.contrib.auth.decorators import login_required
-from django.http import HttpResponseForbidden
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
-from urllib.parse import urlencode
 
 from parques.models import Hospedaje
 from reservaciones.forms import ReservacionForm
 from reservaciones.models import Reservacion
 from reservaciones.utils.template_method import ReservacionHospedajeTemplate
 from reservaciones.utils.notificador import notificador
+
+
+def render_reservacion_forbidden(request, mensaje):
+    return render(
+        request,
+        "acceso_denegado_reservacion.html",
+        {"mensaje": mensaje},
+        status=403,
+    )
 
 
 def crear_reservacion(request, hospedaje_id):
@@ -49,7 +56,10 @@ def cancelar_reservacion(request, reservacion_id):
     es_admin = request.user.es_administrador()
 
     if not es_propietario and not es_admin:
-        return HttpResponseForbidden("No tienes permiso para cancelar esta reservación.")
+        return render_reservacion_forbidden(
+            request,
+            "No tienes permiso para cancelar esta reservación.",
+        )
 
     if request.method == "POST":
         if reservacion.estado != Reservacion.EstadoReservacion.ACTIVA:
@@ -100,7 +110,10 @@ def detalle_reservacion(request, reservacion_id):
     es_admin = request.user.es_administrador()
 
     if not es_propietario and not es_admin:
-        return HttpResponseForbidden("No tienes permiso para ver esta reservación.")
+        return render_reservacion_forbidden(
+            request,
+            "No tienes permiso para ver esta reservación.",
+        )
 
     return render(
         request,
@@ -112,7 +125,10 @@ def detalle_reservacion(request, reservacion_id):
 @login_required(login_url="usuarios:login")
 def todas_las_reservaciones(request):
     if not request.user.es_administrador():
-        return HttpResponseForbidden("Solo los administradores pueden ver todas las reservaciones.")
+        return render_reservacion_forbidden(
+            request,
+            "Solo los administradores pueden ver todas las reservaciones.",
+        )
 
     reservaciones = (
         Reservacion.objects
@@ -120,6 +136,4 @@ def todas_las_reservaciones(request):
         .order_by("-fecha_creacion")
     )
     return render(request, "todas_las_reservaciones.html", {"reservaciones": reservaciones})
-
-
 

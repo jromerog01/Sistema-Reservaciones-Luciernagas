@@ -1,0 +1,59 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Acceso denegado | Reservaciones</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{% static 'css/prototipo_reservaciones.css' %}?v=reservaciones-ui">
+</head>
+<body>
+  {% include "partials/navbar.html" %}
+
+  <main class="reservation-page">
+    <section class="reservation-hero reservation-hero-danger">
+      <div>
+        <span class="eyebrow">Reservaciones</span>
+        <h1>Acceso denegado</h1>
+        <p>{{ mensaje }}</p>
+      </div>
+      <div class="reservation-hero-card">
+        <span class="reservation-role-badge">
+          {% if user.is_authenticated %}
+            {% if user.es_administrador %}Administrador{% else %}Usuario sin permiso{% endif %}
+          {% else %}
+            Usuario no autenticado
+          {% endif %}
+        </span>
+        <strong>403</strong>
+        <span>permiso requerido</span>
+      </div>
+    </section>
+
+    <section class="reservation-shell">
+      <article class="reservation-panel reservation-denied-panel">
+        <div class="reservation-panel-header">
+          <div>
+            <span>Vista no autorizada</span>
+            <h2>No puedes acceder a este recurso</h2>
+          </div>
+        </div>
+        <p class="detail-muted">{{ mensaje }}</p>
+        <div class="reservation-actions">
+          {% if user.is_authenticated %}
+            <a class="button secondary" href="{% url 'mis_reservaciones' %}">Mis reservaciones</a>
+          {% else %}
+            <a class="button primary" href="{% url 'usuarios:login' %}">Iniciar sesión</a>
+          {% endif %}
+          <a class="button secondary" href="{% url 'inicio' %}">Ir al inicio</a>
+        </div>
+      </article>
+    </section>
+  </main>
+  <script>window.IS_AUTH = {{ user.is_authenticated|yesno:"true,false" }};</script>
+  <script src="{% static 'js/prototipo_reservaciones.js' %}?v=reservaciones-ui"></script>
+</body>
+</html>

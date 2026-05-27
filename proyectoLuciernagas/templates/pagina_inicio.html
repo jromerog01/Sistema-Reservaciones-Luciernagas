@@ -9,7 +9,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
-    <link rel="stylesheet" href="{% static 'css/prototipo_reservaciones.css' %}?v=reviews-carousel-2">
+    <link rel="stylesheet" href="{% static 'css/prototipo_reservaciones.css' %}?v=filtros-reserva">
 </head>
 <body>
     {% include "partials/navbar.html" %}
@@ -167,7 +167,7 @@
             </div>
 
             <div class="lodging-grid">
-                <article class="lodging-card featured">
+                <article class="lodging-card featured" data-lodging-option-card data-lodging-type="cabana">
                     <div class="card-top">
                         <span>Mas solicitado</span>
                         <strong id="cabin-price" data-lodging-field="precio" data-lodging-type="cabana">desde $1,450 MXN</strong>
@@ -179,10 +179,10 @@
                         <li data-lodging-field="unidades" data-lodging-type="cabana">Disponibles: desde 12 unidades</li>
                         <li>Incluye guia de acceso</li>
                     </ul>
-                    <button class="select-room active" type="button" data-room="Cabana Bosque Claro" data-lodging-type="cabana">Seleccionar</button>
+                    <button class="select-room active" type="button" data-room="Cabana Bosque Claro" data-lodging-type="cabana" aria-pressed="true">Seleccionar</button>
                 </article>
 
-                <article class="lodging-card">
+                <article class="lodging-card" data-lodging-option-card data-lodging-type="camping">
                     <div class="card-top">
                         <span>Economico</span>
                         <strong id="camping-price" data-lodging-field="precio" data-lodging-type="camping">desde $380 MXN</strong>
@@ -194,7 +194,7 @@
                         <li data-lodging-field="unidades" data-lodging-type="camping">Disponibles: desde 54 espacios</li>
                         <li>Entrada por horario</li>
                     </ul>
-                    <button class="select-room" type="button" data-room="Zona Camping Neblina" data-lodging-type="camping">Seleccionar</button>
+                    <button class="select-room" type="button" data-room="Zona Camping Neblina" data-lodging-type="camping" aria-pressed="false">Seleccionar</button>
                 </article>
             </div>
         </section>
@@ -428,6 +428,6 @@
     {{ mapa_parques|json_script:"parks-map-data" }}
     {{ minimos_hospedaje|json_script:"lodging-minimums-data" }}
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-    <script src="{% static 'js/prototipo_reservaciones.js' %}?v=reviews-carousel-2"></script>
+    <script src="{% static 'js/prototipo_reservaciones.js' %}?v=filtros-reserva"></script>
 </body>
 </html>

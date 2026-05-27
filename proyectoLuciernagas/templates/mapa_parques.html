@@ -9,7 +9,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
-    <link rel="stylesheet" href="{% static 'css/prototipo_reservaciones.css' %}">
+    <link rel="stylesheet" href="{% static 'css/prototipo_reservaciones.css' %}?v=reservas-flotantes">
 </head>
 <body>
     {% include "partials/navbar.html" %}
@@ -73,6 +73,6 @@
 
     {{ mapa_parques|json_script:"parks-map-data" }}
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-    <script src="{% static 'js/prototipo_reservaciones.js' %}"></script>
+    <script src="{% static 'js/prototipo_reservaciones.js' %}?v=reservas-flotantes"></script>
 </body>
 </html>

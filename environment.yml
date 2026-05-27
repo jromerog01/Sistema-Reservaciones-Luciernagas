@@ -7,6 +7,7 @@ dependencies:
   - pip:
     - django==6.0.1
     - django-crispy-forms==2.3
+    - crispy-bootstrap5==2024.10
     - django-environ==0.11.2
 
 prefix: /home/jesusrg/miniconda3

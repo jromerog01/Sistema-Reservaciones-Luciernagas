@@ -9,7 +9,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
-    <link rel="stylesheet" href="{% static 'css/prototipo_reservaciones.css' %}">
+    <link rel="stylesheet" href="{% static 'css/prototipo_reservaciones.css' %}?v=reservas-flotantes">
 </head>
 <body>
     {% include "partials/navbar.html" %}
@@ -116,47 +116,18 @@
                                                 {% endfor %}
                                             </div>
                                             <div class="park-card-actions">
-                                                <button type="button" class="reserve-park" data-dialog-target="reserve-park-{{ forloop.counter }}">Reservar</button>
+                                                {% with primer_hospedaje=item.parque.hospedajes.all.0 %}
+                                                    <a
+                                                        class="reserve-park requires-login {% if not primer_hospedaje %}is-disabled{% endif %}"
+                                                        href="{% if primer_hospedaje %}{% url 'crear_reservacion' primer_hospedaje.id %}{% else %}#{% endif %}"
+                                                        aria-disabled="{% if primer_hospedaje %}false{% else %}true{% endif %}"
+                                                    >Reservar</a>
+                                                {% endwith %}
                                                 <button type="button" class="quick-view-park" data-dialog-target="park-detail-{{ forloop.counter }}">Vista rapida</button>
                                                 <a class="detail-park" href="{% url 'detalle_parque' item.parque.id %}">Ver parque</a>
                                             </div>
                                         </div>
                                     </div>
-
-                                    <dialog class="floating-dialog" id="reserve-park-{{ forloop.counter }}" aria-labelledby="reserve-title-{{ forloop.counter }}">
-                                        <div class="dialog-header">
-                                            <div>
-                                                <span>Reservacion</span>
-                                                <h2 id="reserve-title-{{ forloop.counter }}">{{ item.parque.nombre }}</h2>
-                                            </div>
-                                            <button type="button" class="dialog-close" data-dialog-close aria-label="Cerrar">x</button>
-                                        </div>
-                                        <form class="modal-form">
-                                            <label>
-                                                Fecha de visita
-                                                <input type="date" name="fecha">
-                                            </label>
-                                            <label>
-                                                Visitantes
-                                                <input type="number" name="visitantes" min="1" value="2">
-                                            </label>
-                                            <label>
-                                                Hospedaje
-                                                <select name="hospedaje">
-                                                    <option>Cabaña</option>
-                                                    <option>Camping</option>
-                                                </select>
-                                            </label>
-                                            <div class="lodging-availability" aria-label="Unidades disponibles de hospedaje">
-                                                {% for hospedaje in item.parque.hospedajes.all %}
-                                                    <span>{{ hospedaje.get_tipo_hospedaje_display }}: {{ hospedaje.cantidad_unidades }} {% if hospedaje.tipo_hospedaje == "CAMPING" %}espacios{% else %}unidades{% endif %} quedan disponibles</span>
-                                                {% empty %}
-                                                    <span>Sin hospedajes disponibles</span>
-                                                {% endfor %}
-                                            </div>
-                                            <button type="button">Continuar reservacion</button>
-                                        </form>
-                                    </dialog>
 
                                     <dialog class="floating-dialog detail-dialog" id="park-detail-{{ forloop.counter }}" aria-labelledby="detail-title-{{ forloop.counter }}">
                                         <div class="dialog-header">
@@ -237,6 +208,6 @@
         </section>
     </main>
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-    <script src="{% static 'js/prototipo_reservaciones.js' %}"></script>
+    <script src="{% static 'js/prototipo_reservaciones.js' %}?v=reservas-flotantes"></script>
 </body>
 </html>

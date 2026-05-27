@@ -3,30 +3,83 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Reservación #{{ reservacion.id }}</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+  <link rel="stylesheet" href="{% static 'css/prototipo_reservaciones.css' %}?v=reservacion-mini-mapa">
 </head>
 <body>
   {% include "partials/navbar.html" %}
-  <h1>Reservación #{{ reservacion.id }}</h1>
 
-  <dl>
-    <dt>Parque</dt><dd>{{ reservacion.hospedaje.parque }}</dd>
-    <dt>Hospedaje</dt><dd>{{ reservacion.hospedaje }}</dd>
-    <dt>Huésped</dt><dd>{{ reservacion.usuario }}</dd>
-    <dt>Fecha de llegada</dt><dd>{{ reservacion.fecha_inicio }}</dd>
-    <dt>Fecha de salida</dt><dd>{{ reservacion.fecha_fin }}</dd>
-    <dt>Duración de estancia</dt><dd>{{ duracion }} noche(s)</dd>
-    <dt>Huéspedes</dt><dd>{{ reservacion.num_huespedes }}</dd>
-    <dt>Unidades reservadas</dt><dd>{{ reservacion.unidades_reservadas }}</dd>
-    <dt>Precio total</dt><dd>${{ reservacion.precio_total }} MXN</dd>
-    <dt>Estado</dt><dd>{{ reservacion.get_estado_display }}</dd>
-    <dt>Fecha de creación</dt><dd>{{ reservacion.fecha_creacion }}</dd>
-  </dl>
+  <main class="reservation-page">
+    <section class="reservation-hero reservation-hero-compact">
+      <div>
+        <span class="eyebrow">Detalle de reservación</span>
+        <h1>Reservación #{{ reservacion.id }}</h1>
+        <p>{{ reservacion.hospedaje.parque }} · {{ reservacion.hospedaje.get_tipo_hospedaje_display }}</p>
+      </div>
+      <div class="reservation-hero-card">
+        <span class="reservation-role-badge">
+          {% if user.es_administrador %}Administrador{% else %}Usuario autorizado{% endif %}
+        </span>
+        <strong>{{ reservacion.get_estado_display }}</strong>
+        <span>estado actual</span>
+      </div>
+    </section>
 
-  {% if reservacion.estado == "ACTIVA" %}
-    <a href="{% url 'cancelar_reservacion' reservacion.id %}">Cancelar reservación</a>
-  {% endif %}
+    <section class="reservation-shell">
+      <article class="reservation-panel">
+        <div class="reservation-panel-header">
+          <div>
+            <span>Información de la estancia</span>
+            <h2>{{ reservacion.hospedaje.parque }}</h2>
+          </div>
+          <span class="reservation-status status-{{ reservacion.estado|lower }}">{{ reservacion.get_estado_display }}</span>
+        </div>
 
-  <a href="{% url 'mis_reservaciones' %}">Mis reservaciones</a>
+        <dl class="reservation-detail-list">
+          <div><dt>Parque</dt><dd>{{ reservacion.hospedaje.parque }}</dd></div>
+          <div><dt>Hospedaje</dt><dd>{{ reservacion.hospedaje }}</dd></div>
+          <div><dt>Huésped</dt><dd>{{ reservacion.usuario }}</dd></div>
+          <div><dt>Fecha de llegada</dt><dd>{{ reservacion.fecha_inicio }}</dd></div>
+          <div><dt>Fecha de salida</dt><dd>{{ reservacion.fecha_fin }}</dd></div>
+          <div><dt>Duración de estancia</dt><dd>{{ duracion }} noche(s)</dd></div>
+          <div><dt>Huéspedes</dt><dd>{{ reservacion.num_huespedes }}</dd></div>
+          <div><dt>Unidades reservadas</dt><dd>{{ reservacion.unidades_reservadas }}</dd></div>
+          <div><dt>Precio total</dt><dd>${{ reservacion.precio_total }} MXN</dd></div>
+          <div><dt>Fecha de creación</dt><dd>{{ reservacion.fecha_creacion }}</dd></div>
+          <div class="reservation-map-item">
+            <dt>Ubicación</dt>
+            <dd>
+              <div
+                class="mini-park-map"
+                data-mini-map
+                data-lat="{{ reservacion.hospedaje.parque.latitud|floatformat:6 }}"
+                data-lng="{{ reservacion.hospedaje.parque.longitud|floatformat:6 }}"
+                data-title="{{ reservacion.hospedaje.parque.nombre }}"
+                aria-label="Mapa de {{ reservacion.hospedaje.parque.nombre }}"
+              ></div>
+            </dd>
+          </div>
+        </dl>
+
+        <div class="reservation-actions">
+          {% if reservacion.estado == "ACTIVA" %}
+            <a class="button danger" href="{% url 'cancelar_reservacion' reservacion.id %}">Cancelar reservación</a>
+          {% endif %}
+          <a class="button secondary" href="{% url 'mis_reservaciones' %}">Mis reservaciones</a>
+          {% if user.es_administrador %}
+            <a class="button secondary" href="{% url 'todas_las_reservaciones' %}">Todas las reservaciones</a>
+          {% endif %}
+        </div>
+      </article>
+    </section>
+  </main>
+  <script>window.IS_AUTH = {{ user.is_authenticated|yesno:"true,false" }};</script>
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script src="{% static 'js/prototipo_reservaciones.js' %}?v=reservacion-mini-mapa"></script>
 </body>
 </html>

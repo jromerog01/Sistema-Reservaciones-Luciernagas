@@ -3,32 +3,78 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Cancelar Reservación #{{ reservacion.id }}</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{% static 'css/prototipo_reservaciones.css' %}?v=reservaciones-ui">
 </head>
 <body>
   {% include "partials/navbar.html" %}
-  <h1>Cancelar Reservación #{{ reservacion.id }}</h1>
 
-  {% if error %}
-    <p>{{ error }}</p>
-    <a href="{% url 'detalle_reservacion' reservacion.id %}">Volver al detalle</a>
-  {% else %}
-    <dl>
-      <dt>Parque</dt><dd>{{ reservacion.hospedaje.parque }}</dd>
-      <dt>Hospedaje</dt><dd>{{ reservacion.hospedaje }}</dd>
-      <dt>Fecha de llegada</dt><dd>{{ reservacion.fecha_inicio }}</dd>
-      <dt>Fecha de salida</dt><dd>{{ reservacion.fecha_fin }}</dd>
-      <dt>Precio total</dt><dd>${{ reservacion.precio_total }} MXN</dd>
-    </dl>
+  <main class="reservation-page">
+    <section class="reservation-hero reservation-hero-danger">
+      <div>
+        <span class="eyebrow">Cancelar reservación</span>
+        <h1>Reservación #{{ reservacion.id }}</h1>
+        <p>Revisa el resumen antes de confirmar la cancelación.</p>
+      </div>
+      <div class="reservation-hero-card">
+        <span class="reservation-role-badge">
+          {% if user.es_administrador %}Administrador{% else %}Usuario autorizado{% endif %}
+        </span>
+        <strong>{{ reservacion.get_estado_display }}</strong>
+        <span>estado actual</span>
+      </div>
+    </section>
 
-    <p>¿Estás seguro de que deseas cancelar esta reservación? Esta acción no se puede deshacer.</p>
+    <section class="reservation-shell">
+      <article class="reservation-panel reservation-cancel-panel">
+        {% if error %}
+          <div class="reservation-alert">
+            <span>No se puede cancelar</span>
+            <p>{{ error }}</p>
+          </div>
+          <div class="reservation-actions">
+            <a class="button secondary" href="{% url 'detalle_reservacion' reservacion.id %}">Volver al detalle</a>
+          </div>
+        {% else %}
+          <div class="reservation-panel-header">
+            <div>
+              <span>Resumen de estancia</span>
+              <h2>{{ reservacion.hospedaje.parque }}</h2>
+            </div>
+            <span class="reservation-status status-{{ reservacion.estado|lower }}">{{ reservacion.get_estado_display }}</span>
+          </div>
 
-    <form method="post">
-      {% csrf_token %}
-      <button type="submit">Sí, cancelar reservación</button>
-    </form>
+          <dl class="reservation-detail-list">
+            <div><dt>Hospedaje</dt><dd>{{ reservacion.hospedaje }}</dd></div>
+            <div><dt>Fecha de llegada</dt><dd>{{ reservacion.fecha_inicio }}</dd></div>
+            <div><dt>Fecha de salida</dt><dd>{{ reservacion.fecha_fin }}</dd></div>
+            <div><dt>Precio total</dt><dd>${{ reservacion.precio_total }} MXN</dd></div>
+          </dl>
 
-    <a href="{% url 'detalle_reservacion' reservacion.id %}">No, mantener reservación</a>
-  {% endif %}
+          <div class="reservation-warning">
+            <strong>Esta acción no se puede deshacer.</strong>
+            <p>Al confirmar, la reservación quedará marcada como cancelada.</p>
+          </div>
+
+          <form
+            class="reservation-actions"
+            method="post"
+            data-reservation-cancel-form
+            data-confirm-message="¿Deseas cancelar definitivamente la reservación #{{ reservacion.id }}?"
+          >
+            {% csrf_token %}
+            <button class="button danger" type="submit">Sí, cancelar reservación</button>
+            <a class="button secondary" href="{% url 'detalle_reservacion' reservacion.id %}">No, mantener reservación</a>
+          </form>
+        {% endif %}
+      </article>
+    </section>
+  </main>
+  <script>window.IS_AUTH = {{ user.is_authenticated|yesno:"true,false" }};</script>
+  <script src="{% static 'js/prototipo_reservaciones.js' %}?v=reservaciones-ui"></script>
 </body>
 </html>
