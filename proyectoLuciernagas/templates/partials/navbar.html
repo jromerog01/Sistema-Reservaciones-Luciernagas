@@ -1,6 +1,11 @@
+{% load static %}
+
 <nav class="navbar" aria-label="Navegacion principal">
     <a class="brand" href="{% url 'inicio' %}">
-        <span class="brand-mark"></span>
+        <span class="brand-logo" aria-hidden="true">
+            <img class="brand-firefly" src="{% static 'img/luciernaga-logo.png' %}" alt="">
+            <span class="brand-tail-glow"></span>
+        </span>
         <span>Luciernagas</span>
     </a>
 
