@@ -9,9 +9,42 @@
 	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 	<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
 	<link rel="stylesheet" href="{% static 'css/prototipo_reservaciones.css' %}">
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script>
+    tailwind.config = {
+        corePlugins: { preflight: false },
+        darkMode: "class",
+        theme: {
+            extend: {
+                colors: {
+                    "surface": "#fbf9f5",
+                    "surface-container-high": "#eae8e4",
+                    "surface-container-highest": "#e4e2de",
+                    "surface-container-low": "#f5f3ef",
+                    "surface-container-lowest": "#ffffff",
+                    "on-surface": "#1b1c1a",
+                    "on-surface-variant": "#434845",
+                    "outline-variant": "#c3c8c3",
+                    "primary": "#000000",
+                    "secondary": "#705d00",
+                    "on-secondary": "#ffffff",
+                    "secondary-container": "#fcd400",
+                    "on-secondary-container": "#6e5c00",
+                    "error": "#ba1a1a",
+                    "error-container": "#ffdad6"
+                },
+                fontFamily: {
+                    "body-md": ["Quicksand", "sans-serif"],
+                    "label-md": ["Quicksand", "sans-serif"],
+                    "headline-lg": ["Quicksand", "sans-serif"]
+                }
+            }
+        }
+    }
+</script>
 </head>
 <body>
-	{% include "partials/navbar.html" %}
+	{% include "partials/tailwind_navbar.html" %}
 
 	<main>
 		<section class="section booking-section">

@@ -173,18 +173,13 @@ const syncQuickBookingSelection = () => {
 
     const parkOptions = getQuickBookingParkOptions();
     const lodgingOptions = getQuickBookingLodgingOptions();
-    const visibleLodgingOptions = lodgingOptions.filter((option) => (
-        option.dataset.state === selectedQuickBookingState
-        && (!selectedQuickBookingType || option.dataset.lodgingType === selectedQuickBookingType)
-    ));
-    const visibleParkIds = new Set(visibleLodgingOptions.map((option) => option.dataset.parkId));
 
     parkOptions.forEach((option) => {
-        option.hidden = !visibleParkIds.has(option.value);
-        option.disabled = option.hidden;
+        option.hidden = false;
+        option.disabled = false;
     });
 
-    if (!visibleParkIds.size || !visibleLodgingOptions.length) {
+    if (!parkOptions.length || !lodgingOptions.length) {
         quickBookingParkSelect.disabled = true;
         quickBookingLodgingSelect.disabled = true;
         setQuickBookingFeedback("La opción elegida todavía no tiene cupo listo para validar.", true);
@@ -195,12 +190,16 @@ const syncQuickBookingSelection = () => {
     quickBookingParkSelect.disabled = false;
     quickBookingLodgingSelect.disabled = false;
 
-    const selectedParkId = visibleParkIds.has(quickBookingParkSelect.value)
-        ? quickBookingParkSelect.value
-        : visibleLodgingOptions[0].dataset.parkId;
-    quickBookingParkSelect.value = selectedParkId;
+    const currentParkOption = quickBookingParkSelect.selectedOptions?.[0];
+    if (!currentParkOption || currentParkOption.dataset.state !== selectedQuickBookingState) {
+        const firstMatchingPark = parkOptions.find(opt => opt.dataset.state === selectedQuickBookingState);
+        if (firstMatchingPark) {
+            quickBookingParkSelect.value = firstMatchingPark.value;
+        }
+    }
+    const selectedParkId = quickBookingParkSelect.value;
 
-    const eligibleLodgingOptions = visibleLodgingOptions.filter((option) => option.dataset.parkId === selectedParkId);
+    const eligibleLodgingOptions = lodgingOptions.filter((option) => option.dataset.parkId === selectedParkId);
 
     lodgingOptions.forEach((option) => {
         const isEligible = eligibleLodgingOptions.includes(option);
@@ -209,30 +208,17 @@ const syncQuickBookingSelection = () => {
     });
 
     const currentOption = getQuickBookingSelectedOption();
-    const selectedLodgingOption = eligibleLodgingOptions.includes(currentOption) ? currentOption : eligibleLodgingOptions[0];
-    quickBookingLodgingSelect.value = selectedLodgingOption.value;
+    let selectedLodgingOption = eligibleLodgingOptions.find(opt => opt.dataset.lodgingType === selectedQuickBookingType);
+    if (!selectedLodgingOption) {
+        selectedLodgingOption = eligibleLodgingOptions.includes(currentOption) ? currentOption : eligibleLodgingOptions[0];
+    }
+    if (selectedLodgingOption) {
+        quickBookingLodgingSelect.value = selectedLodgingOption.value;
+    }
 };
 
 const syncLodgingControlsFromQuickBooking = () => {
-    if (!quickBookingParkSelect || !quickBookingLodgingSelect) {
-        return;
-    }
-
-    const selectedParkOption = quickBookingParkSelect.selectedOptions?.[0];
-    const selectedLodgingOption = quickBookingLodgingSelect.selectedOptions?.[0];
-
-    if (selectedParkOption?.dataset.state) {
-        setActiveLodgingState(selectedParkOption.dataset.state);
-        selectedQuickBookingState = selectedParkOption.dataset.state;
-        updateLodgingMinimums(selectedQuickBookingState);
-    }
-
-    if (selectedLodgingOption?.dataset.lodgingType) {
-        setActiveLodgingType(selectedLodgingOption.dataset.lodgingType);
-        selectedQuickBookingType = selectedLodgingOption.dataset.lodgingType;
-    }
-
-    updateLodgingOptionAvailability(selectedQuickBookingState || getActiveLodgingState());
+    // Decoupled: The quick booking form no longer updates the upper lodging cards state
 };
 
 const updateQuickBookingLodgings = () => {
@@ -241,18 +227,10 @@ const updateQuickBookingLodgings = () => {
     }
 
     const selectedParkId = quickBookingParkSelect.value;
-    const selectedParkState = quickBookingParkSelect.selectedOptions?.[0]?.dataset.state || getActiveLodgingState();
-    selectedQuickBookingState = selectedParkState;
-    selectedQuickBookingType = resolveLodgingTypeForState(selectedParkState, getActiveLodgingType());
-    setActiveLodgingState(selectedQuickBookingState);
-    setActiveLodgingType(selectedQuickBookingType);
-    updateLodgingMinimums(selectedQuickBookingState);
-    updateLodgingOptionAvailability(selectedQuickBookingState);
+    const selectedParkState = quickBookingParkSelect.selectedOptions?.[0]?.dataset.state || "";
 
     const eligibleOptions = quickBookingOptions.filter((option) => (
         option.dataset.parkId === selectedParkId
-        && option.dataset.state === selectedQuickBookingState
-        && (!selectedQuickBookingType || option.dataset.lodgingType === selectedQuickBookingType)
     ));
 
     quickBookingOptions.forEach((option) => {

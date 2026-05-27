@@ -4,157 +4,182 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Festival de Luciernagas | Reservaciones</title>
+    <title>Festival de Luciernagas | Inicio</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
     <link rel="stylesheet" href="{% static 'css/prototipo_reservaciones.css' %}?v=filtros-reserva">
+    <link rel="stylesheet" href="{% static 'css/stitch_theme.css' %}?v=3">
+    <script>window.IS_AUTH = {% if user.is_authenticated %}true{% else %}false{% endif %};</script>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script>
+    tailwind.config = {
+        corePlugins: { preflight: false },
+        darkMode: "class",
+        theme: {
+            extend: {
+                colors: {
+                    "surface": "#fbf9f5",
+                    "surface-container-high": "#eae8e4",
+                    "surface-container-highest": "#e4e2de",
+                    "surface-container-low": "#f5f3ef",
+                    "surface-container-lowest": "#ffffff",
+                    "on-surface": "#1b1c1a",
+                    "on-surface-variant": "#434845",
+                    "outline-variant": "#c3c8c3",
+                    "primary": "#000000",
+                    "secondary": "#705d00",
+                    "on-secondary": "#ffffff",
+                    "secondary-container": "#fcd400",
+                    "on-secondary-container": "#6e5c00",
+                    "error": "#ba1a1a",
+                    "error-container": "#ffdad6"
+                },
+                fontFamily: {
+                    "body-md": ["Quicksand", "sans-serif"],
+                    "label-md": ["Quicksand", "sans-serif"],
+                    "headline-lg": ["Quicksand", "sans-serif"]
+                }
+            }
+        }
+    }
+</script>
 </head>
-<body>
-    {% include "partials/navbar.html" %}
+<body class="home-stitch-view">
+    {% include "partials/tailwind_navbar.html" %}
 
     <main>
-        <section class="hero">
-            <div class="hero-visual" aria-hidden="true">
-                <span class="glow glow-one"></span>
-                <span class="glow glow-two"></span>
-                <span class="glow glow-three"></span>
-                <span class="firefly f1"></span>
-                <span class="firefly f2"></span>
-                <span class="firefly f3"></span>
-                <span class="firefly f4"></span>
-                <span class="firefly f5"></span>
-                <span class="firefly f6"></span>
+        <section class="home-hero">
+            <div class="home-hero-media">
+                <img
+                    src="https://images.unsplash.com/photo-1516214104703-d870798883c5?auto=format&fit=crop&w=1800&q=85"
+                    alt="Bosque iluminado durante el festival de luciernagas"
+                    data-home-hero-image
+                >
+                <div></div>
             </div>
-
-            <div class="hero-copy">
-                <span class="eyebrow">Reserva hospedaje para la temporada 2026</span>
-                <h1>Festival de Luciernagas</h1>
-                <p>
-                    Sistema para consultar parques, elegir hospedaje y confirmar estancias
-                    durante las noches de avistamiento.
-                </p>
-                <div class="hero-actions">
-                    <a class="button primary" href="#mapa-parques">Ver mapa</a>
-                    <a class="button ghost" href="#parques-inicio">Ver parques</a>
+            <div class="home-hero-content">
+                <span>Lumina Fest 2026</span>
+                <h1>Descubre tu santuario</h1>
+                <p>Vive una experiencia nocturna entre senderos, hospedajes y parques preparados para la temporada de avistamiento de luciernagas.</p>
+                <div class="home-hero-actions">
+                    <a class="home-button primary" href="#parques-inicio">
+                        Comenzar recorrido
+                        <span class="material-symbols-outlined">arrow_forward</span>
+                    </a>
+                    <a class="home-button glass" href="#reservar">Reservar estancia</a>
                 </div>
             </div>
-
-            <aside class="availability-card" aria-label="Resumen de disponibilidad">
-                <span class="status-pill">Temporada activa</span>
-                <strong>128</strong>
-                <span>lugares disponibles esta semana</span>
-                <div class="mini-grid">
-                    <div>
-                        <b>42</b>
-                        <small>cabanas</small>
-                    </div>
-                    <div>
-                        <b>86</b>
-                        <small>camping</small>
-                    </div>
-                </div>
-            </aside>
+            <a class="home-scroll-cue" href="#parques-inicio" aria-label="Ir a parques">
+                <span class="material-symbols-outlined">keyboard_double_arrow_down</span>
+            </a>
         </section>
 
-        <section id="parques-inicio" class="section parks-home-section">
-            <div class="parks-carousel-block">
-                <div class="section-toolbar carousel-toolbar">
-                    <div class="section-heading">
-                        <span>Parques del festival</span>
-                        <h2>Elige donde vivir la experiencia</h2>
-                    </div>
-                    <a class="button secondary" href="{% url 'listado_parques' %}">Ver todos los parques</a>
+        <section id="parques-inicio" class="home-section home-experiences-section">
+            <div class="home-section-header">
+                <div>
+                    <h2>Experiencias curadas</h2>
+                    <p>Parques con hospedaje, servicios y horarios listos para planear una visita completa durante el festival.</p>
                 </div>
-
-                {% if parques_carrusel %}
-                    <div class="parks-carousel-shell">
-                        <button class="carousel-control" type="button" data-carousel-prev aria-label="Parque anterior">&lt;</button>
-                        <div class="parks-carousel" data-parks-carousel>
-                            {% for item in parques_carrusel %}
-                                <article class="park-carousel-card">
-                                    <a href="{% url 'detalle_parque' item.parque.id %}" class="park-carousel-image">
-                                        <img src="{{ item.imagen }}" alt="Vista natural de {{ item.parque.nombre }}" loading="lazy">
-                                    </a>
-                                    <div class="park-carousel-content">
-                                        <div class="card-top">
-                                            <span>{{ item.parque.get_estado_display }}</span>
-                                            <strong>{{ item.parque.horario_apertura|time:"H:i" }} - {{ item.parque.horario_cierre|time:"H:i" }}</strong>
-                                        </div>
-                                        <h3>{{ item.parque.nombre }}</h3>
-                                        {% if item.parque.hospedajes.all %}
-                                            <div class="park-tag-section park-title-tags">
-                                                <span class="tag-section-label">Hospedaje</span>
-                                                <div class="service-list" aria-label="Hospedajes disponibles">
-                                                    {% for hospedaje in item.parque.hospedajes.all %}
-                                                        <span>{{ hospedaje.get_tipo_hospedaje_display }}</span>
-                                                    {% endfor %}
-                                                </div>
-                                            </div>
-                                        {% endif %}
-                                        <p>{{ item.parque.descripcion|default:"Parque registrado para consulta de disponibilidad y hospedaje durante la temporada."|truncatechars:120 }}</p>
-                                        <a class="park-carousel-action" href="{% url 'detalle_parque' item.parque.id %}">Ver parque</a>
-                                    </div>
-                                </article>
-                            {% endfor %}
-                        </div>
-                        <button class="carousel-control" type="button" data-carousel-next aria-label="Parque siguiente">&gt;</button>
-                    </div>
-                {% else %}
-                    <div class="empty-state">
-                        <h3>No hay parques registrados</h3>
-                        <p>Cuando se agreguen parques desde el administrador apareceran en este carrusel.</p>
-                    </div>
-                {% endif %}
+                <div class="home-carousel-controls">
+                    <button type="button" data-carousel-prev aria-label="Parque anterior">
+                        <span class="material-symbols-outlined">chevron_left</span>
+                    </button>
+                    <button type="button" data-carousel-next aria-label="Parque siguiente">
+                        <span class="material-symbols-outlined">chevron_right</span>
+                    </button>
+                </div>
             </div>
 
-            <div id="mapa-parques" class="parks-map-block">
-<div class="section-toolbar map-toolbar">
-    <div class="section-heading">
-        <span>Mapa de parques</span>
-        <h2>Ubica tu visita</h2>
-    </div>
-    <div class="state-filters home-map-filters" aria-label="Filtros del mapa por estado">
-        <!-- Botón fijo para ver todos -->
-        <button class="state-filter active" type="button" 
-                data-home-map-state-filter="todos" aria-pressed="true">
-            Ver todos
-        </button>
+            {% if parques_carrusel %}
+                <div class="home-card-carousel" data-parks-carousel>
+                    {% for item in parques_carrusel %}
+                        <article class="park-carousel-card home-experience-card">
+                            <a href="{% url 'detalle_parque' item.parque.id %}" class="home-experience-image">
+                                <img src="{{ item.imagen }}" alt="Vista natural de {{ item.parque.nombre }}" loading="lazy">
+                                <span>{{ item.parque.get_estado_display }}</span>
+                            </a>
+                            <div class="home-experience-content">
+                                <h3>{{ item.parque.nombre }}</h3>
+                                <p>{{ item.parque.descripcion|default:"Parque registrado para consulta de disponibilidad y hospedaje durante la temporada."|truncatechars:125 }}</p>
+                                <div class="home-card-tags" aria-label="Hospedajes disponibles">
+                                    {% for hospedaje in item.parque.hospedajes.all %}
+                                        <span>{{ hospedaje.get_tipo_hospedaje_display }}</span>
+                                    {% empty %}
+                                        <span>Sin hospedaje</span>
+                                    {% endfor %}
+                                </div>
+                                <a href="{% url 'detalle_parque' item.parque.id %}">
+                                    Ver parque
+                                    <span class="material-symbols-outlined">arrow_forward</span>
+                                </a>
+                            </div>
+                        </article>
+                    {% endfor %}
+                </div>
+                <div class="home-section-link">
+                    <a class="home-button outline" href="{% url 'listado_parques' %}">Ver todos los parques</a>
+                </div>
+            {% else %}
+                <div class="empty-state">
+                    <h3>No hay parques registrados</h3>
+                    <p>Cuando se agreguen parques desde el administrador apareceran en esta seccion.</p>
+                </div>
+            {% endif %}
+        </section>
 
-        <!-- Botones dinámicos por estado -->
-        {% for valor, etiqueta in estados_hospedaje %}
-            <button class="state-filter" type="button" 
-                    data-home-map-state-filter="{{ valor }}" 
-                    aria-pressed="false">
-                {{ etiqueta }}
-            </button>
-        {% empty %}
-            <span class="state-filter-empty">No hay estados disponibles</span>
-        {% endfor %}
-        <!-- ***************** Ponemos este para ver a EDOMEX-->
-        <button class="state-filter" type="button" data-home-map-state-filter="edomex" aria-pressed="false">EDOMEX</button>
-    </div>
-</div>
+        <section id="mapa-parques" class="home-section home-map-section">
+            <div class="home-map-grid">
+                <div class="home-map-copy">
+                    <span>Navegacion</span>
+                    <h2>Mapa interactivo de parques</h2>
+                    <p>Conserva los filtros por estado para ubicar parques activos, comparar rutas y abrir la vista completa cuando necesites mas detalle.</p>
 
+                    <div class="home-map-feature-list">
+                        <div>
+                            <span class="material-symbols-outlined">location_on</span>
+                            <div>
+                                <h3>Parques participantes</h3>
+                                <p>Marcadores reales generados desde los parques registrados.</p>
+                            </div>
+                        </div>
+                        <div>
+                            <span class="material-symbols-outlined">filter_alt</span>
+                            <div>
+                                <h3>Filtros por estado</h3>
+                                <p>Elige Tlaxcala, Puebla, Estado de Mexico o todos los parques.</p>
+                            </div>
+                        </div>
+                    </div>
 
-                <div class="parks-map-shell">
-                    <div id="parks-map" class="parks-map" aria-label="Mapa interactivo con los parques registrados"></div>
+                    <div class="state-filters home-map-filters" aria-label="Filtros del mapa por estado">
+                        <button class="state-filter active" type="button" data-home-map-state-filter="todos" aria-pressed="true">Ver todos</button>
+                        {% for valor, etiqueta in estados_hospedaje %}
+                            <button class="state-filter" type="button" data-home-map-state-filter="{{ valor }}" aria-pressed="false">{{ etiqueta }}</button>
+                        {% empty %}
+                            <span class="state-filter-empty">No hay estados disponibles</span>
+                        {% endfor %}
+                    </div>
+
+                    <a class="home-button outline" href="{% url 'mapa_parques' %}">Abrir mapa completo</a>
+                </div>
+
+                <div class="home-map-panel">
+                    <div id="parks-map" class="parks-map home-leaflet-map" aria-label="Mapa interactivo con los parques registrados"></div>
                     {% if not mapa_parques %}
                         <p class="map-empty">Agrega parques con coordenadas desde el administrador para mostrarlos en el mapa.</p>
                     {% endif %}
                 </div>
-                <div class="map-action-row">
-                    <a class="button secondary" href="{% url 'mapa_parques' %}">Abrir mapa</a>
-                </div>
             </div>
         </section>
 
-        <section id="hospedajes" class="section lodging-options-section">
-            <div class="section-toolbar">
-                <div class="section-heading">
-                    <span>Hospedajes</span>
-                    <h2>Opciones listas para reservar</h2>
+        <section id="hospedajes" class="home-section home-lodging-section">
+            <div class="home-section-header">
+                <div>
+                    <h2>Hospedajes disponibles</h2>
+                    <p>Selecciona un estado para actualizar los minimos de precio, capacidad y cupo antes de reservar.</p>
                 </div>
                 <div class="state-filters" aria-label="Filtros por estado">
                     {% for valor, etiqueta in estados_hospedaje %}
@@ -162,12 +187,11 @@
                     {% empty %}
                         <span class="state-filter-empty">No hay estados disponibles</span>
                     {% endfor %}
-                    
                 </div>
             </div>
 
-            <div class="lodging-grid">
-                <article class="lodging-card featured" data-lodging-option-card data-lodging-type="cabana">
+            <div class="lodging-grid home-lodging-grid">
+                <article class="lodging-card home-lodging-card featured" data-lodging-option-card data-lodging-type="cabana">
                     <div class="card-top">
                         <span>Mas solicitado</span>
                         <strong id="cabin-price" data-lodging-field="precio" data-lodging-type="cabana">desde $1,450 MXN</strong>
@@ -182,13 +206,13 @@
                     <button class="select-room active" type="button" data-room="Cabana Bosque Claro" data-lodging-type="cabana" aria-pressed="true">Seleccionar</button>
                 </article>
 
-                <article class="lodging-card" data-lodging-option-card data-lodging-type="camping">
+                <article class="lodging-card home-lodging-card" data-lodging-option-card data-lodging-type="camping">
                     <div class="card-top">
                         <span>Economico</span>
                         <strong id="camping-price" data-lodging-field="precio" data-lodging-type="camping">desde $380 MXN</strong>
                     </div>
                     <h3>Zona Camping Neblina</h3>
-                    <p>Espacios delimitados para tienda de campaña, con banos y punto de hidratacion cercano.</p>
+                    <p>Espacios delimitados para tienda de campana, con banos y punto de hidratacion cercano.</p>
                     <ul>
                         <li data-lodging-field="capacidad" data-lodging-type="camping">Capacidad: desde 2 personas</li>
                         <li data-lodging-field="unidades" data-lodging-type="camping">Disponibles: desde 54 espacios</li>
@@ -199,19 +223,19 @@
             </div>
         </section>
 
-        <section id="reservar" class="booking-section">
-            <div class="booking-copy">
+        <section id="reservar" class="home-section home-booking-section">
+            <div class="home-booking-copy">
                 <span>Reservacion</span>
-                <h2>Captura rapida para validar cupo</h2>
-                <p>Selecciona un parque, elige su hospedaje disponible y confirma que el cupo alcance antes de pasar al formulario de reservacion.</p>
+                <h2>Valida cupo antes de continuar</h2>
+                <p>Selecciona parque, hospedaje, fechas y visitantes. El enlace se habilita cuando la combinacion tiene cupo suficiente.</p>
             </div>
 
-            <form class="booking-form" data-quick-booking-form>
+            <form class="booking-form home-booking-form" data-quick-booking-form>
                 <label>
                     Parque
                     <select name="parque" data-quick-booking-park>
                         {% for parque in parques_reservables %}
-                            <option value="{{ parque.id }}" data-state="{{ parque.estado|lower }}" {% if forloop.first %}selected{% endif %}>{{ parque.nombre }} - {{ parque.estado }}</option>
+                            <option value="{{ parque.id }}" data-state="{{ parque.estado_valor }}" {% if forloop.first %}selected{% endif %}>{{ parque.nombre }} - {{ parque.estado }}</option>
                         {% empty %}
                             <option value="">No hay parques con hospedaje disponible</option>
                         {% endfor %}
@@ -225,7 +249,7 @@
                                 <option
                                     value="{{ hospedaje.id }}"
                                     data-park-id="{{ parque.id }}"
-                                    data-state="{{ parque.estado|lower }}"
+                                    data-state="{{ parque.estado_valor }}"
                                     data-lodging-type="{{ hospedaje.tipo_valor }}"
                                     data-url="{{ hospedaje.url }}"
                                     data-capacity="{{ hospedaje.capacidad_unidad }}"
@@ -260,7 +284,7 @@
                 <p class="booking-feedback" data-quick-booking-feedback>Selecciona un parque y completa las fechas para habilitar el enlace de reservacion.</p>
                 {% with primer_parque=parques_reservables.0 %}
                     <a
-                        class="button primary booking-link requires-login"
+                        class="home-button primary booking-link requires-login"
                         href="{% if primer_parque and primer_parque.hospedajes %}{{ primer_parque.hospedajes.0.url }}{% else %}#{% endif %}"
                         data-quick-booking-link
                         aria-disabled="true"
@@ -268,166 +292,47 @@
                 {% endwith %}
             </form>
         </section>
-    
-        <section id="resenas" class="section reviews-section" aria-labelledby="reviews-title">
-            <div class="section-toolbar reviews-toolbar">
-                <div class="section-heading">
-                    <span>Resenas</span>
-                    <h2 id="reviews-title">Lo que cuentan los visitantes</h2>
-                </div>
-            </div>
 
-            <div class="reviews-carousel-shell">
-                <button class="carousel-control" type="button" data-reviews-carousel-prev aria-label="Resena anterior">&lt;</button>
-                <div class="reviews-carousel" data-reviews-carousel>
-                    <article class="review-card">
-                        <header class="review-author">
-                            <span class="review-avatar" aria-hidden="true">A</span>
-                            <div>
-                                <h3>@ana_bosque</h3>
-                                <span>Visitante verificada</span>
-                            </div>
-                        </header>
-                        <div class="review-rating" aria-label="Calificacion: 5 de 5">
-                            <div class="review-stars" aria-hidden="true">
-                                <span>★</span><span>★</span><span>★</span><span>★</span><span>★</span>
-                            </div>
-                            <strong>5.0</strong>
-                        </div>
-                        <p>La captura fue rapida y pude confirmar el cupo de la cabana sin estar llamando varias veces.</p>
-                    </article>
-
-                    <article class="review-card">
-                        <header class="review-author">
-                            <span class="review-avatar" aria-hidden="true">M</span>
-                            <div>
-                                <h3>@memo_ruta</h3>
-                                <span>Usuario frecuente</span>
-                            </div>
-                        </header>
-                        <div class="review-rating" aria-label="Calificacion: 4 de 5">
-                            <div class="review-stars" aria-hidden="true">
-                                <span>★</span><span>★</span><span>★</span><span>★</span><span class="is-empty">☆</span>
-                            </div>
-                            <strong>4.0</strong>
-                        </div>
-                        <p>Me gusto ver el hospedaje y las fechas en un solo lugar. El flujo se entiende muy facil.</p>
-                    </article>
-
-                    <article class="review-card">
-                        <header class="review-author">
-                            <span class="review-avatar" aria-hidden="true">L</span>
-                            <div>
-                                <h3>@luna_sendero</h3>
-                                <span>Reserva familiar</span>
-                            </div>
-                        </header>
-                        <div class="review-rating" aria-label="Calificacion: 5 de 5">
-                            <div class="review-stars" aria-hidden="true">
-                                <span>★</span><span>★</span><span>★</span><span>★</span><span>★</span>
-                            </div>
-                            <strong>5.0</strong>
-                        </div>
-                        <p>El mapa ayudo bastante para decidir el parque y despues validar si aun habia espacio.</p>
-                    </article>
-
-                    <article class="review-card">
-                        <header class="review-author">
-                            <span class="review-avatar" aria-hidden="true">D</span>
-                            <div>
-                                <h3>@dan_camping</h3>
-                                <span>Zona camping</span>
-                            </div>
-                        </header>
-                        <div class="review-rating" aria-label="Calificacion: 4 de 5">
-                            <div class="review-stars" aria-hidden="true">
-                                <span>★</span><span>★</span><span>★</span><span>★</span><span class="is-empty">☆</span>
-                            </div>
-                            <strong>4.0</strong>
-                        </div>
-                        <p>Buen resumen de disponibilidad. Para camping fue claro cuantos visitantes podia registrar.</p>
-                    </article>
-
-                    <article class="review-card">
-                        <header class="review-author">
-                            <span class="review-avatar" aria-hidden="true">C</span>
-                            <div>
-                                <h3>@caro_noche</h3>
-                                <span>Primera visita</span>
-                            </div>
-                        </header>
-                        <div class="review-rating" aria-label="Calificacion: 5 de 5">
-                            <div class="review-stars" aria-hidden="true">
-                                <span>★</span><span>★</span><span>★</span><span>★</span><span>★</span>
-                            </div>
-                            <strong>5.0</strong>
-                        </div>
-                        <p>La pagina se siente ordenada y encontre la opcion de hospedaje sin perderme entre tantas secciones.</p>
-                    </article>
-
-                    <article class="review-card">
-                        <header class="review-author">
-                            <span class="review-avatar" aria-hidden="true">R</span>
-                            <div>
-                                <h3>@raul_luci</h3>
-                                <span>Grupo de amigos</span>
-                            </div>
-                        </header>
-                        <div class="review-rating" aria-label="Calificacion: 4 de 5">
-                            <div class="review-stars" aria-hidden="true">
-                                <span>★</span><span>★</span><span>★</span><span>★</span><span class="is-empty">☆</span>
-                            </div>
-                            <strong>4.0</strong>
-                        </div>
-                        <p>Nos sirvio para comparar cabana y camping antes de elegir fechas. El carrusel de parques tambien ayuda.</p>
-                    </article>
-
-                    <article class="review-card">
-                        <header class="review-author">
-                            <span class="review-avatar" aria-hidden="true">S</span>
-                            <div>
-                                <h3>@sof_visita</h3>
-                                <span>Viaje en pareja</span>
-                            </div>
-                        </header>
-                        <div class="review-rating" aria-label="Calificacion: 5 de 5">
-                            <div class="review-stars" aria-hidden="true">
-                                <span>★</span><span>★</span><span>★</span><span>★</span><span>★</span>
-                            </div>
-                            <strong>5.0</strong>
-                        </div>
-                        <p>La reservacion se ve confiable porque primero valida cupo y luego ya puedes continuar con el proceso.</p>
-                    </article>
-                </div>
-                <button class="carousel-control" type="button" data-reviews-carousel-next aria-label="Resena siguiente">&gt;</button>
-            </div>
-        </section>
-
-        <section id="panel" class="dashboard-preview">
+        <section class="home-newsletter">
             <div>
-                <span>Panel administrativo</span>
-                <h2>Vista para el equipo del festival</h2>
-            </div>
-            <div class="metrics">
-                <article>
-                    <small>Reservas hoy</small>
-                    <strong>36</strong>
-                </article>
-                <article>
-                    <small>Ocupacion</small>
-                    <strong>72%</strong>
-                </article>
-                <article>
-                    <small>Ingresos estimados</small>
-                    <strong>$84k</strong>
-                </article>
+                <h2>Mantente conectado al bosque</h2>
+                <p>Consulta parques, hospedajes y reservaciones para preparar tu visita al festival.</p>
+                <a class="home-button primary" href="{% url 'listado_parques' %}">Explorar parques</a>
             </div>
         </section>
     </main>
 
+    <footer class="home-footer">
+        <div>
+            <strong>Luciernagas</strong>
+            <p>Festival de Luciernagas. Reservaciones y parques participantes.</p>
+        </div>
+        <div>
+            <a href="{% url 'listado_parques' %}">Parques</a>
+            <a href="{% url 'mapa_parques' %}">Mapa</a>
+            <a href="#reservar">Reservar</a>
+        </div>
+    </footer>
+
+    <nav class="home-mobile-nav" aria-label="Navegacion movil">
+        <a class="active" href="#parques-inicio">
+            <span class="material-symbols-outlined filled">explore</span>
+            <span>Explorar</span>
+        </a>
+        <a href="#reservar">
+            <span class="material-symbols-outlined">event_note</span>
+            <span>Reservar</span>
+        </a>
+        <a href="#mapa-parques">
+            <span class="material-symbols-outlined">map</span>
+            <span>Mapa</span>
+        </a>
+    </nav>
+
     {{ mapa_parques|json_script:"parks-map-data" }}
     {{ minimos_hospedaje|json_script:"lodging-minimums-data" }}
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-    <script src="{% static 'js/prototipo_reservaciones.js' %}?v=filtros-reserva"></script>
+    <script src="{% static 'js/prototipo_reservaciones.js' %}?v=6"></script>
+    <script src="{% static 'js/stitch_theme.js' %}?v=3"></script>
 </body>
 </html>

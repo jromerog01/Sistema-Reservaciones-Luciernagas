@@ -57,14 +57,9 @@ def obtener_servicios_para_filtros():
 
 
 def obtener_estados_disponibles():
-    estados_disponibles = set(
-        Parque.objects.values_list("estado", flat=True).distinct()
-    )
-
     return [
         (valor.lower(), etiqueta)
         for valor, etiqueta in Parque.Estado.choices
-        if valor in estados_disponibles
     ]
 
 
@@ -93,6 +88,7 @@ def obtener_parques_reservables():
                     "id": parque.id,
                     "nombre": parque.nombre,
                     "estado": parque.get_estado_display(),
+                    "estado_valor": parque.estado.lower(),
                     "descripcion": parque.descripcion,
                     "hospedajes": hospedajes,
                 }

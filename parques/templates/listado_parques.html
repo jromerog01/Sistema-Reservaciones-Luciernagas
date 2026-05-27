@@ -1,213 +1,309 @@
 {% load static %}
-<!doctype html>
-<html lang="es">
+<!DOCTYPE html>
+<html class="light" lang="es">
 <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Festival de Luciernagas | Parques</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
-    <link rel="stylesheet" href="{% static 'css/prototipo_reservaciones.css' %}?v=reservas-flotantes">
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Lumina Fest - Explorar Parques</title>
+<link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="{% static 'css/prototipo_reservaciones.css' %}?v=filtros-reserva">
+<link rel="stylesheet" href="{% static 'css/stitch_theme.css' %}?v=3">
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "tertiary-fixed": "#ffdfa0",
+                    "primary-container": "#101e18",
+                    "inverse-primary": "#b9cbc1",
+                    "primary-fixed": "#d5e7dc",
+                    "on-tertiary-fixed-variant": "#5c4300",
+                    "on-primary-container": "#77887f",
+                    "surface-container": "#efeeea",
+                    "surface": "#fbf9f5",
+                    "outline-variant": "#c3c8c3",
+                    "on-primary": "#ffffff",
+                    "secondary-fixed": "#ffe16d",
+                    "on-secondary-fixed-variant": "#544600",
+                    "surface-container-highest": "#e4e2de",
+                    "on-primary-fixed-variant": "#3a4a43",
+                    "surface-container-low": "#f5f3ef",
+                    "primary-fixed-dim": "#b9cbc1",
+                    "surface-dim": "#dbdad6",
+                    "on-surface-variant": "#434845",
+                    "tertiary-container": "#261a00",
+                    "secondary-container": "#fcd400",
+                    "inverse-on-surface": "#f2f0ed",
+                    "surface-container-lowest": "#ffffff",
+                    "surface-tint": "#52625a",
+                    "on-secondary-container": "#6e5c00",
+                    "on-primary-fixed": "#101e18",
+                    "surface-variant": "#e4e2de",
+                    "secondary": "#705d00",
+                    "on-tertiary-fixed": "#261a00",
+                    "on-background": "#1b1c1a",
+                    "surface-container-high": "#eae8e4",
+                    "on-tertiary": "#ffffff",
+                    "tertiary-fixed-dim": "#fbbc00",
+                    "on-error-container": "#93000a",
+                    "inverse-surface": "#30312e",
+                    "surface-bright": "#fbf9f5",
+                    "tertiary": "#000000",
+                    "on-error": "#ffffff",
+                    "outline": "#737874",
+                    "on-secondary-fixed": "#221b00",
+                    "on-secondary": "#ffffff",
+                    "error-container": "#ffdad6",
+                    "error": "#ba1a1a",
+                    "primary": "#000000",
+                    "on-tertiary-container": "#a87d00",
+                    "secondary-fixed-dim": "#e9c400",
+                    "background": "#fbf9f5",
+                    "on-surface": "#1b1c1a"
+            },
+            "borderRadius": {
+                    "DEFAULT": "1rem",
+                    "lg": "2rem",
+                    "xl": "3rem",
+                    "full": "9999px"
+            },
+            "spacing": {
+                    "container-max": "1400px",
+                    "base": "8px",
+                    "margin-desktop": "32px",
+                    "gutter": "24px",
+                    "margin-mobile": "16px"
+            },
+            "fontFamily": {
+                    "label-sm": ["Quicksand"],
+                    "headline-md": ["Quicksand"],
+                    "label-md": ["Quicksand"],
+                    "headline-xl-mobile": ["Quicksand"],
+                    "body-lg": ["Quicksand"],
+                    "body-md": ["Quicksand"],
+                    "headline-xl": ["Quicksand"],
+                    "headline-lg": ["Quicksand"]
+            },
+            "fontSize": {
+                    "label-sm": ["12px", {"lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "500"}],
+                    "headline-md": ["24px", {"lineHeight": "32px", "fontWeight": "600"}],
+                    "label-md": ["14px", {"lineHeight": "20px", "letterSpacing": "0.02em", "fontWeight": "600"}],
+                    "headline-xl-mobile": ["32px", {"lineHeight": "40px", "letterSpacing": "-0.01em", "fontWeight": "700"}],
+                    "body-lg": ["18px", {"lineHeight": "28px", "fontWeight": "400"}],
+                    "body-md": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
+                    "headline-xl": ["48px", {"lineHeight": "56px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                    "headline-lg": ["32px", {"lineHeight": "40px", "fontWeight": "600"}]
+            }
+          },
+        },
+      }
+</script>
+<script>window.IS_AUTH = {% if user.is_authenticated %}true{% else %}false{% endif %};</script>
 </head>
-<body>
-    {% include "partials/navbar.html" %}
+<body class="bg-background text-on-background font-body-md selection:bg-secondary-container home-stitch-view">
 
-    <main>
-        <section class="gallery-header">
-            <div>
-                <span class="eyebrow">Catalogo de parques</span>
-                <h1>Parques del festival</h1>
-                <p>Explora los parques registrados, sus servicios y la informacion principal para planear tu visita.</p>
+    {% include "partials/tailwind_navbar.html" %}
+
+<main class="max-w-container-max mx-auto px-margin-desktop pt-32">
+<section class="mb-12 text-center md:text-left">
+<h1 class="font-headline-xl text-headline-xl-mobile md:text-headline-xl text-primary mb-2">Nuestros Refugios</h1>
+<p class="text-body-lg text-on-surface-variant max-w-2xl">Encuentra la paz y la conexión con la naturaleza en nuestros exclusivos parques y alojamientos seleccionados. <span data-parks-count>{{ parques|length }}</span> parques disponibles.</p>
+</section>
+
+<!-- Layout with Sidebar -->
+<div class="flex flex-col lg:flex-row gap-8 pb-16">
+    
+    <!-- Sidebar Filters -->
+    <aside class="w-full lg:w-1/4 flex flex-col gap-6">
+        <div class="bg-surface-container-low p-6 rounded-2xl sticky top-28">
+            <h3 class="font-headline-md text-primary mb-4 flex items-center gap-2">
+                <span class="material-symbols-outlined" data-icon="tune">tune</span>
+                Filtros
+            </h3>
+            
+            <details open class="group mb-6">
+                <summary class="font-label-md text-on-surface-variant mb-3 uppercase tracking-wider cursor-pointer list-none flex justify-between items-center select-none [&::-webkit-details-marker]:hidden">
+                    Estado
+                    <span class="material-symbols-outlined transition-transform group-open:rotate-180">expand_more</span>
+                </summary>
+                <div class="flex flex-col gap-2">
+                    {% for valor, etiqueta in estados %}
+                        <button type="button" class="w-full text-left px-4 py-2 bg-surface hover:bg-surface-container-high rounded-lg font-body-md transition-colors filter-btn" data-park-filter data-filter-type="estado" data-filter-value="{{ valor|lower }}" aria-pressed="false">{{ etiqueta }}</button>
+                    {% endfor %}
+                </div>
+            </details>
+
+            <details open class="group mb-6">
+                <summary class="font-label-md text-on-surface-variant mb-3 uppercase tracking-wider cursor-pointer list-none flex justify-between items-center select-none [&::-webkit-details-marker]:hidden">
+                    Hospedaje
+                    <span class="material-symbols-outlined transition-transform group-open:rotate-180">expand_more</span>
+                </summary>
+                <div class="flex flex-col gap-2">
+                    {% for valor, etiqueta in hospedajes %}
+                        <button type="button" class="w-full text-left px-4 py-2 bg-surface hover:bg-surface-container-high rounded-lg font-body-md transition-colors filter-btn" data-park-filter data-filter-type="hospedaje" data-filter-value="{{ valor|lower }}" aria-pressed="false">{{ etiqueta }}</button>
+                    {% endfor %}
+                </div>
+            </details>
+
+            <details class="group mb-6">
+                <summary class="font-label-md text-on-surface-variant mb-3 uppercase tracking-wider cursor-pointer list-none flex justify-between items-center select-none [&::-webkit-details-marker]:hidden">
+                    Servicios
+                    <span class="material-symbols-outlined transition-transform group-open:rotate-180">expand_more</span>
+                </summary>
+                <div class="flex flex-col gap-2 mt-2">
+                    {% for servicio in servicios %}
+                        <button type="button" class="w-full text-left px-4 py-2 bg-surface hover:bg-surface-container-high rounded-lg font-body-md transition-colors filter-btn" data-park-filter data-filter-type="servicio" data-filter-value="{{ servicio.valor }}" aria-pressed="false">{{ servicio.nombre }}</button>
+                    {% empty %}
+                        <span class="text-sm text-on-surface-variant">Sin servicios registrados</span>
+                    {% endfor %}
+                </div>
+            </details>
+
+            <button type="button" class="w-full px-4 py-2 border-2 border-primary/20 text-primary hover:bg-primary/5 rounded-lg font-label-md transition-colors" data-clear-park-filters>
+                Limpiar Filtros
+            </button>
+            
+            <div class="active-filter-panel mt-4" data-active-filter-panel hidden>
+                <span class="font-label-sm text-on-surface-variant block mb-2">Filtros aplicados:</span>
+                <div class="flex flex-wrap gap-2" data-active-filters></div>
             </div>
-            <strong data-parks-count>{{ parques|length }} parques</strong>
-        </section>
+        </div>
+    </aside>
 
-        <section id="parques" class="section parks-section">
-            <div class="parks-layout">
-                <details class="park-filter-sidebar" open>
-                    <summary>Filtros</summary>
-                    <div class="park-filter-content">
-                        <details class="park-filter-group" open>
-                            <summary>Estado</summary>
-                            {% for valor, etiqueta in estados %}
-                                <button type="button" class="park-filter-option" data-park-filter data-filter-type="estado" data-filter-value="{{ valor|lower }}" aria-pressed="false">{{ etiqueta }}</button>
-                            {% endfor %}
-                        </details>
-
-                        <details class="park-filter-group" open>
-                            <summary>Hospedaje</summary>
-                            {% for valor, etiqueta in hospedajes %}
-                                <button type="button" class="park-filter-option" data-park-filter data-filter-type="hospedaje" data-filter-value="{{ valor|lower }}" aria-pressed="false">{{ etiqueta }}</button>
-                            {% endfor %}
-                        </details>
-
-                        <details class="park-filter-group">
-                            <summary>Servicios</summary>
-                            {% for servicio in servicios %}
-                                <button type="button" class="park-filter-option" data-park-filter data-filter-type="servicio" data-filter-value="{{ servicio.valor }}" aria-pressed="false">{{ servicio.nombre }}</button>
-                            {% empty %}
-                                <p class="filter-empty">Sin servicios registrados</p>
-                            {% endfor %}
-                        </details>
-
-                        <div class="active-filter-panel" data-active-filter-panel hidden>
-                            <span>Filtros aplicados</span>
-                            <div class="active-filter-list" data-active-filters></div>
-                            <button type="button" class="filter-clear" data-clear-park-filters>Limpiar filtros</button>
+    <!-- Park Grid -->
+    <div class="w-full lg:w-3/4">
+        <section class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-gutter parks-results">
+            {% if parques %}
+                {% for item in parques %}
+                <article class="bg-white rounded-2xl overflow-hidden card-ambient-shadow group park-gallery-card flex flex-col" data-park-card data-estado="{{ item.filtros.estado }}" data-hospedajes="{{ item.filtros.hospedajes }}" data-servicios="{{ item.filtros.servicios }}">
+                    <div class="relative h-56 overflow-hidden flex-shrink-0">
+                        <a href="{% url 'detalle_parque' item.parque.id %}">
+                            <img class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" alt="Vista natural de {{ item.parque.nombre }}" src="{{ item.imagen }}"/>
+                        </a>
+                        <div class="absolute top-4 right-4 bg-white/90 backdrop-blur-sm px-3 py-1 rounded-full flex items-center gap-1 shadow-sm">
+                            <span class="material-symbols-outlined text-secondary text-sm" data-icon="star" style="font-variation-settings: 'FILL' 1;">star</span>
+                            <span class="text-label-sm font-label-sm text-on-surface">4.9</span>
                         </div>
                     </div>
-                </details>
-
-                {% if parques %}
-                    <div class="parks-results">
-                        <div class="parks-gallery">
-                            {% for item in parques %}
-                                <article class="park-gallery-card" data-park-card data-estado="{{ item.filtros.estado }}" data-hospedajes="{{ item.filtros.hospedajes }}" data-servicios="{{ item.filtros.servicios }}">
-                                    <a href="{% url 'detalle_parque' item.parque.id %}" class="park-image-link">
-                                        <img src="{{ item.imagen }}" alt="Vista natural de {{ item.parque.nombre }}" loading="lazy">
-                                    </a>
-                                    <div class="park-gallery-content">
-                                        <span class="park-state">{{ item.parque.get_estado_display }}</span>
-                                        <a class="park-title-link" href="{% url 'detalle_parque' item.parque.id %}">
-                                            <h2>{{ item.parque.nombre }}</h2>
-                                        </a>
-                                        {% if item.parque.hospedajes.all %}
-                                            <div class="park-tag-section park-title-tags">
-                                                <span class="tag-section-label">Hospedaje</span>
-                                                <div class="service-list" aria-label="Hospedajes disponibles">
-                                                    {% for hospedaje in item.parque.hospedajes.all %}
-                                                        <span>{{ hospedaje.get_tipo_hospedaje_display }}</span>
-                                                    {% endfor %}
-                                                </div>
-                                            </div>
-                                        {% endif %}
-                                        <p>{{ item.parque.descripcion|default:"Parque registrado para consulta de disponibilidad y hospedaje durante la temporada." }}</p>
-
-                                        <div class="park-meta">
-                                            <span>{{ item.parque.horario_apertura|time:"H:i" }} - {{ item.parque.horario_cierre|time:"H:i" }}</span>
-                                            <span>{{ item.parque.direccion }}</span>
-                                        </div>
-
-                                        {% if item.parque.servicios.all %}
-                                            <div class="park-tag-section">
-                                                <span class="tag-section-label">Servicios</span>
-                                                <div class="service-list" aria-label="Servicios disponibles">
-                                                    {% for servicio in item.parque.servicios.all %}
-                                                        <span>{{ servicio.nombre }}</span>
-                                                    {% endfor %}
-                                                </div>
-                                            </div>
-                                        {% endif %}
-
-                                        {% if not item.parque.servicios.all and not item.parque.hospedajes.all %}
-                                            <div class="service-list" aria-label="Disponibilidad registrada">
-                                                <span>Sin servicios ni hospedajes registrados</span>
-                                            </div>
-                                        {% endif %}
-
-                                        <div class="park-reserve-block">
-                                            <div class="lodging-availability" aria-label="Unidades disponibles de hospedaje">
-                                                {% for hospedaje in item.parque.hospedajes.all %}
-                                                    <span>{{ hospedaje.get_tipo_hospedaje_display }}: {{ hospedaje.cantidad_unidades }} {% if hospedaje.tipo_hospedaje == "CAMPING" %}espacios{% else %}unidades{% endif %} quedan disponibles</span>
-                                                {% empty %}
-                                                    <span>Sin hospedajes disponibles</span>
-                                                {% endfor %}
-                                            </div>
-                                            <div class="park-card-actions">
-                                                {% with primer_hospedaje=item.parque.hospedajes.all.0 %}
-                                                    <a
-                                                        class="reserve-park requires-login {% if not primer_hospedaje %}is-disabled{% endif %}"
-                                                        href="{% if primer_hospedaje %}{% url 'crear_reservacion' primer_hospedaje.id %}{% else %}#{% endif %}"
-                                                        aria-disabled="{% if primer_hospedaje %}false{% else %}true{% endif %}"
-                                                    >Reservar</a>
-                                                {% endwith %}
-                                                <button type="button" class="quick-view-park" data-dialog-target="park-detail-{{ forloop.counter }}">Vista rapida</button>
-                                                <a class="detail-park" href="{% url 'detalle_parque' item.parque.id %}">Ver parque</a>
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    <dialog class="floating-dialog detail-dialog" id="park-detail-{{ forloop.counter }}" aria-labelledby="detail-title-{{ forloop.counter }}">
-                                        <div class="dialog-header">
-                                            <div>
-                                                <span>Informacion del parque</span>
-                                                <h2 id="detail-title-{{ forloop.counter }}">{{ item.parque.nombre }}</h2>
-                                                <div class="park-tag-section park-title-tags">
-                                                    <span class="tag-section-label">Hospedaje</span>
-                                                <div class="service-list" aria-label="Hospedajes disponibles">
-                                                    {% for hospedaje in item.parque.hospedajes.all %}
-                                                        <span>{{ hospedaje.get_tipo_hospedaje_display }}</span>
-                                                    {% empty %}
-                                                        <span>Sin hospedajes registrados</span>
-                                                    {% endfor %}
-                                                </div>
-                                                <div class="lodging-availability" aria-label="Unidades disponibles de hospedaje">
-                                                    {% for hospedaje in item.parque.hospedajes.all %}
-                                                        <span>{{ hospedaje.get_tipo_hospedaje_display }}: {{ hospedaje.cantidad_unidades }} {% if hospedaje.tipo_hospedaje == "CAMPING" %}espacios{% else %}unidades{% endif %} quedan disponibles</span>
-                                                    {% empty %}
-                                                        <span>Sin hospedajes disponibles</span>
-                                                    {% endfor %}
-                                                </div>
-                                            </div>
-                                            </div>
-                                            <button type="button" class="dialog-close" data-dialog-close aria-label="Cerrar">x</button>
-                                        </div>
-                                        <img class="dialog-image" src="{{ item.imagen }}" alt="Vista natural de {{ item.parque.nombre }}">
-                                        <p>{{ item.parque.descripcion|default:"Parque registrado para consulta de disponibilidad y hospedaje durante la temporada." }}</p>
-                                        <dl class="dialog-details">
-                                            <div>
-                                                <dt>Estado</dt>
-                                                <dd>{{ item.parque.get_estado_display }}</dd>
-                                            </div>
-                                            <div>
-                                                <dt>Horario</dt>
-                                                <dd>{{ item.parque.horario_apertura|time:"H:i" }} - {{ item.parque.horario_cierre|time:"H:i" }}</dd>
-                                            </div>
-                                            <div>
-                                                <dt>Direccion</dt>
-                                                <dd>
-                                                    <span>{{ item.parque.direccion }}</span>
-                                                    <a class="maps-link" href="https://www.google.com/maps/search/?api=1&query={{ item.parque.latitud|floatformat:6 }},{{ item.parque.longitud|floatformat:6 }}" target="_blank" rel="noopener noreferrer">Abrir en Google Maps</a>
-                                                </dd>
-                                            </div>
-                                            <div>
-                                                <dt>Mapa</dt>
-                                                <dd>
-                                                    <div class="mini-park-map" data-mini-map data-lat="{{ item.parque.latitud|floatformat:6 }}" data-lng="{{ item.parque.longitud|floatformat:6 }}" data-title="{{ item.parque.nombre }}" aria-label="Mapa de {{ item.parque.nombre }}"></div>
-                                                </dd>
-                                            </div>
-                                        </dl>
-                                        <div class="park-tag-section">
-                                            <span class="tag-section-label">Servicios</span>
-                                            <div class="service-list" aria-label="Servicios disponibles">
-                                                {% for servicio in item.parque.servicios.all %}
-                                                    <span>{{ servicio.nombre }}</span>
-                                                {% empty %}
-                                                    <span>Sin servicios registrados</span>
-                                                {% endfor %}
-                                            </div>
-                                        </div>
-                                    </dialog>
-                                </article>
+                    <div class="p-5 flex flex-col flex-grow">
+                        <div class="mb-4">
+                            <a href="{% url 'detalle_parque' item.parque.id %}">
+                                <h3 class="font-headline-md text-headline-md text-primary mb-1">{{ item.parque.nombre }}</h3>
+                            </a>
+                            <div class="flex items-center gap-1 text-on-surface-variant">
+                                <span class="material-symbols-outlined text-sm" data-icon="location_on">location_on</span>
+                                <span class="text-label-sm font-label-sm">{{ item.parque.get_estado_display }}, {{ item.parque.direccion }}</span>
+                            </div>
+                        </div>
+                        <div class="flex flex-wrap gap-3 my-2 flex-grow">
+                            {% for hospedaje in item.parque.hospedajes.all|slice:":3" %}
+                            <div class="flex items-center gap-1.5 text-on-surface-variant/70">
+                                <span class="material-symbols-outlined text-lg" data-icon="home">home</span>
+                                <span class="text-label-sm font-label-sm">{{ hospedaje.get_tipo_hospedaje_display }}</span>
+                            </div>
                             {% endfor %}
+                            {% for servicio in item.parque.servicios.all|slice:":3" %}
+                            <div class="flex items-center gap-1.5 text-on-surface-variant/70">
+                                <span class="material-symbols-outlined text-lg" data-icon="check_circle">check_circle</span>
+                                <span class="text-label-sm font-label-sm">{{ servicio.nombre }}</span>
+                            </div>
+                            {% endfor %}
+                            {% if not item.parque.servicios.all and not item.parque.hospedajes.all %}
+                            <div class="flex items-center gap-1.5 text-on-surface-variant/70">
+                                <span class="text-label-sm font-label-sm">Sin servicios registrados</span>
+                            </div>
+                            {% endif %}
                         </div>
-                        <div class="empty-state park-filter-empty" data-filter-empty hidden>
-                            <h3>No hay parques con esos filtros</h3>
-                            <p>Quita algun filtro aplicado para ampliar los resultados.</p>
+                        <div class="flex justify-between items-center pt-4 border-t border-surface-container mt-4">
+                            <p class="font-headline-md text-secondary">
+                                {% if item.parque.precio_minimo %}
+                                    <span class="font-label-md text-on-surface-variant text-sm font-normal">desde</span> ${{ item.parque.precio_minimo }}<span class="font-label-md text-on-surface-variant text-sm"> / noche</span>
+                                {% else %}
+                                    <span class="font-label-md text-on-surface-variant text-sm">Sin hospedaje</span>
+                                {% endif %}
+                            </p>
+                            <a href="{% url 'detalle_parque' item.parque.id %}" class="text-primary font-label-md underline hover:text-secondary transition-colors">Detalles</a>
                         </div>
                     </div>
-                {% else %}
-                    <div class="empty-state">
-                        <h3>No hay parques registrados</h3>
-                        <p>Cuando se agreguen parques desde el administrador apareceran en esta vista.</p>
-                    </div>
-                {% endif %}
+                </article>
+                {% endfor %}
+            {% else %}
+                <div class="col-span-1 md:col-span-2 xl:col-span-3 text-center py-12 empty-state">
+                    <h3 class="font-headline-md text-primary">No hay parques registrados</h3>
+                    <p class="text-on-surface-variant mt-2">Cuando se agreguen parques desde el administrador apareceran en esta vista.</p>
+                </div>
+            {% endif %}
+            
+            <div class="col-span-1 md:col-span-2 xl:col-span-3 text-center py-12 empty-state park-filter-empty" data-filter-empty hidden>
+                <h3 class="font-headline-md text-primary">No hay parques con esos filtros</h3>
+                <p class="text-on-surface-variant mt-2">Quita algun filtro aplicado para ampliar los resultados.</p>
             </div>
         </section>
-    </main>
-    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-    <script src="{% static 'js/prototipo_reservaciones.js' %}?v=reservas-flotantes"></script>
+    </div>
+</div>
+
+</main>
+
+<footer class="home-footer mt-auto">
+    <div>
+        <strong>Luciernagas</strong>
+        <p>Festival de Luciernagas. Reservaciones y parques participantes.</p>
+    </div>
+    <div>
+        <a href="{% url 'listado_parques' %}">Parques</a>
+        <a href="{% url 'inicio' %}#mapa-parques">Mapa</a>
+        <a href="{% url 'inicio' %}#reservar">Reservar</a>
+    </div>
+</footer>
+
+<nav class="home-mobile-nav" aria-label="Navegacion movil">
+    <a href="{% url 'inicio' %}#parques-inicio">
+        <span class="material-symbols-outlined">explore</span>
+        <span>Explorar</span>
+    </a>
+    <a href="{% url 'inicio' %}#reservar">
+        <span class="material-symbols-outlined">event_note</span>
+        <span>Reservar</span>
+    </a>
+    <a class="active" href="{% url 'listado_parques' %}">
+        <span class="material-symbols-outlined filled">park</span>
+        <span>Parques</span>
+    </a>
+</nav>
+
+<script>
+    // Style toggle for active filter buttons controlled by prototipo_reservaciones.js
+    const filterChips = document.querySelectorAll('button.filter-btn');
+    
+    const observer = new MutationObserver((mutations) => {
+        mutations.forEach((mutation) => {
+            if (mutation.type === 'attributes' && mutation.attributeName === 'aria-pressed') {
+                const chip = mutation.target;
+                if (chip.getAttribute('aria-pressed') === 'true') {
+                    chip.classList.remove('bg-surface', 'hover:bg-surface-container-high');
+                    chip.classList.add('bg-secondary', 'text-on-secondary');
+                } else {
+                    chip.classList.remove('bg-secondary', 'text-on-secondary');
+                    chip.classList.add('bg-surface', 'hover:bg-surface-container-high');
+                }
+            }
+        });
+    });
+
+    filterChips.forEach(chip => {
+        observer.observe(chip, { attributes: true });
+        
+        // Initial setup
+        if (chip.getAttribute('aria-pressed') === 'true') {
+            chip.classList.remove('bg-surface', 'hover:bg-surface-container-high');
+            chip.classList.add('bg-secondary', 'text-on-secondary');
+        }
+    });
+</script>
+<script src="{% static 'js/prototipo_reservaciones.js' %}?v=6"></script>
+<script src="{% static 'js/stitch_theme.js' %}?v=3"></script>
 </body>
 </html>

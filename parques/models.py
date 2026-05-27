@@ -70,6 +70,13 @@ class Parque(models.Model):
     def obtener_hospedajes(self):
         return list(self.hospedajes.all())
 
+    @property
+    def precio_minimo(self):
+        hospedajes = self.hospedajes.all()
+        if hospedajes:
+            return min(h.precio_por_unidad for h in hospedajes)
+        return None
+
 
 class Hospedaje(models.Model):
     class TipoHospedaje(models.TextChoices):

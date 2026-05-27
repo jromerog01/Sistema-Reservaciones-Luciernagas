@@ -1,112 +1,246 @@
 {% load static %}
 <!DOCTYPE html>
-<html lang="es">
+<html class="light" lang="es">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Mis Reservaciones</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="{% static 'css/prototipo_reservaciones.css' %}?v=reservaciones-ui">
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1.0" name="viewport">
+<title>Mis Reservas - Lumina Fest</title>
+<link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet">
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "on-surface-variant": "#434845",
+                    "primary": "#000000",
+                    "secondary-fixed-dim": "#e9c400",
+                    "inverse-surface": "#30312e",
+                    "surface-container-high": "#eae8e4",
+                    "tertiary-fixed-dim": "#fbbc00",
+                    "primary-container": "#101e18",
+                    "tertiary": "#000000",
+                    "surface-container-highest": "#e4e2de",
+                    "on-tertiary-container": "#a87d00",
+                    "on-tertiary": "#ffffff",
+                    "tertiary-container": "#261a00",
+                    "error": "#ba1a1a",
+                    "surface-dim": "#dbdad6",
+                    "surface-bright": "#fbf9f5",
+                    "on-background": "#1b1c1a",
+                    "on-surface": "#1b1c1a",
+                    "on-primary": "#ffffff",
+                    "surface-container-low": "#f5f3ef",
+                    "on-error-container": "#93000a",
+                    "outline-variant": "#c3c8c3",
+                    "secondary-fixed": "#ffe16d",
+                    "primary-fixed-dim": "#b9cbc1",
+                    "secondary": "#705d00",
+                    "surface": "#fbf9f5",
+                    "secondary-container": "#fcd400",
+                    "on-secondary-fixed-variant": "#544600",
+                    "on-error": "#ffffff",
+                    "on-primary-fixed-variant": "#3a4a43",
+                    "tertiary-fixed": "#ffdfa0",
+                    "outline": "#737874",
+                    "on-tertiary-fixed": "#261a00",
+                    "on-secondary": "#ffffff",
+                    "surface-container": "#efeeea",
+                    "surface-variant": "#e4e2de",
+                    "on-secondary-container": "#6e5c00",
+                    "error-container": "#ffdad6",
+                    "primary-fixed": "#d5e7dc",
+                    "surface-tint": "#52625a",
+                    "on-tertiary-fixed-variant": "#5c4300",
+                    "on-primary-fixed": "#101e18",
+                    "surface-container-lowest": "#ffffff",
+                    "on-primary-container": "#77887f",
+                    "inverse-on-surface": "#f2f0ed",
+                    "background": "#fbf9f5",
+                    "inverse-primary": "#b9cbc1",
+                    "on-secondary-fixed": "#221b00"
+            },
+            "borderRadius": {
+                    "DEFAULT": "1rem",
+                    "lg": "2rem",
+                    "xl": "3rem",
+                    "full": "9999px"
+            },
+            "spacing": {
+                    "margin-desktop": "48px",
+                    "margin-mobile": "16px",
+                    "base": "8px",
+                    "gutter": "24px",
+                    "container-max": "1280px"
+            },
+            "fontFamily": {
+                    "headline-xl-mobile": ["Quicksand"],
+                    "label-md": ["Quicksand"],
+                    "headline-xl": ["Quicksand"],
+                    "body-lg": ["Quicksand"],
+                    "body-md": ["Quicksand"],
+                    "label-sm": ["Quicksand"],
+                    "headline-md": ["Quicksand"],
+                    "headline-lg": ["Quicksand"]
+            },
+            "fontSize": {
+                    "headline-xl-mobile": ["32px", {"lineHeight": "40px", "letterSpacing": "-0.01em", "fontWeight": "700"}],
+                    "label-md": ["14px", {"lineHeight": "20px", "letterSpacing": "0.02em", "fontWeight": "600"}],
+                    "headline-xl": ["48px", {"lineHeight": "56px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                    "body-lg": ["18px", {"lineHeight": "28px", "fontWeight": "400"}],
+                    "body-md": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
+                    "label-sm": ["12px", {"lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "500"}],
+                    "headline-md": ["24px", {"lineHeight": "32px", "fontWeight": "600"}],
+                    "headline-lg": ["32px", {"lineHeight": "40px", "fontWeight": "600"}]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .bg-mesh {
+            background-color: #fbf9f5;
+            background-image: 
+                radial-gradient(at 0% 0%, rgba(252, 212, 0, 0.05) 0px, transparent 50%),
+                radial-gradient(at 100% 0%, rgba(185, 203, 193, 0.1) 0px, transparent 50%);
+        }
+        .scrollbar-hide::-webkit-scrollbar {
+            display: none;
+        }
+        .scrollbar-hide {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+        /* Custom hide logic for filters from JS */
+        tr[hidden], div[hidden] {
+            display: none !important;
+        }
+    </style>
 </head>
-<body>
-  {% include "partials/navbar.html" %}
+<body class="bg-mesh min-h-screen flex flex-col font-body-md text-on-surface">
 
-  <main class="reservation-page">
-    <section class="reservation-hero reservation-hero-compact">
-      <div>
-        <span class="eyebrow">Mis reservaciones</span>
-        <h1>Hola, {{ user.get_username }}</h1>
-        <p>Consulta el estado de tus estancias registradas.</p>
-      </div>
-      <div class="reservation-hero-card">
-        <span class="reservation-role-badge">
-          {% if user.es_administrador %}Administrador{% else %}Usuario autorizado{% endif %}
-        </span>
-        <strong>{{ reservaciones|length }}</strong>
-        <span>reservaciones</span>
-      </div>
-    </section>
+{% include "partials/tailwind_navbar.html" %}
 
-    <section class="reservation-shell" data-reservation-list>
-      <div class="reservation-toolbar">
-        <div class="reservation-search">
-          <label for="reservation-search">Buscar</label>
-          <input id="reservation-search" type="search" placeholder="Parque, hospedaje o estado" data-reservation-search>
-        </div>
-        <div class="reservation-filters" aria-label="Filtros por estado">
-          <button class="state-filter active" type="button" data-reservation-status-filter="todos" aria-pressed="true">Todas</button>
-          <button class="state-filter" type="button" data-reservation-status-filter="activa" aria-pressed="false">Activas</button>
-          <button class="state-filter" type="button" data-reservation-status-filter="cancelada" aria-pressed="false">Canceladas</button>
-          <button class="state-filter" type="button" data-reservation-status-filter="finalizada" aria-pressed="false">Finalizadas</button>
-        </div>
-      </div>
+<!-- Main Content -->
+<main class="flex-grow w-full max-w-container-max mx-auto px-margin-mobile md:px-margin-desktop py-12 px-4" data-reservation-list>
+<!-- Page Title -->
+<h1 class="font-headline-xl-mobile md:font-headline-xl text-headline-xl-mobile md:text-headline-xl text-primary mb-8">Mis Reservas</h1>
 
-      {% if reservaciones %}
-        <div class="reservation-table-shell">
-          <table class="reservation-table" data-reservation-table>
-            <thead>
-              <tr>
-                <th>#</th>
-                <th>Parque</th>
-                <th>Hospedaje</th>
-                <th>Llegada</th>
-                <th>Salida</th>
-                <th>Duración</th>
-                <th>Huéspedes</th>
-                <th>Total</th>
-                <th>Estado</th>
-                <th>Acciones</th>
-              </tr>
-            </thead>
-            <tbody>
-              {% for r in reservaciones %}
-                <tr
-                  data-reservation-row
-                  data-status="{{ r.estado|lower }}"
-                  data-search="{{ r.id }} {{ r.hospedaje.parque }} {{ r.hospedaje.get_tipo_hospedaje_display }} {{ r.get_estado_display }}"
-                >
-                  <td>#{{ r.id }}</td>
-                  <td>{{ r.hospedaje.parque }}</td>
-                  <td>{{ r.hospedaje.get_tipo_hospedaje_display }}</td>
-                  <td>{{ r.fecha_inicio }}</td>
-                  <td>{{ r.fecha_fin }}</td>
-                  <td>{{ r.calcular_duracion }} noche(s)</td>
-                  <td>{{ r.num_huespedes }}</td>
-                  <td>${{ r.precio_total }} MXN</td>
-                  <td><span class="reservation-status status-{{ r.estado|lower }}">{{ r.get_estado_display }}</span></td>
-                  <td>
-                    <div class="table-actions">
-                      <a class="button secondary" href="{% url 'detalle_reservacion' r.id %}">Ver</a>
-                      {% if r.estado == "ACTIVA" %}
-                        <a class="button danger-outline" href="{% url 'cancelar_reservacion' r.id %}">Cancelar</a>
-                      {% endif %}
-                    </div>
-                  </td>
-                </tr>
-              {% endfor %}
-            </tbody>
-          </table>
-        </div>
-        <div class="empty-state reservation-empty" data-reservation-filter-empty hidden>
-          <h3>No hay reservaciones con esos filtros</h3>
-          <p>Modifica la búsqueda o el estado seleccionado para ver más resultados.</p>
-        </div>
-      {% else %}
-        <div class="empty-state reservation-empty">
-          <h3>No tienes reservaciones registradas</h3>
-          <p>Explora los parques disponibles y elige un hospedaje para iniciar una reservación.</p>
-          <a class="button primary" href="{% url 'inicio' %}#reservar">Reservar hospedaje</a>
-        </div>
-      {% endif %}
+<!-- Search and Filters Section -->
+<div class="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-8 items-stretch">
+<div class="w-full max-w-md md:flex-shrink-0">
+<label class="block font-label-sm text-on-surface-variant uppercase tracking-wider mb-2" for="search">Buscar</label>
+<div class="relative">
+<input class="w-full bg-surface-container-lowest border border-outline-variant rounded-full px-6 py-3 text-body-md focus:ring-2 focus:ring-primary focus:border-primary outline-none transition-all" id="search" placeholder="Parque, hospedaje o estado" type="search" data-reservation-search>
+</div>
+</div>
+<div class="flex gap-2 overflow-x-auto scrollbar-hide pb-2 md:pb-0" id="filterButtonsContainer">
+<button class="px-6 py-2 bg-primary text-on-primary rounded-full font-label-md transition-all whitespace-nowrap" data-reservation-status-filter="todos">Todas</button>
+<button class="px-6 py-2 bg-surface-container-lowest border border-outline-variant text-on-surface-variant hover:bg-surface-container-low rounded-full font-label-md transition-all whitespace-nowrap" data-reservation-status-filter="activa">Activas</button>
+<button class="px-6 py-2 bg-surface-container-lowest border border-outline-variant text-on-surface-variant hover:bg-surface-container-low rounded-full font-label-md transition-all whitespace-nowrap" data-reservation-status-filter="cancelada">Canceladas</button>
+<button class="px-6 py-2 bg-surface-container-lowest border border-outline-variant text-on-surface-variant hover:bg-surface-container-low rounded-full font-label-md transition-all whitespace-nowrap" data-reservation-status-filter="finalizada">Finalizadas</button>
+</div>
+</div>
 
-      <div class="reservation-actions reservation-actions-footer">
-        <a class="button secondary" href="{% url 'inicio' %}">Ir al inicio</a>
-      </div>
-    </section>
-  </main>
-  <script>window.IS_AUTH = {{ user.is_authenticated|yesno:"true,false" }};</script>
-  <script src="{% static 'js/prototipo_reservaciones.js' %}?v=reservaciones-ui"></script>
-</body>
-</html>
+{% if reservaciones %}
+<!-- Table View -->
+<div class="overflow-x-auto bg-surface-container-lowest border border-outline-variant rounded-lg shadow-sm w-full" data-reservation-table>
+<table class="w-full text-left border-collapse min-w-[900px]">
+<thead>
+<tr class="bg-surface-container-low border-b border-outline-variant">
+<th class="px-4 py-4 font-label-sm text-on-surface-variant uppercase tracking-wider text-center">#</th>
+<th class="px-4 py-4 font-label-sm text-on-surface-variant uppercase tracking-wider text-center">Parque</th>
+<th class="px-4 py-4 font-label-sm text-on-surface-variant uppercase tracking-wider text-center">Hospedaje</th>
+<th class="px-4 py-4 font-label-sm text-on-surface-variant uppercase tracking-wider text-center">Llegada</th>
+<th class="px-4 py-4 font-label-sm text-on-surface-variant uppercase tracking-wider text-center">Salida</th>
+<th class="px-4 py-4 font-label-sm text-on-surface-variant uppercase tracking-wider text-center">Duración</th>
+<th class="px-4 py-4 font-label-sm text-on-surface-variant uppercase tracking-wider text-center">Huéspedes</th>
+<th class="px-4 py-4 font-label-sm text-on-surface-variant uppercase tracking-wider text-center">Total</th>
+<th class="px-4 py-4 font-label-sm text-on-surface-variant uppercase tracking-wider text-center">Estado</th>
+<th class="px-4 py-4 font-label-sm text-on-surface-variant uppercase tracking-wider text-center">Acciones</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-outline-variant">
+{% for r in reservaciones %}
+<tr class="hover:bg-surface-container-low transition-colors" data-reservation-row data-status="{{ r.estado|lower }}" data-search="{{ r.id }} {{ r.hospedaje.parque }} {{ r.hospedaje.get_tipo_hospedaje_display }} {{ r.get_estado_display }}">
+<td class="px-4 py-5 text-body-md text-on-surface-variant text-center">#{{ r.id }}</td>
+<td class="px-4 py-5 text-body-md text-on-surface-variant text-center">{{ r.hospedaje.parque.nombre }}</td>
+<td class="px-4 py-5 text-body-md text-on-surface-variant text-center">{{ r.hospedaje.get_tipo_hospedaje_display }}</td>
+<td class="px-4 py-5 text-body-md text-on-surface-variant text-center">{{ r.fecha_inicio|date:"d M Y" }}</td>
+<td class="px-4 py-5 text-body-md text-on-surface-variant text-center">{{ r.fecha_fin|date:"d M Y" }}</td>
+<td class="px-4 py-5 text-body-md text-on-surface-variant text-center">{{ r.calcular_duracion }} noche(s)</td>
+<td class="px-4 py-5 text-body-md text-on-surface-variant text-center">{{ r.num_huespedes }}</td>
+<td class="px-4 py-5 text-body-md text-on-surface-variant text-center">${{ r.precio_total }} MXN</td>
+<td class="px-4 py-5 text-body-md text-on-surface-variant text-center">
+{% if r.estado == 'ACTIVA' %}
+<span class="px-4 py-1 bg-[#e8f5e9] text-[#2e7d32] rounded-full text-label-sm font-bold">Activa</span>
+{% elif r.estado == 'CANCELADA' %}
+<span class="px-4 py-1 bg-surface-container-high text-on-surface-variant rounded-full text-label-sm font-bold">Cancelada</span>
+{% else %}
+<span class="px-4 py-1 bg-surface-variant text-on-surface-variant rounded-full text-label-sm font-bold">{{ r.get_estado_display }}</span>
+{% endif %}
+</td>
+<td class="px-4 py-5 text-body-md text-on-surface-variant text-center">
+<div class="flex justify-end gap-2">
+<a class="px-4 py-1.5 bg-surface-container-high text-on-surface-variant hover:bg-surface-variant rounded-full text-label-md transition-all" href="{% url 'detalle_reservacion' r.id %}">Ver</a>
+{% if r.estado == 'ACTIVA' %}
+<a class="px-4 py-1.5 bg-error-container text-on-error-container hover:opacity-80 rounded-full text-label-md transition-all" href="{% url 'cancelar_reservacion' r.id %}">Cancelar</a>
+{% endif %}
+</div>
+</td>
+</tr>
+{% endfor %}
+</tbody>
+</table>
+</div>
+<div class="mt-8 text-center p-8 bg-surface-container-lowest border border-outline-variant rounded-lg hidden" data-reservation-filter-empty>
+    <h3 class="font-headline-md text-primary mb-2">No hay reservaciones con esos filtros</h3>
+    <p class="font-body-md text-on-surface-variant">Modifica la búsqueda o el estado seleccionado para ver más resultados.</p>
+</div>
+{% else %}
+<div class="mt-8 text-center p-12 bg-surface-container-lowest border border-outline-variant rounded-lg">
+    <h3 class="font-headline-md text-primary mb-2">No tienes reservaciones registradas</h3>
+    <p class="font-body-md text-on-surface-variant mb-6">Explora los parques disponibles y elige un hospedaje para iniciar una reservación.</p>
+    <a class="px-8 py-3 bg-secondary-container text-on-secondary-container rounded-full font-label-md transition-all hover:bg-secondary hover:text-on-secondary" href="{% url 'listado_parques' %}">Explorar parques</a>
+</div>
+{% endif %}
+
+<div class="mt-8">
+<a class="px-8 py-3 bg-surface-container-high text-on-surface-variant hover:bg-surface-variant rounded-full font-label-md transition-all inline-flex items-center gap-2" href="{% url 'inicio' %}">
+<span class="material-symbols-outlined text-base">arrow_back</span>
+        Ir al inicio
+</a>
+</div>
+</main>
+<!-- Footer -->
+<footer class="w-full bg-surface-container-lowest/90 border-t border-on-secondary-fixed-variant/10 mt-auto">
+<div class="flex flex-col items-center justify-center gap-base py-xl px-margin-mobile text-center w-full py-12">
+<h5 class="font-headline-md text-headline-md text-secondary mb-4">Lumina Forest</h5>
+<p class="font-label-sm text-label-sm text-on-surface-variant">
+                © 2026 Lumina Forest Collective. Harmonic echoes in the deep.
+            </p>
+</div>
+</footer>
+
+<script>
+    // Visual logic to update button active states when clicking
+    // The actual filtering is done by prototipo_reservaciones.js via data attributes
+    const filterButtons = document.querySelectorAll('#filterButtonsContainer button');
+    filterButtons.forEach(btn => {
+        btn.addEventListener('click', () => {
+            filterButtons.forEach(b => {
+                b.className = "px-6 py-2 bg-surface-container-lowest border border-outline-variant text-on-surface-variant hover:bg-surface-container-low rounded-full font-label-md transition-all whitespace-nowrap";
+            });
+            btn.className = "px-6 py-2 bg-primary text-on-primary rounded-full font-label-md transition-all whitespace-nowrap";
+        });
+    });
+</script>
+
+<script>window.IS_AUTH = {{ user.is_authenticated|yesno:"true,false" }};</script>
+<script src="{% static 'js/prototipo_reservaciones.js' %}?v=reservaciones-ui"></script>
+</body></html>

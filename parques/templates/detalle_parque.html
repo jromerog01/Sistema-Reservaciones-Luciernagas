@@ -7,104 +7,250 @@
     <title>Festival de Luciernagas | {{ parque.nombre }}</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
-    <link rel="stylesheet" href="{% static 'css/prototipo_reservaciones.css' %}">
+    <link rel="stylesheet" href="{% static 'css/prototipo_reservaciones.css' %}?v=reservas-flotantes">
+    <link rel="stylesheet" href="{% static 'css/stitch_theme.css' %}?v=1">
+    <script>window.IS_AUTH = {% if user.is_authenticated %}true{% else %}false{% endif %};</script>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script>
+    tailwind.config = {
+        corePlugins: { preflight: false },
+        darkMode: "class",
+        theme: {
+            extend: {
+                colors: {
+                    "surface": "#fbf9f5",
+                    "surface-container-high": "#eae8e4",
+                    "surface-container-highest": "#e4e2de",
+                    "surface-container-low": "#f5f3ef",
+                    "surface-container-lowest": "#ffffff",
+                    "on-surface": "#1b1c1a",
+                    "on-surface-variant": "#434845",
+                    "outline-variant": "#c3c8c3",
+                    "primary": "#000000",
+                    "secondary": "#705d00",
+                    "on-secondary": "#ffffff",
+                    "secondary-container": "#fcd400",
+                    "on-secondary-container": "#6e5c00",
+                    "error": "#ba1a1a",
+                    "error-container": "#ffdad6"
+                },
+                fontFamily: {
+                    "body-md": ["Quicksand", "sans-serif"],
+                    "label-md": ["Quicksand", "sans-serif"],
+                    "headline-lg": ["Quicksand", "sans-serif"]
+                }
+            }
+        }
+    }
+</script>
 </head>
-<body>
-    {% include "partials/navbar.html" %}
+<body class="park-detail-view">
+    {% include "partials/tailwind_navbar.html" %}
 
-    <main class="park-detail-page">
-        <section class="park-detail-hero">
-            <div class="park-detail-copy">
-                <span class="eyebrow">{{ parque.get_estado_display }}</span>
-                <h1>{{ parque.nombre }}</h1>
-                {% if parque.hospedajes.all %}
-                    <div class="park-tag-section park-title-tags">
-                        <span class="tag-section-label">Hospedaje</span>
-                        <div class="service-list" aria-label="Hospedajes disponibles">
-                            {% for hospedaje in parque.hospedajes.all %}
-                                <span>{{ hospedaje.get_tipo_hospedaje_display }}</span>
-                            {% endfor %}
-                        </div>
-                    </div>
-                {% endif %}
-                <p>{{ parque.descripcion|default:"Parque registrado para consulta de disponibilidad y hospedaje durante la temporada." }}</p>
-                <div class="park-detail-reserve-block">
-                    <div class="lodging-availability lodging-availability-hero" aria-label="Unidades disponibles de hospedaje">
-                        {% for hospedaje in parque.hospedajes.all %}
-                            <span>{{ hospedaje.get_tipo_hospedaje_display }}: {{ hospedaje.cantidad_unidades }} {% if hospedaje.tipo_hospedaje == "CAMPING" %}espacios{% else %}unidades{% endif %} quedan disponibles</span>
-                        {% empty %}
-                            <span>Sin hospedajes disponibles</span>
-                        {% endfor %}
-                    </div>
-                    <div class="park-detail-actions">
-                        <a class="button primary" href="{% url 'inicio' %}#reservar">Reservar visita</a>
-                        <a class="button secondary" href="{% url 'listado_parques' %}">Ver otros parques</a>
+    <main class="park-stitch-page">
+        <section class="park-stitch-hero">
+            <img src="{{ imagen }}" alt="Vista natural de {{ parque.nombre }}" data-park-hero-image>
+            <div class="park-stitch-hero-overlay">
+                <div class="park-stitch-hero-content">
+                    <span class="park-location-pill">{{ parque.get_estado_display }}</span>
+                    <h1>{{ parque.nombre }}</h1>
+                    <div class="park-stitch-meta-row" aria-label="Datos principales del parque">
+                        <span>
+                            <span class="material-symbols-outlined filled">star</span>
+                            Temporada de luciernagas
+                        </span>
+                        <span>
+                            <span class="material-symbols-outlined">map</span>
+                            {{ parque.get_estado_display }}
+                        </span>
                     </div>
                 </div>
             </div>
-            <img src="{{ imagen }}" alt="Vista natural de {{ parque.nombre }}">
         </section>
 
-        <section class="park-detail-grid">
-            <article class="detail-panel">
-                <span>Informacion general</span>
-                <dl class="dialog-details">
-                    <div>
-                        <dt>Estado</dt>
-                        <dd>{{ parque.get_estado_display }}</dd>
-                    </div>
-                    <div>
-                        <dt>Horario</dt>
-                        <dd>{{ parque.horario_apertura|time:"H:i" }} - {{ parque.horario_cierre|time:"H:i" }}</dd>
-                    </div>
-                    <div>
-                        <dt>Direccion</dt>
-                        <dd>
-                            <span>{{ parque.direccion }}</span>
-                            <a class="maps-link" href="https://www.google.com/maps/search/?api=1&query={{ parque.latitud|floatformat:6 }},{{ parque.longitud|floatformat:6 }}" target="_blank" rel="noopener noreferrer">Abrir en Google Maps</a>
-                        </dd>
-                    </div>
-                    <div>
-                        <dt>Mapa</dt>
-                        <dd>
-                            <div class="mini-park-map" data-mini-map data-lat="{{ parque.latitud|floatformat:6 }}" data-lng="{{ parque.longitud|floatformat:6 }}" data-title="{{ parque.nombre }}" aria-label="Mapa de {{ parque.nombre }}"></div>
-                        </dd>
-                    </div>
-                </dl>
-            </article>
+        <div class="park-stitch-content">
+            <div class="park-stitch-main">
+                <article class="park-stitch-description">
+                    <h2>Experiencia natural del festival</h2>
+                    <p>{{ parque.descripcion|default:"Parque registrado para consulta de disponibilidad y hospedaje durante la temporada. Explora sus servicios, horarios y opciones de estancia para planear tu visita al santuario de luciernagas." }}</p>
+                </article>
 
-            <article class="detail-panel">
-                <span>Servicios</span>
-                <div class="service-list detail-service-list" aria-label="Servicios disponibles">
-                    {% for servicio in parque.servicios.all %}
-                        <span>{{ servicio.nombre }}</span>
-                    {% empty %}
-                        <span>Sin servicios registrados</span>
-                    {% endfor %}
-                </div>
-            </article>
+                <section class="park-feature-grid" aria-label="Resumen del parque">
+                    <article class="park-feature-card">
+                        <span class="material-symbols-outlined">local_fire_department</span>
+                        <h3>Servicios del parque</h3>
+                        <div class="service-list">
+                            {% for servicio in parque.servicios.all %}
+                                <span>{{ servicio.nombre }}</span>
+                            {% empty %}
+                                <span>Sin servicios registrados</span>
+                            {% endfor %}
+                        </div>
+                    </article>
 
-            <article class="detail-panel detail-panel-wide">
-                <span>Hospedajes disponibles</span>
-                {% if parque.hospedajes.all %}
-                    <div class="lodging-detail-list">
-                        {% for hospedaje in parque.hospedajes.all %}
-                            <div>
-                                <strong>{{ hospedaje.get_tipo_hospedaje_display }}</strong>
-                                <p>{{ hospedaje.cantidad_unidades }} unidades, capacidad para {{ hospedaje.capacidad_unidad }} personas por unidad.</p>
-                                <b>${{ hospedaje.precio_por_unidad|floatformat:2 }} MXN</b>
-                            </div>
+                    <article class="park-feature-card">
+                        <span class="material-symbols-outlined">cabin</span>
+                        <h3>Hospedaje disponible</h3>
+                        <div class="service-list">
+                            {% for hospedaje in parque.hospedajes.all %}
+                                <span>{{ hospedaje.get_tipo_hospedaje_display }}</span>
+                            {% empty %}
+                                <span>Sin hospedajes registrados</span>
+                            {% endfor %}
+                        </div>
+                        <div class="lodging-availability park-stitch-availability" aria-label="Unidades disponibles de hospedaje">
+                            {% for hospedaje in parque.hospedajes.all %}
+                                <span>{{ hospedaje.get_tipo_hospedaje_display }}: {{ hospedaje.cantidad_unidades }} {% if hospedaje.tipo_hospedaje == "CAMPING" %}espacios{% else %}unidades{% endif %} quedan disponibles</span>
+                            {% empty %}
+                                <span>Sin hospedajes disponibles</span>
+                            {% endfor %}
+                        </div>
+                    </article>
+
+                    <article class="park-feature-card">
+                        <span class="material-symbols-outlined">schedule</span>
+                        <h3>Horario de visita</h3>
+                        <p>{{ parque.horario_apertura|time:"H:i" }} - {{ parque.horario_cierre|time:"H:i" }}</p>
+                    </article>
+                </section>
+
+                <section class="park-stitch-gallery">
+                    <div class="park-section-heading">
+                        <h2>Vistas del parque</h2>
+                        <a href="{% url 'listado_parques' %}">Ver otros parques</a>
+                    </div>
+                    <div class="park-gallery-mosaic">
+                        {% for foto in galeria %}
+                            <img class="{% if forloop.first %}featured{% endif %}" src="{{ foto }}" alt="Paisaje de {{ parque.nombre }}" loading="lazy">
                         {% endfor %}
                     </div>
-                {% else %}
-                    <p class="detail-muted">No hay hospedajes registrados para este parque.</p>
-                {% endif %}
-            </article>
+                </section>
+
+                <section class="park-stitch-lodging">
+                    <h2>Hospedajes disponibles</h2>
+                    {% if parque.hospedajes.all %}
+                        <div class="lodging-detail-list park-stitch-lodging-list">
+                            {% for hospedaje in parque.hospedajes.all %}
+                                <div>
+                                    <strong>{{ hospedaje.get_tipo_hospedaje_display }}</strong>
+                                    <p>{{ hospedaje.cantidad_unidades }} {% if hospedaje.tipo_hospedaje == "CAMPING" %}espacios{% else %}unidades{% endif %}, capacidad para {{ hospedaje.capacidad_unidad }} personas por unidad.</p>
+                                    <b>${{ hospedaje.precio_por_unidad|floatformat:2 }} MXN</b>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <p class="detail-muted">No hay hospedajes registrados para este parque.</p>
+                    {% endif %}
+                </section>
+            </div>
+
+            <aside class="park-booking-aside">
+                {% with primer_hospedaje=parque.hospedajes.all.0 %}
+                    <div class="park-booking-card">
+                        <div class="booking-price-row">
+                            <div>
+                                {% if primer_hospedaje %}
+                                    <strong>${{ primer_hospedaje.precio_por_unidad|floatformat:2 }}</strong>
+                                    <span>MXN / unidad</span>
+                                {% else %}
+                                    <strong>Sin cupo</strong>
+                                    <span>por ahora</span>
+                                {% endif %}
+                            </div>
+                            <span class="booking-status">{% if primer_hospedaje %}Cupo disponible{% else %}Sin hospedaje{% endif %}</span>
+                        </div>
+
+                        <div class="booking-field-list">
+                            <div class="booking-field">
+                                <span>Horario</span>
+                                <strong>
+                                    <span class="material-symbols-outlined">calendar_today</span>
+                                    {{ parque.horario_apertura|time:"H:i" }} - {{ parque.horario_cierre|time:"H:i" }}
+                                </strong>
+                            </div>
+                            <div class="booking-field">
+                                <span>Visitantes</span>
+                                <strong>
+                                    <span class="material-symbols-outlined">person</span>
+                                    {% if primer_hospedaje %}Hasta {{ primer_hospedaje.capacidad_unidad }} por unidad{% else %}Por definir{% endif %}
+                                </strong>
+                            </div>
+                        </div>
+
+                        <a
+                            class="park-secure-button requires-login {% if not primer_hospedaje %}is-disabled{% endif %}"
+                            href="{% if primer_hospedaje %}{% url 'crear_reservacion' primer_hospedaje.id %}{% else %}#{% endif %}"
+                            aria-disabled="{% if primer_hospedaje %}false{% else %}true{% endif %}"
+                        >Reservar ahora</a>
+                        <p class="booking-note">La disponibilidad final se valida antes de confirmar.</p>
+
+                        <div class="booking-breakdown">
+                            {% for hospedaje in parque.hospedajes.all %}
+                                <div>
+                                    <span>{{ hospedaje.get_tipo_hospedaje_display }}</span>
+                                    <strong>${{ hospedaje.precio_por_unidad|floatformat:2 }} MXN</strong>
+                                </div>
+                            {% empty %}
+                                <div>
+                                    <span>Hospedaje</span>
+                                    <strong>No registrado</strong>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                {% endwith %}
+
+                <div class="park-pledge-card">
+                    <span class="material-symbols-outlined filled">eco</span>
+                    <div>
+                        <h3>Conservacion del santuario</h3>
+                        <p>Tu visita ayuda a sostener la operacion local durante la temporada de avistamiento.</p>
+                    </div>
+                </div>
+            </aside>
+        </div>
+
+        <section class="park-location-section">
+            <h2>Como llegar</h2>
+            <div class="park-location-map">
+                <div
+                    class="mini-park-map park-detail-location-map"
+                    data-mini-map
+                    data-lat="{{ parque.latitud|floatformat:6 }}"
+                    data-lng="{{ parque.longitud|floatformat:6 }}"
+                    data-title="{{ parque.nombre }}"
+                    aria-label="Mapa de {{ parque.nombre }}"
+                ></div>
+                <div class="park-location-float">
+                    <div>
+                        <span class="material-symbols-outlined filled">location_on</span>
+                    </div>
+                    <strong>{{ parque.nombre }}</strong>
+                    <a class="maps-link" href="https://www.google.com/maps/search/?api=1&query={{ parque.latitud|floatformat:6 }},{{ parque.longitud|floatformat:6 }}" target="_blank" rel="noopener noreferrer">Abrir en Google Maps</a>
+                </div>
+            </div>
+            <p>{{ parque.direccion }}</p>
         </section>
     </main>
+
+    <footer class="park-stitch-footer-shell">
+        <div class="park-stitch-footer">
+            <div>
+                <strong>Luciernagas</strong>
+                <p>Festival de Luciernagas. Reservaciones y parques participantes.</p>
+            </div>
+            <div class="park-stitch-footer-links">
+                <a href="{% url 'listado_parques' %}">Parques</a>
+                <a href="{% url 'mapa_parques' %}">Mapa</a>
+                <a href="{% url 'inicio' %}#reservar">Reservar</a>
+            </div>
+        </div>
+    </footer>
+
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-    <script src="{% static 'js/prototipo_reservaciones.js' %}"></script>
+    <script src="{% static 'js/prototipo_reservaciones.js' %}?v=6"></script>
 </body>
 </html>
