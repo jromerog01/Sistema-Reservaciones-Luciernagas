@@ -263,7 +263,7 @@ class DetalleParqueTests(TestCase):
         self.assertContains(response, "Hospedaje")
         self.assertContains(response, "<span>Estacionamiento</span>", html=True)
         self.assertContains(response, "<span>Camping</span>", html=True)
-        self.assertContains(response, "Camping: 6 espacios quedan disponibles")
+        self.assertContains(response, "Camping: 6 espacios en total")
         self.assertContains(response, "data-mini-map")
         self.assertContains(response, "https://www.google.com/maps/search/?api=1&query=19.551000,-98.431000")
         self.assertNotContains(response, "<dt>Coordenadas</dt>", html=True)

@@ -24,6 +24,7 @@
 
 html {
     scroll-behavior: smooth;
+    overflow-x: hidden;
 }
 
 body {
@@ -32,6 +33,7 @@ body {
     color: var(--ink);
     background: #f5f7ee;
     font-family: Inter, Arial, sans-serif;
+    overflow-x: hidden;
 }
 
 a {

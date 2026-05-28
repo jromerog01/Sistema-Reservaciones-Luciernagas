@@ -1,4 +1,4 @@
-<header {% if request.resolver_match.url_name == 'inicio' %}data-home-header{% endif %} class="{% if request.resolver_match.url_name == 'inicio' %}home-transparent-nav fixed{% else %}bg-surface shadow-sm sticky{% endif %} top-0 w-full z-[9999] transition-all duration-300">
+<header {% if request.resolver_match.url_name == 'inicio' or request.path == '/' %}data-home-header{% endif %} class="{% if request.resolver_match.url_name == 'inicio' or request.path == '/' %}home-transparent-nav fixed{% else %}bg-surface shadow-sm sticky{% endif %} top-0 w-full z-[9999] transition-all duration-300">
     <nav class="flex justify-between items-center w-full px-4 md:px-margin-desktop py-4 max-w-container-max mx-auto">
         <a href="{% url 'inicio' %}" class="font-headline-lg font-bold text-primary">Lumina Fest</a>
         <div class="hidden md:flex gap-8">

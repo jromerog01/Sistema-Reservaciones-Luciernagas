@@ -102,7 +102,7 @@
                         </div>
                         <div class="lodging-availability park-stitch-availability" aria-label="Unidades disponibles de hospedaje">
                             {% for hospedaje in parque.hospedajes.all %}
-                                <span>{{ hospedaje.get_tipo_hospedaje_display }}: {{ hospedaje.cantidad_unidades }} {% if hospedaje.tipo_hospedaje == "CAMPING" %}espacios{% else %}unidades{% endif %} quedan disponibles</span>
+                                <span>{{ hospedaje.get_tipo_hospedaje_display }}: {{ hospedaje.cantidad_unidades }} {% if hospedaje.tipo_hospedaje == "CAMPING" %}espacios en total{% else %}unidades en total{% endif %}</span>
                             {% empty %}
                                 <span>Sin hospedajes disponibles</span>
                             {% endfor %}

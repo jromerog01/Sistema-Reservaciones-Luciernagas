@@ -7,6 +7,7 @@ from reservaciones.forms import ReservacionForm
 from reservaciones.models import Reservacion
 from reservaciones.utils.template_method import ReservacionHospedajeTemplate
 from reservaciones.utils.notificador import notificador
+from parques.parque_cards import obtener_imagen_parque
 
 
 def render_reservacion_forbidden(request, mensaje):
@@ -70,6 +71,7 @@ def cancelar_reservacion(request, reservacion_id):
                 {
                     "reservacion": reservacion,
                     "error": "Solo se pueden cancelar reservaciones activas.",
+                    "imagen_parque": obtener_imagen_parque(reservacion.hospedaje.parque),
                 },
             )
         reservacion.estado = Reservacion.EstadoReservacion.CANCELADA
@@ -82,7 +84,7 @@ def cancelar_reservacion(request, reservacion_id):
     return render(
         request,
         "cancelar_reservacion.html",
-        {"reservacion": reservacion},
+        {"reservacion": reservacion, "imagen_parque": obtener_imagen_parque(reservacion.hospedaje.parque)},
     )
 
 @login_required(login_url="usuarios:login")
@@ -121,7 +123,11 @@ def detalle_reservacion(request, reservacion_id):
     return render(
         request,
         "detalle_reservacion.html",
-        {"reservacion": reservacion, "duracion": reservacion.calcular_duracion()},
+        {
+            "reservacion": reservacion, 
+            "duracion": reservacion.calcular_duracion(),
+            "imagen_parque": obtener_imagen_parque(reservacion.hospedaje.parque),
+        },
     )
 
 

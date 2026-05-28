@@ -1002,6 +1002,20 @@ const getReservationNights = (startValue, endValue) => {
     return Math.round((endDate - startDate) / 86400000);
 };
 
+const isReservationInFestivalSeason = (startValue, endValue) => {
+    const startDate = getLocalDate(startValue);
+    const endDate = getLocalDate(endValue);
+
+    if (!startDate || !endDate || endDate <= startDate) {
+        return false;
+    }
+
+    const lastNight = new Date(endDate);
+    lastNight.setDate(lastNight.getDate() - 1);
+
+    return [5, 6, 7].includes(startDate.getMonth()) && [5, 6, 7].includes(lastNight.getMonth());
+};
+
 const buildReservationSwitchUrl = (baseUrl, form) => {
     if (!baseUrl || !form) {
         return baseUrl || "#";
@@ -1066,16 +1080,22 @@ const initializeReservationForm = () => {
     const availableUnits = Number.parseInt(form.dataset.available || "0", 10) || 0;
     const preview = document.querySelector("[data-reservation-preview]");
     const totalElement = document.querySelector("[data-preview-total]");
+    const subtotalElement = document.querySelector("[data-preview-subtotal]");
+    const surchargeElement = document.querySelector("[data-preview-surcharge]");
     const nightsElement = document.querySelector("[data-preview-nights]");
     const unitsElement = document.querySelector("[data-preview-units]");
     const guestsElement = document.querySelector("[data-preview-guests]");
     const messageElement = document.querySelector("[data-preview-message]");
 
     const updatePreview = () => {
-        const nights = getReservationNights(form.elements.fecha_inicio?.value, form.elements.fecha_fin?.value);
+        const startValue = form.elements.fecha_inicio?.value;
+        const endValue = form.elements.fecha_fin?.value;
+        const nights = getReservationNights(startValue, endValue);
         const guests = Number.parseInt(form.elements.num_huespedes?.value || "0", 10) || 0;
         const units = Number.parseInt(form.elements.unidades_reservadas?.value || "0", 10) || 0;
-        const total = nights * units * pricePerUnit;
+        const subtotal = nights * units * pricePerUnit;
+        const surcharge = isReservationInFestivalSeason(startValue, endValue) ? subtotal * 0.2 : 0;
+        const total = subtotal + surcharge;
         let message = "Completa fechas, huéspedes y unidades para calcular una estimación visual.";
         let isWarning = false;
 
@@ -1086,9 +1106,17 @@ const initializeReservationForm = () => {
                 message = `Con esa capacidad necesitas más unidades para ${guests} huésped(es).`;
                 isWarning = true;
             } else if (availableUnits && units > availableUnits) {
-                message = `Solo hay ${availableUnits} unidad(es) disponible(s) en este hospedaje.`;
+                message = `Este hospedaje tiene ${availableUnits} unidad(es) en total.`;
                 isWarning = true;
             }
+        }
+
+        if (subtotalElement) {
+            subtotalElement.textContent = moneyFormatter.format(subtotal);
+        }
+
+        if (surchargeElement) {
+            surchargeElement.textContent = moneyFormatter.format(surcharge);
         }
 
         if (totalElement) {

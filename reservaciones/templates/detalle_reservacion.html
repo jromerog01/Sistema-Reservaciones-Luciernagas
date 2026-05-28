@@ -147,14 +147,12 @@
 <!-- Hero Card -->
 <div class="bg-surface-container-lowest rounded-xl overflow-hidden shadow-[15%_opacity_Forest_Green_20px_blur] hover:shadow-lg transition-shadow duration-500 border border-surface-variant/30">
 <div class="relative h-96 w-full">
-{% if reservacion.hospedaje.imagen %}
-    <img alt="{{ reservacion.hospedaje.parque.nombre }}" class="w-full h-full object-cover" src="{{ reservacion.hospedaje.imagen.url }}"/>
-{% else %}
-    <img alt="Refugio del Eco" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuC1LfAA5xvXEtixH6w17SE5Pjdq1WuD6Ynj3qxcr1lGeL8E1P8rkTqnw4_m7TRuwgOwyXSBjGIc0lWt99rYozHkUDKpUOlWTP76woz---k1eb51tvOdl4iXLydAkmXIiNLsYQDNyH2aVd_Uy5oWZkaxNmTcFky2wqPbXxGgKvsjn1boV9_ek6T2HCbnnL7GdNbg6y5ALH6xV0-N0jHj2ARMCedE1v9iWZ7sicVOkUOMIoKVp9shy8v7ITBRtQxowZYst6dfZtYJjI8d"/>
-{% endif %}
+<img alt="{{ reservacion.hospedaje.parque.nombre }}" class="w-full h-full object-cover" src="{{ imagen_parque }}"/>
 <div class="absolute bottom-6 left-6 bg-surface/90 backdrop-blur-md px-6 py-3 rounded-lg border border-secondary/20">
 <h3 class="font-headline-md text-headline-md text-primary">{{ reservacion.hospedaje.parque.nombre }}</h3>
-<p class="font-label-md text-label-md text-secondary">Detalles del Santuario</p>
+<a href="{% url 'detalle_parque' reservacion.hospedaje.parque.id %}" class="font-label-md text-label-md text-secondary hover:underline underline-offset-4 flex items-center gap-1 group">
+    Detalles del Santuario <span class="material-symbols-outlined text-sm group-hover:translate-x-1 transition-transform">arrow_forward</span>
+</a>
 </div>
 </div>
 <div class="p-8 grid grid-cols-2 md:grid-cols-4 gap-6">
@@ -217,7 +215,7 @@
 </div>
 <!-- Pricing Sidebar -->
 <aside class="lg:col-span-4 flex flex-col gap-6">
-<div class="bg-white p-8 rounded-xl shadow-[0_20px_40px_rgba(0,0,0,0.05)] border border-surface-variant/30 sticky top-28">
+<div class="bg-white p-8 rounded-xl shadow-[0_20px_40px_rgba(0,0,0,0.05)] border border-surface-variant/30">
 <h4 class="font-headline-md text-headline-md text-primary mb-8">Resumen de Pago</h4>
 <div class="space-y-4 mb-8">
 <div class="flex justify-between items-center">

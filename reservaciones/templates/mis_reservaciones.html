@@ -180,7 +180,7 @@
 {% if r.estado == 'ACTIVA' %}
 <span class="px-4 py-1 bg-[#e8f5e9] text-[#2e7d32] rounded-full text-label-sm font-bold">Activa</span>
 {% elif r.estado == 'CANCELADA' %}
-<span class="px-4 py-1 bg-surface-container-high text-on-surface-variant rounded-full text-label-sm font-bold">Cancelada</span>
+<span class="px-4 py-1 bg-error-container text-error rounded-full text-label-sm font-bold">Cancelada</span>
 {% else %}
 <span class="px-4 py-1 bg-surface-variant text-on-surface-variant rounded-full text-label-sm font-bold">{{ r.get_estado_display }}</span>
 {% endif %}

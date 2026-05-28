@@ -97,7 +97,7 @@
 							<h3>{{ hospedaje.parque.nombre }}</h3>
 							<p>{{ hospedaje.parque.descripcion|default:"Hospedaje disponible para la temporada de avistamiento."|truncatechars:140 }}</p>
 							<div class="lodging-availability" aria-label="Detalles del hospedaje">
-								<span>{{ hospedaje.cantidad_unidades }} unidades disponibles</span>
+								<span>{{ hospedaje.cantidad_unidades }} unidades en total</span>
 								<span>{{ hospedaje.capacidad_unidad }} personas por unidad</span>
 								<span>${{ hospedaje.precio_por_unidad|floatformat:2 }} MXN por unidad</span>
 							</div>
