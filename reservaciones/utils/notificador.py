@@ -17,12 +17,15 @@ class ReservacionNotificador:
         self._observers: list[ReservacionObserver] = []
 
     def agregar_observer(self, observer: ReservacionObserver) -> None:
+        """Registra un observador interesado en eventos de reservacion."""
         self._observers.append(observer)
 
     def remover_observer(self, observer: ReservacionObserver) -> None:
+        """Elimina un observador previamente registrado."""
         self._observers.remove(observer)
 
     def notificar(self, evento: str, reservacion) -> None:
+        """Propaga el evento a todos los observadores registrados."""
         for observer in self._observers:
             observer.update(evento, reservacion)
 

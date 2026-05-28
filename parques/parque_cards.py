@@ -12,6 +12,7 @@ UNSPLASH_IMAGES = [
 
 
 def obtener_imagen_parque(parque):
+    """Asigna una imagen estable a cada parque segun su orden alfabetico."""
     parques_ids = Parque.objects.order_by("nombre").values_list("id", flat=True)
 
     for index, parque_id in enumerate(parques_ids):
@@ -21,7 +22,22 @@ def obtener_imagen_parque(parque):
     return UNSPLASH_IMAGES[0]
 
 
+def obtener_galeria_parque(parque, total=4):
+    """Genera una galeria simple y determinista para la vista de detalle."""
+    parques_ids = list(Parque.objects.order_by("nombre").values_list("id", flat=True))
+    try:
+        start_index = parques_ids.index(parque.id)
+    except ValueError:
+        start_index = 0
+
+    return [
+        UNSPLASH_IMAGES[(start_index + offset) % len(UNSPLASH_IMAGES)]
+        for offset in range(total)
+    ]
+
+
 def obtener_parques_con_imagenes():
+    """Prepara los parques con imagen y valores de filtro para listados visuales."""
     parques = []
     for index, parque in enumerate(
         Parque.objects.prefetch_related("servicios", "hospedajes").order_by("nombre")

@@ -2,84 +2,301 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Reservación #{{ reservacion.id }}</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
-  <link rel="stylesheet" href="{% static 'css/prototipo_reservaciones.css' %}?v=reservacion-mini-mapa">
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Reservación #{{ reservacion.id }} - Lumina Forest</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "surface": "#fbf9f5",
+                        "tertiary": "#000000",
+                        "surface-container-highest": "#e4e2de",
+                        "on-surface": "#1b1c1a",
+                        "on-tertiary-fixed-variant": "#5c4300",
+                        "primary-container": "#101e18",
+                        "on-background": "#1b1c1a",
+                        "surface-bright": "#fbf9f5",
+                        "tertiary-container": "#261a00",
+                        "primary-fixed": "#d5e7dc",
+                        "on-primary-fixed-variant": "#3a4a43",
+                        "on-primary-container": "#77887f",
+                        "secondary": "#705d00",
+                        "tertiary-fixed": "#ffdfa0",
+                        "on-error": "#ffffff",
+                        "primary": "#000000",
+                        "on-primary": "#ffffff",
+                        "inverse-on-surface": "#f2f0ed",
+                        "secondary-container": "#fcd400",
+                        "tertiary-fixed-dim": "#fbbc00",
+                        "secondary-fixed": "#ffe16d",
+                        "on-surface-variant": "#434845",
+                        "background": "#fbf9f5",
+                        "on-secondary-container": "#6e5c00",
+                        "surface-tint": "#52625a",
+                        "on-tertiary-fixed": "#261a00",
+                        "surface-container-low": "#f5f3ef",
+                        "on-secondary": "#ffffff",
+                        "on-tertiary-container": "#a87d00",
+                        "on-secondary-fixed": "#221b00",
+                        "surface-dim": "#dbdad6",
+                        "on-primary-fixed": "#101e18",
+                        "primary-fixed-dim": "#b9cbc1",
+                        "surface-variant": "#e4e2de",
+                        "on-secondary-fixed-variant": "#544600",
+                        "outline": "#737874",
+                        "secondary-fixed-dim": "#e9c400",
+                        "surface-container": "#efeeea",
+                        "outline-variant": "#c3c8c3",
+                        "on-error-container": "#93000a",
+                        "error-container": "#ffdad6",
+                        "inverse-primary": "#b9cbc1",
+                        "surface-container-high": "#eae8e4",
+                        "surface-container-lowest": "#ffffff",
+                        "error": "#ba1a1a",
+                        "on-tertiary": "#ffffff",
+                        "inverse-surface": "#30312e"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "1rem",
+                        "lg": "2rem",
+                        "xl": "3rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "margin-desktop": "48px",
+                        "margin-mobile": "16px",
+                        "container-max": "1280px",
+                        "gutter": "24px",
+                        "base": "8px"
+                    },
+                    "fontFamily": {
+                        "label-md": ["Quicksand"],
+                        "headline-xl": ["Quicksand"],
+                        "headline-md": ["Quicksand"],
+                        "body-lg": ["Quicksand"],
+                        "headline-lg": ["Quicksand"],
+                        "label-sm": ["Quicksand"],
+                        "headline-xl-mobile": ["Quicksand"],
+                        "body-md": ["Quicksand"]
+                    },
+                    "fontSize": {
+                        "label-md": ["14px", {"lineHeight": "20px", "letterSpacing": "0.02em", "fontWeight": "600"}],
+                        "headline-xl": ["48px", {"lineHeight": "56px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                        "headline-md": ["24px", {"lineHeight": "32px", "fontWeight": "600"}],
+                        "body-lg": ["18px", {"lineHeight": "28px", "fontWeight": "400"}],
+                        "headline-lg": ["32px", {"lineHeight": "40px", "fontWeight": "600"}],
+                        "label-sm": ["12px", {"lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "500"}],
+                        "headline-xl-mobile": ["32px", {"lineHeight": "40px", "letterSpacing": "-0.01em", "fontWeight": "700"}],
+                        "body-md": ["16px", {"lineHeight": "24px", "fontWeight": "400"}]
+                    }
+                },
+            },
+        }
+    </script>
+<style>
+        body {
+            font-family: 'Quicksand', sans-serif;
+            background-color: #fbf9f5;
+        }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .glow-hover:hover {
+            box-shadow: 0 0 20px rgba(248, 248, 113, 0.4);
+        }
+        /* Fix leaflet map sizing */
+        .leaflet-container {
+            z-index: 10;
+        }
+</style>
 </head>
-<body>
-  {% include "partials/navbar.html" %}
+<body class="text-on-surface">
 
-  <main class="reservation-page">
-    <section class="reservation-hero reservation-hero-compact">
-      <div>
-        <span class="eyebrow">Detalle de reservación</span>
-        <h1>Reservación #{{ reservacion.id }}</h1>
-        <p>{{ reservacion.hospedaje.parque }} · {{ reservacion.hospedaje.get_tipo_hospedaje_display }}</p>
-      </div>
-      <div class="reservation-hero-card">
-        <span class="reservation-role-badge">
-          {% if user.es_administrador %}Administrador{% else %}Usuario autorizado{% endif %}
-        </span>
-        <strong>{{ reservacion.get_estado_display }}</strong>
-        <span>estado actual</span>
-      </div>
-    </section>
+<!-- TopNavBar Inlined for consistency and authentication logic -->
+{% include "partials/tailwind_navbar.html" %}
 
-    <section class="reservation-shell">
-      <article class="reservation-panel">
-        <div class="reservation-panel-header">
-          <div>
-            <span>Información de la estancia</span>
-            <h2>{{ reservacion.hospedaje.parque }}</h2>
-          </div>
-          <span class="reservation-status status-{{ reservacion.estado|lower }}">{{ reservacion.get_estado_display }}</span>
-        </div>
+<main class="pt-32 pb-20 px-margin-mobile md:px-margin-desktop max-w-container-max mx-auto">
+<!-- Status Header -->
+<div class="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-12">
+<div>
+<span class="inline-flex items-center px-4 py-1 rounded-full {% if reservacion.estado == 'ACTIVA' %}bg-secondary-container text-on-secondary-container shadow-[0_0_15px_rgba(248,248,113,0.3)]{% else %}bg-error-container text-on-error-container shadow-[0_0_15px_rgba(255,100,100,0.3)]{% endif %} font-label-md text-label-md mb-3">
+<span class="material-symbols-outlined text-[16px] mr-2" style="font-variation-settings: 'FILL' 1;">{% if reservacion.estado == 'ACTIVA' %}check_circle{% else %}cancel{% endif %}</span>
+                    {{ reservacion.get_estado_display }}
+                </span>
+<h2 class="font-headline-lg text-headline-lg-mobile md:text-headline-lg text-primary">#LF-2026-{{ reservacion.id }}</h2>
+<p class="font-body-md text-body-md text-on-surface-variant">{% if reservacion.estado == 'ACTIVA' %}Tu refugio te espera en el corazón del bosque.{% else %}Esta reservación no se encuentra activa.{% endif %}</p>
+</div>
+<div class="flex gap-3">
+{% if reservacion.estado == 'ACTIVA' %}
+<button class="px-6 py-3 bg-primary text-on-primary rounded-full font-label-md text-label-md hover:opacity-90 transition-all flex items-center gap-2 active:scale-95" onclick="window.print()">
+<span class="material-symbols-outlined">download</span> Imprimir comprobante
+</button>
+{% endif %}
+</div>
+</div>
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+<!-- Main Content Column -->
+<div class="lg:col-span-8 flex flex-col gap-8">
+<!-- Hero Card -->
+<div class="bg-surface-container-lowest rounded-xl overflow-hidden shadow-[15%_opacity_Forest_Green_20px_blur] hover:shadow-lg transition-shadow duration-500 border border-surface-variant/30">
+<div class="relative h-96 w-full">
+{% if reservacion.hospedaje.imagen %}
+    <img alt="{{ reservacion.hospedaje.parque.nombre }}" class="w-full h-full object-cover" src="{{ reservacion.hospedaje.imagen.url }}"/>
+{% else %}
+    <img alt="Refugio del Eco" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuC1LfAA5xvXEtixH6w17SE5Pjdq1WuD6Ynj3qxcr1lGeL8E1P8rkTqnw4_m7TRuwgOwyXSBjGIc0lWt99rYozHkUDKpUOlWTP76woz---k1eb51tvOdl4iXLydAkmXIiNLsYQDNyH2aVd_Uy5oWZkaxNmTcFky2wqPbXxGgKvsjn1boV9_ek6T2HCbnnL7GdNbg6y5ALH6xV0-N0jHj2ARMCedE1v9iWZ7sicVOkUOMIoKVp9shy8v7ITBRtQxowZYst6dfZtYJjI8d"/>
+{% endif %}
+<div class="absolute bottom-6 left-6 bg-surface/90 backdrop-blur-md px-6 py-3 rounded-lg border border-secondary/20">
+<h3 class="font-headline-md text-headline-md text-primary">{{ reservacion.hospedaje.parque.nombre }}</h3>
+<p class="font-label-md text-label-md text-secondary">Detalles del Santuario</p>
+</div>
+</div>
+<div class="p-8 grid grid-cols-2 md:grid-cols-4 gap-6">
+<div class="flex flex-col">
+<span class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider">Llegada</span>
+<span class="font-body-lg text-body-lg text-primary">{{ reservacion.fecha_inicio|date:"d M Y" }}</span>
+<span class="font-label-md text-label-md text-on-surface-variant">15:00</span>
+</div>
+<div class="flex flex-col">
+<span class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider">Salida</span>
+<span class="font-body-lg text-body-lg text-primary">{{ reservacion.fecha_fin|date:"d M Y" }}</span>
+<span class="font-label-md text-label-md text-on-surface-variant">12:00</span>
+</div>
+<div class="flex flex-col">
+<span class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider">Huéspedes</span>
+<span class="font-body-lg text-body-lg text-primary">{{ reservacion.num_huespedes }}</span>
+</div>
+<div class="flex flex-col">
+<span class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider">Unidades</span>
+<span class="font-body-lg text-body-lg text-primary">{{ reservacion.unidades_reservadas }} {{ reservacion.hospedaje.get_tipo_hospedaje_display|lower }}</span>
+</div>
+</div>
+</div>
+<!-- Amenities & Info -->
+<div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+<!-- Amenities -->
+<div class="bg-surface-container-low p-8 rounded-xl border border-surface-variant/30">
+<h4 class="font-headline-md text-headline-md text-primary mb-6 flex items-center gap-2">
+<span class="material-symbols-outlined text-secondary">star_border</span>
+                            Servicios Incluidos
+                        </h4>
+<ul class="space-y-4">
+{% for servicio in reservacion.hospedaje.parque.servicios.all %}
+<li class="flex items-center gap-4 group">
+<div class="w-10 h-10 rounded-full bg-white flex items-center justify-center text-secondary shadow-sm group-hover:scale-110 transition-transform">
+<span class="material-symbols-outlined">check_circle</span>
+</div>
+<span class="font-body-md text-body-md text-on-surface">{{ servicio.nombre }}</span>
+</li>
+{% empty %}
+<li class="flex items-center gap-4 group">
+<span class="font-body-md text-body-md text-on-surface-variant">Sin servicios registrados</span>
+</li>
+{% endfor %}
+</ul>
+</div>
+<!-- Location -->
+<div class="bg-surface-container-low p-8 rounded-xl border border-surface-variant/30">
+<h4 class="font-headline-md text-headline-md text-primary mb-6 flex items-center gap-2">
+<span class="material-symbols-outlined text-secondary">location_on</span>
+                            Ubicación y Acceso
+                        </h4>
+<div class="rounded-lg overflow-hidden h-32 mb-4 relative z-0">
+    <div class="w-full h-full mini-park-map" data-mini-map data-lat="{{ reservacion.hospedaje.parque.latitud|floatformat:6 }}" data-lng="{{ reservacion.hospedaje.parque.longitud|floatformat:6 }}" data-title="{{ reservacion.hospedaje.parque.nombre }}"></div>
+</div>
+<p class="font-label-md text-label-md text-primary">{{ reservacion.hospedaje.parque.nombre }}</p>
+<p class="font-label-sm text-label-sm text-on-surface-variant mt-1">Acude al área de recepción en la entrada del santuario.</p>
+</div>
+</div>
+</div>
+<!-- Pricing Sidebar -->
+<aside class="lg:col-span-4 flex flex-col gap-6">
+<div class="bg-white p-8 rounded-xl shadow-[0_20px_40px_rgba(0,0,0,0.05)] border border-surface-variant/30 sticky top-28">
+<h4 class="font-headline-md text-headline-md text-primary mb-8">Resumen de Pago</h4>
+<div class="space-y-4 mb-8">
+<div class="flex justify-between items-center">
+<span class="font-body-md text-body-md text-on-surface-variant">Estancia ({{ duracion }} noche{{ duracion|pluralize:"s" }})</span>
+<span class="font-body-md text-body-md text-primary">${{ reservacion.precio_total }}</span>
+</div>
+</div>
+<div class="pt-6 border-t border-surface-variant/50 mb-8">
+<div class="flex justify-between items-end">
+<span class="font-headline-md text-headline-md text-primary">Total Pagado</span>
+<div class="text-right">
+<span class="font-headline-lg text-headline-lg text-secondary">${{ reservacion.precio_total }}</span>
+<span class="block font-label-sm text-label-sm text-on-surface-variant">MXN</span>
+</div>
+</div>
+</div>
+<div class="space-y-3">
+{% if reservacion.estado == 'ACTIVA' %}
+<div class="flex flex-col items-center gap-4 mt-6">
+<a class="font-label-md text-label-md text-secondary hover:underline underline-offset-4 transition-all" href="{% url 'mis_reservaciones' %}">Volver a mis reservas</a>
+<a class="font-label-md text-label-md text-error hover:opacity-70 transition-all" href="{% url 'cancelar_reservacion' reservacion.id %}">Cancelar estancia</a>
+</div>
+{% else %}
+<div class="flex flex-col items-center gap-4 mt-6">
+<a class="font-label-md text-label-md text-secondary hover:underline underline-offset-4 transition-all" href="{% url 'mis_reservaciones' %}">Volver a mis reservas</a>
+</div>
+{% endif %}
+</div>
+</div>
+<!-- Helper Card -->
+<div class="bg-primary-container p-6 rounded-xl text-on-primary-container">
+<div class="flex items-start gap-4">
+<span class="material-symbols-outlined text-secondary">eco</span>
+<div>
+<p class="font-label-md text-label-md font-bold mb-1">Eco-Tip Lumina</p>
+<p class="font-label-sm text-label-sm opacity-80">Recuerda que el silencio es parte de la experiencia. Ayúdanos a preservar la paz del bosque.</p>
+</div>
+</div>
+</div>
+</aside>
+</div>
+</main>
+<!-- Footer -->
+<footer class="w-full bg-surface-container-lowest/90 border-t border-on-secondary-fixed-variant/10 mt-auto">
+<div class="flex flex-col items-center justify-center gap-base py-xl px-margin-mobile text-center w-full py-12">
+<h5 class="font-headline-md text-headline-md text-secondary mb-4">Lumina Forest</h5>
+<p class="font-label-sm text-label-sm text-on-surface-variant">
+                © 2026 Lumina Forest Collective. Harmonic echoes in the deep.
+            </p>
+</div>
+</footer>
 
-        <dl class="reservation-detail-list">
-          <div><dt>Parque</dt><dd>{{ reservacion.hospedaje.parque }}</dd></div>
-          <div><dt>Hospedaje</dt><dd>{{ reservacion.hospedaje }}</dd></div>
-          <div><dt>Huésped</dt><dd>{{ reservacion.usuario }}</dd></div>
-          <div><dt>Fecha de llegada</dt><dd>{{ reservacion.fecha_inicio }}</dd></div>
-          <div><dt>Fecha de salida</dt><dd>{{ reservacion.fecha_fin }}</dd></div>
-          <div><dt>Duración de estancia</dt><dd>{{ duracion }} noche(s)</dd></div>
-          <div><dt>Huéspedes</dt><dd>{{ reservacion.num_huespedes }}</dd></div>
-          <div><dt>Unidades reservadas</dt><dd>{{ reservacion.unidades_reservadas }}</dd></div>
-          <div><dt>Precio total</dt><dd>${{ reservacion.precio_total }} MXN</dd></div>
-          <div><dt>Fecha de creación</dt><dd>{{ reservacion.fecha_creacion }}</dd></div>
-          <div class="reservation-map-item">
-            <dt>Ubicación</dt>
-            <dd>
-              <div
-                class="mini-park-map"
-                data-mini-map
-                data-lat="{{ reservacion.hospedaje.parque.latitud|floatformat:6 }}"
-                data-lng="{{ reservacion.hospedaje.parque.longitud|floatformat:6 }}"
-                data-title="{{ reservacion.hospedaje.parque.nombre }}"
-                aria-label="Mapa de {{ reservacion.hospedaje.parque.nombre }}"
-              ></div>
-            </dd>
-          </div>
-        </dl>
+<script>
+        // Micro-interaction for buttons
+        document.querySelectorAll('button').forEach(button => {
+            button.addEventListener('mousedown', () => {
+                button.classList.add('scale-95');
+            });
+            button.addEventListener('mouseup', () => {
+                button.classList.remove('scale-95');
+            });
+            button.addEventListener('mouseleave', () => {
+                button.classList.remove('scale-95');
+            });
+        });
 
-        <div class="reservation-actions">
-          {% if reservacion.estado == "ACTIVA" %}
-            <a class="button danger" href="{% url 'cancelar_reservacion' reservacion.id %}">Cancelar reservación</a>
-          {% endif %}
-          <a class="button secondary" href="{% url 'mis_reservaciones' %}">Mis reservaciones</a>
-          {% if user.es_administrador %}
-            <a class="button secondary" href="{% url 'todas_las_reservaciones' %}">Todas las reservaciones</a>
-          {% endif %}
-        </div>
-      </article>
-    </section>
-  </main>
-  <script>window.IS_AUTH = {{ user.is_authenticated|yesno:"true,false" }};</script>
-  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-  <script src="{% static 'js/prototipo_reservaciones.js' %}?v=reservacion-mini-mapa"></script>
-</body>
-</html>
+        // Add a subtle "firefly" sparkle effect to the header on scroll
+        window.addEventListener('scroll', () => {
+            const header = document.querySelector('header');
+            if (window.scrollY > 50) {
+                header.classList.add('shadow-md');
+                header.classList.replace('bg-surface', 'bg-surface-container/90');
+            } else {
+                header.classList.remove('shadow-md');
+                header.classList.replace('bg-surface-container/90', 'bg-surface');
+            }
+        });
+</script>
+<script>window.IS_AUTH = {{ user.is_authenticated|yesno:"true,false" }};</script>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="{% static 'js/prototipo_reservaciones.js' %}?v=reservacion-mini-mapa"></script>
+</body></html>

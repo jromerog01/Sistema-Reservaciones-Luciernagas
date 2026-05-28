@@ -1,11 +1,12 @@
 from django.shortcuts import get_object_or_404, render
 from django.utils.text import slugify
 
-from parques.parque_cards import obtener_imagen_parque, obtener_parques_con_imagenes
+from parques.parque_cards import obtener_galeria_parque, obtener_imagen_parque, obtener_parques_con_imagenes
 from parques.models import Hospedaje, Parque, Servicio
 
 
 def listado_parques(request):
+    """Muestra el catalogo de parques con filtros combinables en frontend."""
     servicios = [
         {
             "nombre": servicio.nombre,
@@ -27,6 +28,7 @@ def listado_parques(request):
 
 
 def detalle_parque(request, parque_id):
+    """Muestra informacion completa de un parque y sus opciones de hospedaje."""
     parque = get_object_or_404(
         Parque.objects.prefetch_related("servicios", "hospedajes"),
         id=parque_id,
@@ -38,5 +40,6 @@ def detalle_parque(request, parque_id):
         {
             "parque": parque,
             "imagen": obtener_imagen_parque(parque),
+            "galeria": obtener_galeria_parque(parque),
         },
     )

@@ -13,9 +13,6 @@ class ReservacionObserver(ABC):
     def update(self, evento: str, reservacion) -> None:
         """
         Recibe la notificación de un evento.
-        
-        :param evento: Nombre del evento, ej. 'creada', 'cancelada'
-        :param reservacion: Instancia de Reservacion afectada
         """
         pass
 
@@ -23,9 +20,10 @@ class ReservacionObserver(ABC):
 # ── Observadores concretos ───────────────────────────────────────────────────
 
 class CorreoConfirmacionObserver(ReservacionObserver):
-    """Envía un correo de confirmación cuando se crea una reservación."""
+    """Envía un correo de confirmacion cuando se crea una reservacion."""
 
     def update(self, evento: str, reservacion) -> None:
+        """Ignora eventos no relacionados y envía confirmacion al cliente."""
         if evento != "creada":
             return
 
@@ -67,6 +65,7 @@ class CorreoCancelacionObserver(ReservacionObserver):
     """Envía un correo de aviso cuando se cancela una reservación."""
 
     def update(self, evento: str, reservacion) -> None:
+        """Ignora eventos no relacionados y confirma la cancelacion al cliente."""
         if evento != "cancelada":
             return
 

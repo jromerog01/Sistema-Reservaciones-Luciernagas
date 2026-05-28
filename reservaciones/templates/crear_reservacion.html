@@ -1,159 +1,373 @@
 {% load static %}
 <!DOCTYPE html>
-<html lang="es">
+<html class="light" lang="es">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Nueva Reservación | {{ hospedaje }}</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
-  <link rel="stylesheet" href="{% static 'css/prototipo_reservaciones.css' %}?v=reservacion-mini-mapa">
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Lumina Fest - Completa tu reservación | {{ hospedaje }}</title>
+<link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "surface-container-low": "#f5f3ef",
+                    "on-primary-fixed-variant": "#3a4a43",
+                    "error-container": "#ffdad6",
+                    "inverse-primary": "#b9cbc1",
+                    "inverse-on-surface": "#f2f0ed",
+                    "surface-bright": "#fbf9f5",
+                    "on-surface-variant": "#434845",
+                    "on-tertiary-container": "#a87d00",
+                    "tertiary": "#000000",
+                    "background": "#fbf9f5",
+                    "secondary-fixed": "#ffe16d",
+                    "surface-tint": "#52625a",
+                    "primary-container": "#101e18",
+                    "on-primary-container": "#77887f",
+                    "on-secondary": "#ffffff",
+                    "surface": "#fbf9f5",
+                    "on-surface": "#1b1c1a",
+                    "on-tertiary-fixed": "#261a00",
+                    "on-secondary-fixed": "#221b00",
+                    "secondary-fixed-dim": "#e9c400",
+                    "surface-container-high": "#eae8e4",
+                    "on-tertiary-fixed-variant": "#5c4300",
+                    "on-tertiary": "#ffffff",
+                    "tertiary-fixed-dim": "#fbbc00",
+                    "tertiary-container": "#261a00",
+                    "surface-container-highest": "#e4e2de",
+                    "tertiary-fixed": "#ffdfa0",
+                    "surface-dim": "#dbdad6",
+                    "surface-variant": "#e4e2de",
+                    "primary-fixed": "#d5e7dc",
+                    "on-error-container": "#93000a",
+                    "on-secondary-fixed-variant": "#544600",
+                    "on-primary-fixed": "#101e18",
+                    "on-secondary-container": "#6e5c00",
+                    "surface-container-lowest": "#ffffff",
+                    "surface-container": "#efeeea",
+                    "error": "#ba1a1a",
+                    "inverse-surface": "#30312e",
+                    "primary": "#000000",
+                    "on-background": "#1b1c1a",
+                    "on-error": "#ffffff",
+                    "secondary-container": "#fcd400",
+                    "primary-fixed-dim": "#b9cbc1",
+                    "on-primary": "#ffffff",
+                    "outline": "#737874",
+                    "secondary": "#705d00",
+                    "outline-variant": "#c3c8c3"
+            },
+            "borderRadius": {
+                    "DEFAULT": "1rem",
+                    "lg": "2rem",
+                    "xl": "3rem",
+                    "full": "9999px"
+            },
+            "spacing": {
+                    "container-max": "1280px",
+                    "base": "8px",
+                    "margin-mobile": "16px",
+                    "margin-desktop": "48px",
+                    "gutter": "24px"
+            },
+            "fontFamily": {
+                    "body-md": ["Quicksand"],
+                    "headline-md": ["Quicksand"],
+                    "headline-xl": ["Quicksand"],
+                    "label-sm": ["Quicksand"],
+                    "headline-lg": ["Quicksand"],
+                    "label-md": ["Quicksand"],
+                    "headline-xl-mobile": ["Quicksand"],
+                    "body-lg": ["Quicksand"]
+            },
+            "fontSize": {
+                    "body-md": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
+                    "headline-md": ["24px", {"lineHeight": "32px", "fontWeight": "600"}],
+                    "headline-xl": ["48px", {"lineHeight": "56px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                    "label-sm": ["12px", {"lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "500"}],
+                    "headline-lg": ["32px", {"lineHeight": "40px", "fontWeight": "600"}],
+                    "label-md": ["14px", {"lineHeight": "20px", "letterSpacing": "0.02em", "fontWeight": "600"}],
+                    "headline-xl-mobile": ["32px", {"lineHeight": "40px", "letterSpacing": "-0.01em", "fontWeight": "700"}],
+                    "body-lg": ["18px", {"lineHeight": "28px", "fontWeight": "400"}]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+            display: inline-block;
+            vertical-align: middle;
+        }
+        .firefly-glow {
+            box-shadow: 0 0 20px 4px rgba(252, 212, 0, 0.15);
+        }
+        .canvas-bg {
+            background-color: #FFFFFF;
+        }
+        .mini-park-map {
+            width: 100%;
+            height: 100%;
+            min-height: 192px;
+        }
+        /* Fix leaflet map sizing */
+        .leaflet-container {
+            z-index: 10;
+        }
+</style>
 </head>
-<body>
-  {% include "partials/navbar.html" %}
+<body class="font-body-md text-on-surface bg-background">
 
-  <main class="reservation-page">
-    <section class="reservation-hero reservation-hero-booking">
-      <div>
-        <span class="eyebrow">Nueva reservación</span>
-        <h1>{{ hospedaje.parque.nombre }}</h1>
-        <p>{{ hospedaje.get_tipo_hospedaje_display }} disponible para registrar una estancia durante la temporada.</p>
-      </div>
-      <div class="reservation-hero-card" aria-label="Resumen del hospedaje">
-        <span class="reservation-role-badge">
-          {% if user.es_administrador %}Administrador{% else %}Usuario autorizado{% endif %}
-        </span>
-        <strong>${{ hospedaje.precio_por_unidad|floatformat:2 }} MXN</strong>
-        <span>por unidad / noche</span>
-      </div>
-    </section>
+<!-- TopAppBar Shell -->
+{% include "partials/tailwind_navbar.html" %}
 
-    <section class="reservation-shell">
-      <div class="reservation-layout">
-        <article class="reservation-panel">
-          <div class="reservation-panel-header">
-            <div>
-              <span>Datos de estancia</span>
-              <h2>Completa tu reservación</h2>
-            </div>
-          </div>
+<main class="pt-24 pb-16 px-4 md:px-margin-desktop max-w-container-max mx-auto">
+<!-- Page Title -->
+<div class="mb-12">
+<span class="inline-block px-3 py-1 bg-surface-variant text-on-surface-variant text-label-sm font-bold rounded-full mb-3 uppercase tracking-wider">Nueva reservación</span>
+<h1 class="font-headline-xl text-headline-xl text-on-surface mb-2">Completa tu reservación</h1>
+<p class="text-on-surface-variant font-body-lg">Finaliza los detalles de tu estancia en <strong>{{ hospedaje.parque.nombre }}</strong>.</p>
+</div>
 
-          {% if errores %}
-            <ul class="form-errors">
-              {% for error in errores %}<li>{{ error }}</li>{% endfor %}
-            </ul>
-          {% endif %}
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+<!-- Main Content Area -->
+<div class="lg:col-span-8">
+<div class="bg-surface-container-lowest p-6 md:p-8 rounded-lg shadow-[0px_4px_20px_rgba(27,28,26,0.05)] border border-surface-variant">
+<div class="flex items-center gap-3 mb-8">
+<span class="material-symbols-outlined text-on-primary-fixed-variant" data-icon="home_work">home_work</span>
+<h2 class="font-headline-md text-headline-md">Datos de Estancia</h2>
+</div>
 
-          {% if form.non_field_errors %}
-            <ul class="form-errors">
-              {% for error in form.non_field_errors %}<li>{{ error }}</li>{% endfor %}
-            </ul>
-          {% endif %}
+{% if errores %}
+  <ul class="form-errors">
+    {% for error in errores %}<li>{{ error }}</li>{% endfor %}
+  </ul>
+{% endif %}
 
-          <form
-            class="reservation-form"
-            method="post"
-            data-reservation-form
-            data-price="{{ hospedaje.precio_por_unidad }}"
-            data-capacity="{{ hospedaje.capacidad_unidad }}"
-            data-available="{{ hospedaje.cantidad_unidades }}"
-          >
-            {% csrf_token %}
-            <div class="reservation-field reservation-field-wide">
-              <label for="reservation-lodging-switch">Tipo de hospedaje</label>
-              <select id="reservation-lodging-switch" data-reservation-lodging-switch>
-                {% for opcion in hospedaje.parque.hospedajes.all %}
-                  <option
-                    value="{% url 'crear_reservacion' opcion.id %}"
-                    {% if opcion.id == hospedaje.id %}selected{% endif %}
-                  >
-                    {{ opcion.get_tipo_hospedaje_display }} | ${{ opcion.precio_por_unidad|floatformat:2 }} MXN | {{ opcion.capacidad_unidad }} huéspedes por unidad | {{ opcion.cantidad_unidades }} disponibles
-                  </option>
-                {% endfor %}
-              </select>
-              <small>Cambia el hospedaje para continuar la reservación con otra opción del mismo parque.</small>
-            </div>
-            {% for field in form %}
-              <div class="reservation-field">
-                {{ field.label_tag }}
-                {{ field }}
-                {% if field.help_text %}<small>{{ field.help_text }}</small>{% endif %}
-                {% for error in field.errors %}<span class="field-error">{{ error }}</span>{% endfor %}
-              </div>
-            {% endfor %}
-            <div class="reservation-actions">
-              <button class="button primary" type="submit">Confirmar reservación</button>
-              <a class="button secondary" href="{% url 'detalle_parque' hospedaje.parque.id %}">Volver al parque</a>
-            </div>
-          </form>
-        </article>
+{% if form.non_field_errors %}
+  <ul class="form-errors">
+    {% for error in form.non_field_errors %}<li>{{ error }}</li>{% endfor %}
+  </ul>
+{% endif %}
 
-        <aside class="reservation-panel reservation-summary" aria-label="Resumen de reservación">
-          <div class="reservation-panel-header">
-            <div>
-              <span>Hospedaje seleccionado</span>
-              <h2>{{ hospedaje }}</h2>
-            </div>
-          </div>
+<form
+    class="space-y-8"
+    method="post"
+    data-reservation-form
+    data-price="{{ hospedaje.precio_por_unidad }}"
+    data-capacity="{{ hospedaje.capacidad_unidad }}"
+    data-available="{{ hospedaje.cantidad_unidades }}"
+>
+{% csrf_token %}
 
-          <dl class="reservation-meta-grid">
-            <div>
-              <dt>Tipo</dt>
-              <dd>{{ hospedaje.get_tipo_hospedaje_display }}</dd>
-            </div>
-            <div>
-              <dt>Capacidad</dt>
-              <dd>{{ hospedaje.capacidad_unidad }} huéspedes por unidad</dd>
-            </div>
-            <div>
-              <dt>Disponibles</dt>
-              <dd>{{ hospedaje.cantidad_unidades }} unidades</dd>
-            </div>
-            <div>
-              <dt>Parque</dt>
-              <dd>{{ hospedaje.parque.nombre }}</dd>
-            </div>
-          </dl>
+<!-- Accommodation Type -->
+<div class="space-y-2 django-form-field">
+<label class="font-label-md text-on-surface-variant block" for="reservation-lodging-switch">Tipo de hospedaje</label>
+<div class="relative group">
+<select id="reservation-lodging-switch" data-reservation-lodging-switch class="w-full appearance-none bg-surface-container-low border border-outline-variant rounded-full py-4 px-6 focus:outline-none focus:ring-2 focus:ring-secondary-container focus:border-secondary transition-all font-body-md">
+  {% for opcion in hospedaje.parque.hospedajes.all %}
+    <option
+      value="{% url 'crear_reservacion' opcion.id %}"
+      {% if opcion.id == hospedaje.id %}selected{% endif %}
+    >
+      {{ opcion.get_tipo_hospedaje_display }} | ${{ opcion.precio_por_unidad|floatformat:2 }} MXN | {{ opcion.capacidad_unidad }} huéspedes por unidad | {{ opcion.cantidad_unidades }} disponibles
+    </option>
+  {% endfor %}
+</select>
+<span class="material-symbols-outlined absolute right-6 top-1/2 -translate-y-1/2 pointer-events-none text-on-surface-variant" data-icon="expand_more">expand_more</span>
+</div>
+<p class="text-label-sm text-on-surface-variant mt-2 italic px-2">Cambia el hospedaje para continuar la reservación con otra opción del mismo parque.</p>
+</div>
 
-          <div class="reservation-map-card">
-            <span>Ubicación</span>
-            <div
-              class="mini-park-map"
-              data-mini-map
-              data-lat="{{ hospedaje.parque.latitud|floatformat:6 }}"
-              data-lng="{{ hospedaje.parque.longitud|floatformat:6 }}"
-              data-title="{{ hospedaje.parque.nombre }}"
-              aria-label="Mapa de {{ hospedaje.parque.nombre }}"
-            ></div>
-          </div>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+	  <div class="space-y-2 django-form-field">
+	    <label class="font-label-md text-on-surface-variant block">{{ form.fecha_inicio.label }}</label>
+	    <div class="relative">
+	      {{ form.fecha_inicio }}
+	    </div>
+	    {% for error in form.fecha_inicio.errors %}<span class="field-error">{{ error }}</span>{% endfor %}
+	  </div>
+	  <div class="space-y-2 django-form-field">
+	    <label class="font-label-md text-on-surface-variant block">{{ form.fecha_fin.label }}</label>
+	    <div class="relative">
+	      {{ form.fecha_fin }}
+	    </div>
+	    {% for error in form.fecha_fin.errors %}<span class="field-error">{{ error }}</span>{% endfor %}
+	  </div>
+	</div>
+	
+	<div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+	  <div class="space-y-2 django-form-field">
+	    <label class="font-label-md text-on-surface-variant block">{{ form.num_huespedes.label }}</label>
+	    <div class="relative">
+	      {{ form.num_huespedes }}
+	    </div>
+	    {% for error in form.num_huespedes.errors %}<span class="field-error">{{ error }}</span>{% endfor %}
+	  </div>
+	  <div class="space-y-2 django-form-field">
+	    <label class="font-label-md text-on-surface-variant block">{{ form.unidades_reservadas.label }}</label>
+	    <div class="relative">
+	      {{ form.unidades_reservadas }}
+	    </div>
+	    {% for error in form.unidades_reservadas.errors %}<span class="field-error">{{ error }}</span>{% endfor %}
+	  </div>
+	</div>
 
-          <div class="reservation-estimate" data-reservation-preview>
-            <span>Estimación</span>
-            <strong data-preview-total>$0.00 MXN</strong>
-            <p data-preview-message>Completa fechas, huéspedes y unidades para calcular una estimación visual.</p>
-            <div class="reservation-preview-grid">
-              <div>
-                <small>Noches</small>
-                <b data-preview-nights>0</b>
-              </div>
-              <div>
-                <small>Unidades</small>
-                <b data-preview-units>0</b>
-              </div>
-              <div>
-                <small>Huéspedes</small>
-                <b data-preview-guests>0</b>
-              </div>
-            </div>
-          </div>
-        </aside>
-      </div>
-    </section>
-  </main>
-  <script>window.IS_AUTH = {{ user.is_authenticated|yesno:"true,false" }};</script>
-  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-  <script src="{% static 'js/prototipo_reservaciones.js' %}?v=reservacion-mini-mapa"></script>
+<!-- Any extra fields -->
+{% for field in form %}
+  {% if field.name not in 'fecha_inicio,fecha_fin,num_huespedes,unidades_reservadas' %}
+    <div class="space-y-2 django-form-field">
+      <label class="font-label-md text-on-surface-variant block">{{ field.label }}</label>
+      {{ field }}
+      {% for error in field.errors %}<span class="field-error">{{ error }}</span>{% endfor %}
+    </div>
+  {% endif %}
+{% endfor %}
+
+<!-- Actions -->
+<div class="mt-12 flex flex-col md:flex-row gap-4">
+<button type="submit" class="flex-1 bg-secondary-container text-on-secondary-container font-headline-md py-5 rounded-full hover:shadow-lg transition-all active:scale-95 flex items-center justify-center gap-2 group">
+<span>Confirmar reservación</span>
+<span class="material-symbols-outlined group-hover:translate-x-1 transition-transform" data-icon="arrow_forward">arrow_forward</span>
+</button>
+<a href="{% url 'detalle_parque' hospedaje.parque.id %}" class="flex-1 bg-surface-container-high text-on-surface-variant font-headline-md py-5 rounded-full hover:bg-surface-variant transition-all active:scale-95 flex items-center justify-center">
+  Volver al parque
+</a>
+</div>
+</form>
+</div>
+</div>
+
+<!-- Sidebar Summary -->
+<div class="lg:col-span-4">
+<aside class="sticky top-28 space-y-6">
+<!-- Park Info Card -->
+<div class="bg-surface-container-lowest rounded-lg overflow-hidden shadow-sm border border-surface-variant">
+<div class="relative h-48 z-10">
+  <div
+    class="mini-park-map"
+    data-mini-map
+    data-lat="{{ hospedaje.parque.latitud|floatformat:6 }}"
+    data-lng="{{ hospedaje.parque.longitud|floatformat:6 }}"
+    data-title="{{ hospedaje.parque.nombre }}"
+    aria-label="Mapa de {{ hospedaje.parque.nombre }}"
+  ></div>
+</div>
+<div class="p-6 space-y-4 relative z-20 bg-surface-container-lowest">
+<div class="flex justify-between items-start">
+<div>
+<p class="font-label-md text-on-surface-variant">Hospedaje seleccionado</p>
+<p class="font-body-md font-bold text-primary">{{ hospedaje.get_tipo_hospedaje_display }}</p>
+</div>
+<div class="text-right">
+<p class="font-label-md text-on-surface-variant">Parque</p>
+<p class="font-body-md font-bold text-primary">{{ hospedaje.parque.nombre }}</p>
+</div>
+</div>
+<div class="flex justify-between items-start mt-2">
+<div>
+<p class="font-label-md text-on-surface-variant">Capacidad por unidad</p>
+<p class="font-body-md">{{ hospedaje.capacidad_unidad }} huéspedes</p>
+</div>
+<div class="text-right">
+<p class="font-label-md text-on-surface-variant">Precio por unidad</p>
+<p class="font-body-md">${{ hospedaje.precio_por_unidad|floatformat:2 }}</p>
+</div>
+</div>
+<hr class="border-surface-variant"/>
+<div class="reservation-estimate" data-reservation-preview>
+    <div class="flex justify-between items-start">
+        <div>
+            <p class="font-label-md text-on-surface-variant">Estancia</p>
+            <p class="font-body-md"><span data-preview-nights>0</span> noches, <span data-preview-units>0</span> unidades</p>
+        </div>
+        <div class="text-right">
+            <p class="font-label-md text-on-surface-variant">Huéspedes</p>
+            <p class="font-body-md"><span data-preview-guests>0</span></p>
+        </div>
+    </div>
+    <hr class="border-surface-variant my-4"/>
+    <div class="space-y-2">
+        <div class="flex justify-between text-body-md">
+            <span>{{ hospedaje.get_tipo_hospedaje_display }}</span>
+            <span>-</span>
+        </div>
+        <div class="flex justify-between text-body-md">
+            <span>Tasa ambiental</span>
+            <span>-</span>
+        </div>
+        <div class="flex justify-between text-body-md">
+            <span>Servicios Lumina</span>
+            <span>-</span>
+        </div>
+    </div>
+    <hr class="border-surface-variant my-4"/>
+    <div class="flex justify-between items-baseline pt-2">
+        <span class="font-headline-md text-primary">Total estimado</span>
+        <div class="text-right">
+            <span class="font-headline-lg text-primary" data-preview-total>$0.00</span>
+            <p class="text-label-sm text-on-surface-variant">MXN (IVA Incluido)</p>
+        </div>
+    </div>
+    <p data-preview-message class="text-label-sm text-on-surface-variant italic mt-4 text-center">Completa fechas, huéspedes y unidades para calcular una estimación visual.</p>
+</div>
+</div>
+</div>
+
+<!-- Help Card -->
+<div class="bg-primary-container text-white p-6 rounded-lg firefly-glow">
+<div class="flex items-center gap-3 mb-2">
+<span class="material-symbols-outlined text-secondary-fixed" data-icon="support_agent">support_agent</span>
+<h4 class="font-label-md">¿Necesitas ayuda?</h4>
+</div>
+<p class="text-label-sm opacity-80 mb-4">Nuestro equipo de guardaforestales está disponible 24/7 para asistir con tu reservación en {{ hospedaje.parque.nombre }}.</p>
+<a class="text-secondary-fixed font-label-md underline hover:text-secondary-fixed-dim" href="#">Chatea con soporte</a>
+</div>
+</aside>
+</div>
+</div>
+</main>
+
+<footer class="w-full py-8 px-margin-desktop flex flex-col md:flex-row justify-between items-center border-t border-surface-variant bg-surface-container-lowest mt-16">
+<div class="font-headline-md text-headline-md text-primary mb-4 md:mb-0">Lumina Fest</div>
+<div class="flex flex-col items-center md:items-end gap-4">
+<p class="font-label-sm text-on-surface-variant">© 2026 Lumina Fest. Todos los derechos reservados.</p>
+</div>
+</footer>
+
+<script>
+        const inputs = document.querySelectorAll('input, select, textarea');
+        inputs.forEach(input => {
+            if (input.closest('.django-form-field') || input.id === 'reservation-lodging-switch') {
+                input.className += " w-full bg-surface-container-low border border-outline-variant rounded-full py-4 px-6 font-body-md focus:ring-2 focus:ring-secondary-container transition-all focus:outline-none focus:border-secondary";
+            }
+            input.addEventListener('focus', () => {
+                const parent = input.closest('.django-form-field');
+                if (parent) parent.classList.add('firefly-glow');
+            });
+            input.addEventListener('blur', () => {
+                const parent = input.closest('.django-form-field');
+                if (parent) parent.classList.remove('firefly-glow');
+            });
+        });
+        
+        // Add form error classes
+        document.querySelectorAll('.form-errors').forEach(el => {
+            el.className += " mb-6 p-4 bg-error-container text-on-error-container rounded-lg font-body-md";
+        });
+        document.querySelectorAll('.field-error').forEach(el => {
+            el.className += " text-error text-label-sm mt-1 block";
+        });
+</script>
+<script>window.IS_AUTH = {{ user.is_authenticated|yesno:"true,false" }};</script>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="{% static 'js/prototipo_reservaciones.js' %}?v=6"></script>
 </body>
 </html>

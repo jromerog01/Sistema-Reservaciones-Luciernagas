@@ -1,0 +1,80 @@
+<header class="bg-surface shadow-sm sticky top-0 w-full z-50">
+    <nav class="flex justify-between items-center w-full px-4 md:px-margin-desktop py-4 max-w-container-max mx-auto">
+        <a href="{% url 'inicio' %}" class="font-headline-lg font-bold text-primary">Lumina Fest</a>
+        <div class="hidden md:flex gap-8">
+            <a class="font-body-md text-on-surface-variant hover:text-primary transition-colors duration-200"
+                href="{% url 'listado_parques' %}">Parques</a>
+            <a class="font-body-md text-on-surface-variant hover:text-primary transition-colors duration-200"
+                href="{% url 'mapa_parques' %}">Mapa</a>
+            <a class="font-body-md text-on-surface-variant hover:text-primary transition-colors duration-200"
+                href="{% url 'inicio' %}#hospedajes">Hospedajes</a>
+            <a class="font-body-md text-on-surface-variant hover:text-primary transition-colors duration-200"
+                href="{% url 'inicio' %}#reservar">Reservar</a>
+        </div>
+        <div class="flex items-center gap-6 relative">
+            {% if user.is_authenticated %}
+            <div class="relative group" id="user-menu-container">
+                <button id="user-menu-btn"
+                    class="flex items-center gap-2 bg-surface-container-high px-3 py-1.5 rounded-full border border-outline-variant/30 hover:bg-surface-container-highest transition-colors cursor-pointer">
+                    <div
+                        class="w-8 h-8 rounded-full bg-secondary text-on-secondary flex items-center justify-center font-bold text-sm uppercase">
+                        <span class="material-symbols-outlined text-[18px]">person</span>
+                    </div>
+                    <span class="font-label-md text-on-surface hidden md:inline">{{ user.get_username|truncatechars:15 }}</span>
+                    <span class="material-symbols-outlined text-on-surface-variant">expand_more</span>
+                </button>
+                <!-- Dropdown menu -->
+                <div id="user-dropdown"
+                    class="absolute right-0 mt-2 w-56 bg-surface-container-lowest rounded-xl shadow-lg border border-outline-variant/30 overflow-hidden hidden flex-col">
+                    <a href="{% url 'mis_reservaciones' %}"
+                        class="px-4 py-3 font-body-md text-on-surface hover:bg-surface-container-low transition-colors block">
+                        Ver mis reservaciones
+                    </a>
+                    {% if user.es_administrador %}
+                    <a href="{% url 'todas_las_reservaciones' %}"
+                        class="px-4 py-3 font-body-md text-on-surface hover:bg-surface-container-low transition-colors block">
+                        Todas (Admin)
+                    </a>
+                    <a href="/admin/"
+                        class="px-4 py-3 font-body-md text-on-surface hover:bg-surface-container-low transition-colors block">
+                        Panel de admin
+                    </a>
+                    {% endif %}
+                    <div class="border-t border-outline-variant/30"></div>
+                    <form action="{% url 'usuarios:logout' %}" method="post" class="m-0 p-0 block">
+                        {% csrf_token %}
+                        <button type="submit"
+                            class="w-full text-left px-4 py-3 font-body-md text-error hover:bg-error-container/20 transition-colors">
+                            Cerrar sesión
+                        </button>
+                    </form>
+                </div>
+            </div>
+            {% else %}
+            <a class="font-body-md text-primary hover:text-secondary transition-colors duration-200"
+                href="{% url 'usuarios:login' %}">Iniciar sesión</a>
+            <a class="font-label-md text-on-secondary-container bg-secondary-container px-6 py-2 rounded-full hover:bg-secondary hover:text-on-secondary transition-all duration-200 font-bold"
+                href="{% url 'usuarios:registro' %}">Registrarse</a>
+            {% endif %}
+        </div>
+    </nav>
+</header>
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const btn = document.getElementById('user-menu-btn');
+        const dropdown = document.getElementById('user-dropdown');
+        if (btn && dropdown) {
+            btn.addEventListener('click', function (e) {
+                e.stopPropagation();
+                dropdown.classList.toggle('hidden');
+                dropdown.classList.toggle('flex');
+            });
+            document.addEventListener('click', function (e) {
+                if (!btn.contains(e.target) && !dropdown.contains(e.target)) {
+                    dropdown.classList.add('hidden');
+                    dropdown.classList.remove('flex');
+                }
+            });
+        }
+    });
+</script>

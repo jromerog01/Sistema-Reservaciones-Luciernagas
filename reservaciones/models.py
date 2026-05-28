@@ -8,6 +8,8 @@ from proyectoLuciernagas import settings
 
 
 class Reservacion(models.Model):
+    """Reserva de hospedaje realizada por un cliente."""
+
     class EstadoReservacion(models.TextChoices):
         ACTIVA    = "ACTIVA",    "Activa"
         CANCELADA = "CANCELADA", "Cancelada"
@@ -35,12 +37,11 @@ class Reservacion(models.Model):
         return f"Reservación #{self.id} - {self.usuario}"
 
     def calcular_duracion(self):
-        """Número de noches de la estancia."""
+        """Número de noches de la estancia, usando fecha_fin como checkout."""
         return (self.fecha_fin - self.fecha_inicio).days
 
-    # ── Métodos de clase que envuelven las funciones de forms.py ────────────
-    # Se exponen aquí para que los tests (y el resto del código) puedan
-    # acceder a la lógica sin importar directamente el módulo de formularios.
+    # Estos wrappers mantienen compatibilidad con tests y llamadas existentes
+    # aunque la logica principal viva en reservaciones.forms.
 
     @staticmethod
     def calcular_unidades_necesarias(num_huespedes, capacidad_unidad):
