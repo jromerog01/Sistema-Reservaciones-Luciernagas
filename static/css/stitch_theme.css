@@ -2511,3 +2511,43 @@ body.park-detail-view {
         grid-column: 2;
     }
 }
+
+/* Transparent navbar for home page */
+.home-transparent-nav {
+    transition: background-color 0.3s ease, backdrop-filter 0.3s ease, box-shadow 0.3s ease;
+}
+
+.home-transparent-nav:not(.is-scrolled) {
+    background: rgba(0, 0, 0, 0.25);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.home-transparent-nav.is-scrolled {
+    background-color: #fbf9f5; /* bg-surface */
+    box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05); /* shadow-sm */
+    border-bottom: none;
+}
+
+.home-transparent-nav:not(.is-scrolled) a.text-primary,
+.home-transparent-nav:not(.is-scrolled) a.text-on-surface-variant,
+.home-transparent-nav:not(.is-scrolled) span.text-on-surface,
+.home-transparent-nav:not(.is-scrolled) span.text-on-surface-variant {
+    color: white !important;
+}
+
+.home-transparent-nav:not(.is-scrolled) .bg-surface-container-high {
+    background: rgba(255, 255, 255, 0.15) !important;
+    border-color: rgba(255, 255, 255, 0.3) !important;
+}
+
+/* User dropdown should stay normal */
+.home-transparent-nav #user-dropdown {
+    background: white !important;
+}
+.home-transparent-nav:not(.is-scrolled) #user-dropdown a {
+    color: #1b1c1a !important; /* on-surface */
+}
+.home-transparent-nav:not(.is-scrolled) #user-dropdown button {
+    color: #ba1a1a !important; /* error */
+}
