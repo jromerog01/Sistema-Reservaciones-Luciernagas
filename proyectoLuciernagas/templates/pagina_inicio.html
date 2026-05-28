@@ -10,8 +10,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
-    <link rel="stylesheet" href="{% static 'css/prototipo_reservaciones.css' %}?v=filtros-reserva">
-    <link rel="stylesheet" href="{% static 'css/stitch_theme.css' %}?v=3">
+    <link rel="stylesheet" href="{% static 'css/stitch_theme.css' %}?v=9">
     <script>window.IS_AUTH = {% if user.is_authenticated %}true{% else %}false{% endif %};</script>
 <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
 <script>
@@ -54,7 +53,7 @@
         <section class="home-hero">
             <div class="home-hero-media">
                 <img
-                    src="{% static 'img/principal_inicio.jpg' %}"
+                    src="{% static 'img/bosque/bosque12.jpg' %}"
                     alt="Bosque iluminado durante el festival de luciernagas"
                     data-home-hero-image
                 >
@@ -332,7 +331,6 @@
     {{ mapa_parques|json_script:"parks-map-data" }}
     {{ minimos_hospedaje|json_script:"lodging-minimums-data" }}
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-    <script src="{% static 'js/prototipo_reservaciones.js' %}?v=6"></script>
-    <script src="{% static 'js/stitch_theme.js' %}?v=3"></script>
+    <script src="{% static 'js/luciernagas_ui.js' %}?v=3"></script>
 </body>
 </html>

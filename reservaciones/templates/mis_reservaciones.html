@@ -229,7 +229,7 @@
 
 <script>
     // Visual logic to update button active states when clicking
-    // The actual filtering is done by prototipo_reservaciones.js via data attributes
+    // The actual filtering is done by luciernagas_ui.js via data attributes
     const filterButtons = document.querySelectorAll('#filterButtonsContainer button');
     filterButtons.forEach(btn => {
         btn.addEventListener('click', () => {
@@ -242,5 +242,5 @@
 </script>
 
 <script>window.IS_AUTH = {{ user.is_authenticated|yesno:"true,false" }};</script>
-<script src="{% static 'js/prototipo_reservaciones.js' %}?v=reservaciones-ui"></script>
+<script src="{% static 'js/luciernagas_ui.js' %}?v=3"></script>
 </body></html>

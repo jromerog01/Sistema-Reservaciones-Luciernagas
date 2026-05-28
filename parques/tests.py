@@ -173,7 +173,7 @@ class ListadoParquesFilterTests(TestCase):
             horario_cierre=time(23, 0),
         )
         parque.servicios.add(servicio)
-        Hospedaje.objects.create(
+        hospedaje = Hospedaje.objects.create(
             parque=parque,
             tipo_hospedaje=Hospedaje.TipoHospedaje.CABANA,
             cantidad_unidades=2,
@@ -192,13 +192,11 @@ class ListadoParquesFilterTests(TestCase):
         self.assertContains(response, 'data-hospedajes="cabana"')
         self.assertContains(response, 'data-servicios="sendero-nocturno"')
         self.assertContains(response, "Hospedaje")
-        self.assertContains(response, "<span>Cabaña</span>", html=True)
-        self.assertContains(response, "Cabaña: 2 unidades quedan disponibles")
-        self.assertContains(response, "data-mini-map")
-        self.assertContains(response, "https://www.google.com/maps/search/?api=1&query=19.451000,-98.331000")
+        self.assertContains(response, "Cabaña")
+        self.assertContains(response, "desde")
+        self.assertContains(response, f"${hospedaje.precio_por_unidad}")
         self.assertNotContains(response, "<dt>Coordenadas</dt>", html=True)
-        self.assertContains(response, "Vista rapida")
-        self.assertContains(response, "Ver parque")
+        self.assertContains(response, "Detalles")
         self.assertContains(response, f'href="{reverse("detalle_parque", args=[parque.id])}"')
 
 

@@ -10,8 +10,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
-    <link rel="stylesheet" href="{% static 'css/prototipo_reservaciones.css' %}?v=reservas-flotantes">
-    <link rel="stylesheet" href="{% static 'css/stitch_theme.css' %}?v=1">
+    <link rel="stylesheet" href="{% static 'css/stitch_theme.css' %}?v=9">
     <script>window.IS_AUTH = {% if user.is_authenticated %}true{% else %}false{% endif %};</script>
 <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
 <script>
@@ -124,7 +123,15 @@
                     </div>
                     <div class="park-gallery-mosaic">
                         {% for foto in galeria %}
-                            <img class="{% if forloop.first %}featured{% endif %}" src="{{ foto }}" alt="Paisaje de {{ parque.nombre }}" loading="lazy">
+                            <button
+                                class="park-gallery-item {% if forloop.first %}featured{% endif %}"
+                                type="button"
+                                data-gallery-image
+                                data-gallery-index="{{ forloop.counter0 }}"
+                                aria-label="Abrir imagen {{ forloop.counter }} de la galería"
+                            >
+                                <img src="{{ foto }}" alt="Paisaje de {{ parque.nombre }} {{ forloop.counter }}" loading="lazy">
+                            </button>
                         {% endfor %}
                     </div>
                 </section>
@@ -250,7 +257,27 @@
         </div>
     </footer>
 
+    <dialog class="park-gallery-dialog" data-gallery-modal aria-label="Galería de {{ parque.nombre }}">
+        <div class="park-gallery-dialog-shell">
+            <button class="park-gallery-dialog-close" type="button" data-gallery-close aria-label="Cerrar galería">
+                <span class="material-symbols-outlined">close</span>
+            </button>
+            <button class="park-gallery-dialog-nav previous" type="button" data-gallery-prev aria-label="Imagen anterior">
+                <span class="material-symbols-outlined">chevron_left</span>
+            </button>
+            <figure class="park-gallery-dialog-figure">
+                <div class="park-gallery-image-wrapper">
+                    <img data-gallery-modal-image src="" alt="">
+                </div>
+                <figcaption data-gallery-counter></figcaption>
+            </figure>
+            <button class="park-gallery-dialog-nav next" type="button" data-gallery-next aria-label="Imagen siguiente">
+                <span class="material-symbols-outlined">chevron_right</span>
+            </button>
+        </div>
+    </dialog>
+
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-    <script src="{% static 'js/prototipo_reservaciones.js' %}?v=6"></script>
+    <script src="{% static 'js/luciernagas_ui.js' %}?v=3"></script>
 </body>
 </html>

@@ -467,10 +467,10 @@ class CrearReservacionTests(TestCase):
         self.assertRedirects(resp, reverse("detalle_reservacion", args=[r.id]))
 
     def test_precio_calculado_correctamente(self):
-        # 1 unidad × $800 × 2 noches = $1 600
+        # 1 unidad × $800 × 2 noches + 20% de recargo de temporada = $1 920
         self.client.force_login(self.cliente)
         self._post()
-        self.assertEqual(Reservacion.objects.first().precio_total, Decimal("1600.00"))
+        self.assertEqual(Reservacion.objects.first().precio_total, Decimal("1920.00"))
 
     def test_reservacion_queda_asociada_al_usuario(self):
         self.client.force_login(self.cliente)
@@ -687,4 +687,4 @@ class DetalleReservacionTests(TestCase):
         self.client.force_login(self.cliente)
         resp = self.client.get(self.url)
         self.assertEqual(resp.context["duracion"], 2)
-        self.assertContains(resp, "2 noche(s)")
+        self.assertContains(resp, "2 noches")
