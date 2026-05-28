@@ -2,7 +2,7 @@ from django.contrib import admin
 from django import forms
 
 from parques.models import Parque, Servicio, Hospedaje
-
+from usuarios.models import Usuario
 
 def get_selected_values(value):
     if not value:
@@ -232,3 +232,31 @@ class HospedajeAdmin(admin.ModelAdmin):
     list_display = ("parque", "tipo_hospedaje", "cantidad_unidades", "capacidad_unidad", "precio_por_unidad")
     list_filter = ("tipo_hospedaje", "parque")
     search_fields = ("parque__nombre",)
+
+
+# Permitir que edite usuarios:
+
+@admin.register(Usuario)
+class UsuarioAdmin(admin.ModelAdmin):
+    # Columnas visibles en la lista de registros
+    list_display = ('username',
+            'first_name',
+            'last_name',
+            'email',
+            'rol',
+            'is_staff')
+    search_fields = ("username", "first_name", "last_name", "email")
+    ordering = ("username", "is_staff")
+    list_filter = ("is_staff",)
+    fields = (
+        'username',
+        'first_name',
+        'last_name',
+        'email',
+        'rol',
+        'is_staff',
+    )
+    readonly_fields = ("email", "is_staff", "rol")
+    list_per_page = 20
+    def has_add_permission(self, request):
+        return False
