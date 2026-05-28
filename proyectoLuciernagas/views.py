@@ -9,6 +9,7 @@ from parques.parque_cards import obtener_parques_con_imagenes
 
 
 def formatear_precio(precio):
+    """Convierte montos Decimal en texto legible para la interfaz."""
     if precio is None:
         return "no disponible"
 
@@ -19,6 +20,7 @@ def formatear_precio(precio):
 
 
 def obtener_minimos_hospedaje_por_estado():
+    """Calcula minimos de hospedaje para resumir oferta por estado."""
     minimos = {}
 
     for estado, _ in Parque.Estado.choices:
@@ -47,6 +49,7 @@ def obtener_minimos_hospedaje_por_estado():
 
 
 def obtener_servicios_para_filtros():
+    """Prepara servicios como valores seguros para filtros del mapa."""
     return [
         {
             "nombre": servicio.nombre,
@@ -57,6 +60,7 @@ def obtener_servicios_para_filtros():
 
 
 def obtener_estados_disponibles():
+    """Devuelve estados con valor normalizado para controles del frontend."""
     return [
         (valor.lower(), etiqueta)
         for valor, etiqueta in Parque.Estado.choices
@@ -64,6 +68,7 @@ def obtener_estados_disponibles():
 
 
 def obtener_parques_reservables():
+    """Construye la estructura usada por el formulario de reserva rapida."""
     parques_reservables = []
 
     for parque in Parque.objects.prefetch_related("hospedajes").order_by("nombre"):
@@ -99,6 +104,7 @@ def obtener_parques_reservables():
 
 
 def inicio(request):
+    """Renderiza la pagina principal con mapa, carrusel y reserva rapida."""
     mapa_service = MapaService()
 
     return render(
@@ -115,6 +121,7 @@ def inicio(request):
 
 
 def mapa(request):
+    """Renderiza el mapa interactivo independiente con filtros."""
     mapa_service = MapaService()
 
     return render(

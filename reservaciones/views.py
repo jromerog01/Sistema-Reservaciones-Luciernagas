@@ -10,6 +10,7 @@ from reservaciones.utils.notificador import notificador
 
 
 def render_reservacion_forbidden(request, mensaje):
+    """Renderiza una respuesta 403 consistente para accesos no autorizados."""
     return render(
         request,
         "acceso_denegado_reservacion.html",
@@ -19,9 +20,8 @@ def render_reservacion_forbidden(request, mensaje):
 
 
 def crear_reservacion(request, hospedaje_id):
+    """Crea una reservacion para el hospedaje seleccionado por el cliente."""
     if not request.user.is_authenticated:
-        #qs = urlencode({"next": request.get_full_path()})
-        #return redirect(f"{reverse('usuarios:login')}?{qs}")
         return redirect(f"{reverse('usuarios:login')}?next={request.get_full_path()}")
 
 
@@ -47,6 +47,7 @@ def crear_reservacion(request, hospedaje_id):
 
 @login_required(login_url="usuarios:login")
 def cancelar_reservacion(request, reservacion_id):
+    """Cancela una reservacion si el solicitante es propietario o administrador."""
     reservacion = get_object_or_404(
         Reservacion.objects.select_related("hospedaje__parque", "usuario"),
         id=reservacion_id,
@@ -86,6 +87,7 @@ def cancelar_reservacion(request, reservacion_id):
 
 @login_required(login_url="usuarios:login")
 def mis_reservaciones(request):
+    """Lista las reservaciones del usuario autenticado."""
     reservaciones = (
         Reservacion.objects
         .filter(usuario=request.user)
@@ -101,6 +103,7 @@ def mis_reservaciones(request):
 
 @login_required(login_url="usuarios:login")
 def detalle_reservacion(request, reservacion_id):
+    """Muestra una reservacion solo a su dueño o a un administrador."""
     reservacion = get_object_or_404(
         Reservacion.objects.select_related("hospedaje__parque", "usuario"),
         id=reservacion_id,
@@ -124,6 +127,7 @@ def detalle_reservacion(request, reservacion_id):
 
 @login_required(login_url="usuarios:login")
 def todas_las_reservaciones(request):
+    """Permite a administradores consultar todas las reservaciones."""
     if not request.user.es_administrador():
         return render_reservacion_forbidden(
             request,
@@ -136,4 +140,3 @@ def todas_las_reservaciones(request):
         .order_by("-fecha_creacion")
     )
     return render(request, "todas_las_reservaciones.html", {"reservaciones": reservaciones})
-

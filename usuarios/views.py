@@ -7,6 +7,7 @@ from django.contrib.auth import authenticate, login, logout
 from .forms import RegistroForm, LoginForm
 
 def registro_view(request):
+    """Registra un cliente y lo deja autenticado para continuar su flujo."""
 
     if request.method == 'POST':
         form = RegistroForm(request.POST)
@@ -22,6 +23,7 @@ def registro_view(request):
     })
 
 def login_view(request):
+    """Autentica al usuario y respeta el parametro next cuando existe."""
     next_url = request.GET.get('next') or request.POST.get('next') or 'inicio'
 
     if request.method == 'POST':
@@ -47,5 +49,6 @@ def login_view(request):
     })
 
 def logout_view(request):
+    """Cierra la sesion actual y regresa al inicio publico."""
     logout(request)
     return redirect('inicio')

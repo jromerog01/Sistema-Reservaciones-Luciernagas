@@ -1,5 +1,8 @@
-"""
-Tests del módulo de reservaciones.
+"""Pruebas del modulo de reservaciones.
+
+Estas pruebas cubren las reglas centrales del festival: duracion por noches,
+calculo de unidades, temporada junio-agosto, bloqueo de martes, disponibilidad,
+permisos de vistas y cierre automatico de reservaciones vencidas.
 
 Calendario junio 2026 (referencia):
   Lun 1  Mar 2  Mie 3  Jue 4  Vie 5  Sab 6  Dom 7
@@ -35,7 +38,7 @@ from reservaciones.utils.template_method import ReservacionHospedajeTemplate
 from usuarios.models import Usuario
 
 
-# ── Constantes de fecha ──────────────────────────────────────────────────────
+# Constantes de fecha
 
 LUN      = date(2026, 6, 1)
 MAR      = date(2026, 6, 2)
@@ -57,9 +60,10 @@ SEP_14   = date(2026, 9, 14)
 MAR_AGO  = date(2026, 8, 4)   # primer martes de agosto
 
 
-# ── Helpers de fixtures ──────────────────────────────────────────────────────
+#  Helpers de fixtures
 
 def crear_parque(nombre="Parque Test", lat="19.300000", lng="-98.100000"):
+    """Crea un parque minimo reutilizable para pruebas de reservaciones."""
     return Parque.objects.create(
         nombre=nombre,
         estado=Parque.Estado.TLAXCALA,
@@ -73,6 +77,7 @@ def crear_parque(nombre="Parque Test", lat="19.300000", lng="-98.100000"):
 
 def crear_hospedaje(parque, tipo=Hospedaje.TipoHospedaje.CABANA,
                     unidades=5, capacidad=4, precio="800.00"):
+    """Crea un hospedaje con capacidad y precio configurables."""
     return Hospedaje.objects.create(
         parque=parque,
         tipo_hospedaje=tipo,
@@ -83,6 +88,7 @@ def crear_hospedaje(parque, tipo=Hospedaje.TipoHospedaje.CABANA,
 
 
 def crear_cliente(username="cliente1", email="cliente1@test.com"):
+    """Crea un usuario cliente con credenciales validas para tests."""
     return Usuario.objects.create_user(
         username=username, email=email,
         password="pass1234", rol=Usuario.Rol.CLIENTE,
@@ -90,6 +96,7 @@ def crear_cliente(username="cliente1", email="cliente1@test.com"):
 
 
 def crear_admin(username="admin1", email="admin1@test.com"):
+    """Crea un usuario administrador para probar permisos elevados."""
     return Usuario.objects.create_user(
         username=username, email=email,
         password="pass1234", rol=Usuario.Rol.ADMINISTRADOR,
@@ -111,11 +118,8 @@ def reservacion_directa(hospedaje, usuario,
     )
 
 
-# ============================================================================
-# 1. Calcular duración de estancia
-# ============================================================================
-
 class CalcularDuracionTests(TestCase):
+    """Valida que la duracion se calcule como noches de estancia."""
 
     def setUp(self):
         parque = crear_parque()
@@ -138,11 +142,8 @@ class CalcularDuracionTests(TestCase):
         self.assertEqual(self.reservacion.calcular_duracion(), 7)
 
 
-# ============================================================================
-# 2. Calcular unidades necesarias
-# ============================================================================
-
 class CalcularUnidadesNecesariasTests(TestCase):
+    """Prueba el calculo de unidades requeridas segun huespedes y capacidad."""
 
     def test_huespedes_exactos_para_una_unidad(self):
         self.assertEqual(calcular_unidades_necesarias(4, 4), 1)
@@ -164,11 +165,8 @@ class CalcularUnidadesNecesariasTests(TestCase):
             calcular_unidades_necesarias(3, 0)
 
 
-# ============================================================================
-# 3. Calcular precio total
-# ============================================================================
-
 class CalcularPrecioTotalTests(TestCase):
+    """Verifica el calculo base de precio por unidades, tarifa y noches."""
 
     def test_precio_base(self):
         # 2 unidades × $800 × 3 noches = $4 800
@@ -190,11 +188,8 @@ class CalcularPrecioTotalTests(TestCase):
         )
 
 
-# ============================================================================
-# 4. Rechazar reservaciones fuera de junio-agosto
-# ============================================================================
-
 class FechasEnTemporadaTests(TestCase):
+    """Valida la regla de temporada del festival entre junio y agosto."""
 
     def test_junio_valido(self):
         self.assertTrue(fechas_en_temporada(JUE, SAB))
@@ -221,11 +216,8 @@ class FechasEnTemporadaTests(TestCase):
         self.assertFalse(fechas_en_temporada(date(2026, 5, 10), date(2026, 5, 15)))
 
 
-# ============================================================================
-# 5. Rechazar reservaciones que incluyan martes
-# ============================================================================
-
 class RangoIncluyeMartesTests(TestCase):
+    """Comprueba el bloqueo de noches que caen en martes de mantenimiento."""
 
     def test_noche_de_martes_detectada(self):
         # MAR→MIE: única noche = martes
@@ -255,11 +247,8 @@ class RangoIncluyeMartesTests(TestCase):
         self.assertTrue(rango_incluye_martes(LUN, LUN + timedelta(days=15)))
 
 
-# ============================================================================
-# 6. Validar disponibilidad y evitar sobre-reservaciones
-# ============================================================================
-
 class UnidadesDisponiblesTests(TestCase):
+    """Verifica disponibilidad por solapamiento de reservaciones activas."""
 
     def setUp(self):
         parque = crear_parque()
@@ -302,12 +291,10 @@ class UnidadesDisponiblesTests(TestCase):
         self.assertEqual(unidades_disponibles(self.hospedaje, JUE, SAB), 1)
 
 
-# ============================================================================
-# 7. Form — validaciones integradas
-# ============================================================================
 
 class ReservacionFormTests(TestCase):
-    """
+    """Valida reglas integradas del formulario antes de crear reservas.
+
     Datos por defecto: JUE→SAB (2 noches), 2 huéspedes, 1 unidad.
     Hospedaje: 5 unidades, capacidad 4, precio $800.
     """
@@ -326,7 +313,7 @@ class ReservacionFormTests(TestCase):
         datos.update(kwargs)
         return ReservacionForm(datos, hospedaje=self.hospedaje)
 
-    # ── Caso base válido ─────────────────────────────────────────────────────
+    # Caso base válido 
 
     def test_form_valido_con_datos_correctos(self):
         self.assertTrue(self._form().is_valid())
@@ -345,7 +332,7 @@ class ReservacionFormTests(TestCase):
             ).is_valid()
         )
 
-    # ── Temporada ────────────────────────────────────────────────────────────
+    # Temporada
 
     def test_rechaza_fuera_de_temporada(self):
         form = self._form(fecha_inicio=SEP_10.isoformat(), fecha_fin=SEP_14.isoformat())
@@ -365,7 +352,7 @@ class ReservacionFormTests(TestCase):
         form = self._form(fecha_inicio=AGO_30.isoformat(), fecha_fin=SEP_1.isoformat())
         self.assertTrue(form.is_valid(), form.errors)
 
-    # ── Martes ───────────────────────────────────────────────────────────────
+    # Martes
 
     def test_rechaza_estancia_con_martes(self):
         # LUN→MIE: noches lun+mar → contiene martes
@@ -383,7 +370,7 @@ class ReservacionFormTests(TestCase):
         form = self._form(fecha_inicio=DOM.isoformat(), fecha_fin=MAR_JUN9.isoformat())
         self.assertTrue(form.is_valid(), form.errors)
 
-    # ── Unidades necesarias ──────────────────────────────────────────────────
+    # Unidades necesarias
 
     def test_rechaza_unidades_insuficientes(self):
         # 5 huéspedes, capacidad 4 → mín 2 unidades; se pide 1
@@ -398,7 +385,7 @@ class ReservacionFormTests(TestCase):
     def test_acepta_unidades_superiores(self):
         self.assertTrue(self._form(num_huespedes=2, unidades_reservadas=2).is_valid())
 
-    # ── Disponibilidad / sobre-reservación ──────────────────────────────────
+    # Disponibilidad / sobre-reservacion 
 
     def test_rechaza_cuando_no_hay_disponibilidad(self):
         cliente = crear_cliente()
@@ -434,7 +421,7 @@ class ReservacionFormTests(TestCase):
         r.save()
         self.assertTrue(self._form(unidades_reservadas=2).is_valid())
 
-    # ── calcular_precio ──────────────────────────────────────────────────────
+    # calcular_precio 
 
     def test_calcular_precio_correcto(self):
         # 2 unidades × $800 × 2 noches = $3 200
@@ -447,11 +434,9 @@ class ReservacionFormTests(TestCase):
         self.assertIsNone(form.calcular_precio())
 
 
-# ============================================================================
-# 8. Vista: crear reservación
-# ============================================================================
 
 class CrearReservacionTests(TestCase):
+    """Prueba el flujo HTTP para crear reservaciones desde la vista."""
 
     def setUp(self):
         parque = crear_parque()
@@ -555,11 +540,8 @@ class CrearReservacionTests(TestCase):
         self.assertEqual(Reservacion.objects.count(), 1)
 
 
-# ============================================================================
-# 9. Vista: cancelar reservación
-# ============================================================================
-
 class CancelarReservacionTests(TestCase):
+    """Valida permisos y estados permitidos al cancelar reservaciones."""
 
     def setUp(self):
         parque = crear_parque()
@@ -599,11 +581,8 @@ class CancelarReservacionTests(TestCase):
         self.assertRedirects(resp, reverse("mis_reservaciones"))
 
 
-# ============================================================================
-# 10. Vista: consultar reservaciones del cliente (mis_reservaciones)
-# ============================================================================
-
 class MisReservacionesTests(TestCase):
+    """Comprueba que cada cliente solo consulte sus propias reservaciones."""
 
     def setUp(self):
         parque = crear_parque()
@@ -638,11 +617,8 @@ class MisReservacionesTests(TestCase):
         self.assertIn(reverse("usuarios:login"), resp["Location"])
 
 
-# ============================================================================
-# 11. Vista: consultar todas las reservaciones como administrador
-# ============================================================================
-
 class TodasLasReservacionesTests(TestCase):
+    """Valida que solo administradores consulten el listado global."""
 
     def setUp(self):
         parque = crear_parque()
@@ -681,11 +657,8 @@ class TodasLasReservacionesTests(TestCase):
         self.assertContains(resp, str(self.cliente))
 
 
-# ============================================================================
-# 12. Vista: detalle de reservación
-# ============================================================================
-
 class DetalleReservacionTests(TestCase):
+    """Prueba permisos y datos mostrados en el detalle de una reservacion."""
 
     def setUp(self):
         parque = crear_parque()

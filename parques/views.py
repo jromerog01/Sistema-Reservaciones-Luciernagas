@@ -6,6 +6,7 @@ from parques.models import Hospedaje, Parque, Servicio
 
 
 def listado_parques(request):
+    """Muestra el catalogo de parques con filtros combinables en frontend."""
     servicios = [
         {
             "nombre": servicio.nombre,
@@ -27,6 +28,7 @@ def listado_parques(request):
 
 
 def detalle_parque(request, parque_id):
+    """Muestra informacion completa de un parque y sus opciones de hospedaje."""
     parque = get_object_or_404(
         Parque.objects.prefetch_related("servicios", "hospedajes"),
         id=parque_id,

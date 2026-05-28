@@ -3,6 +3,8 @@ from django.db import models
 
 
 class UsuarioManager(UserManager):
+    """Permite autenticar usuarios por username o por correo electronico."""
+
     def get_by_natural_key(self, identificador):
         try:
             return self.get(username__iexact=identificador)
@@ -11,6 +13,8 @@ class UsuarioManager(UserManager):
 
 
 class Usuario(AbstractUser):
+    """Usuario del sistema con rol explicito para controlar permisos."""
+
     class Rol(models.TextChoices):
         CLIENTE = "CLIENTE", "Cliente"
         ADMINISTRADOR = "ADMINISTRADOR", "Administrador"
@@ -26,12 +30,15 @@ class Usuario(AbstractUser):
     objects = UsuarioManager()
 
     def es_cliente(self):
+        """Indica si el usuario debe operar con permisos de cliente."""
         return self.rol == self.Rol.CLIENTE
 
     def es_administrador(self):
+        """Centraliza la regla de acceso administrativo del proyecto."""
         return self.rol == self.Rol.ADMINISTRADOR or self.is_staff
 
     def update(self, **kwargs):
+        """Actualiza campos simples del usuario y reporta si la operacion fue exitosa."""
         try:
             for key, value in kwargs.items():
                 setattr(self, key, value)
