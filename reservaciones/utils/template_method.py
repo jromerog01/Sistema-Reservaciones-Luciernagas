@@ -15,9 +15,9 @@ class ReservacionTemplate(ABC):
     específicos sin duplicar validaciones, persistencia ni notificaciones.
     """
 
-    def __init__(self, request, hospedaje, form):
+    def __init__(self, request, recurso, form):
         self.request = request
-        self.hospedaje = hospedaje
+        self.recurso = recurso
         self.form = form
 
     def procesar_reservacion(self):
@@ -28,20 +28,20 @@ class ReservacionTemplate(ABC):
 
         try:
             with transaction.atomic():
-                # Bloquea el hospedaje para que dos solicitudes simultaneas no
+                # Bloquea el recurso para que dos solicitudes simultaneas no
                 # confirmen cupos sobre la misma disponibilidad.
-                self.hospedaje = self.hospedaje.__class__.objects.select_for_update().get(pk=self.hospedaje.pk)
+                self.recurso = self.recurso.__class__.objects.select_for_update().get(pk=self.recurso.pk)
                 self.validar_reglas_adicionales()
 
                 disponibles = unidades_disponibles(
-                    self.hospedaje,
+                    self.recurso,
                     self.cleaned["fecha_inicio"],
                     self.cleaned["fecha_fin"],
                 )
                 if self.cleaned["unidades_reservadas"] > disponibles:
                     self.form.add_error(
                         "unidades_reservadas",
-                        f"Solo quedan {disponibles} unidad(es) disponible(s) para ese periodo en este hospedaje."
+                        f"Solo quedan {disponibles} unidad(es) disponible(s) para ese periodo en este recurso."
                     )
                     return None
 
@@ -55,31 +55,40 @@ class ReservacionTemplate(ABC):
             return None
 
     def validar_reglas_adicionales(self):
-        """Hook opcional para validaciones especificas."""
+        """ opcional para validaciones especificas."""
         return None
 
     def calcular_precio_total(self):
-        """Calcula el precio base del hospedaje para la estancia."""
+        """Calcula el precio base del recurso para la estancia.
+
+        La implementación por defecto asume un atributo `precio_por_unidad`
+        y unidades reservables; las subclases pueden sobreescribirlo.
+        """
         num_noches = (self.cleaned["fecha_fin"] - self.cleaned["fecha_inicio"]).days
         unidades = self.cleaned["unidades_reservadas"]
-        precio = self.hospedaje.precio_por_unidad
+        precio = getattr(self.recurso, "precio_por_unidad", 0)
         return precio * unidades * num_noches
 
     def crear_reservacion(self, precio_total):
-        """Persiste la reservacion ya validada dentro de la transaccion."""
+        """Persiste la reservacion ya validada dentro de la transaccion.
+
+        Por defecto usa el modelo `Reservacion` compartido y asocia el
+        `recurso` en el campo `hospedaje` para mantener compatibilidad.
+        Las subclases pueden sobrescribir si usan un modelo distinto.
+        """
         r = Reservacion.objects.create(
             fecha_inicio=self.cleaned["fecha_inicio"],
             fecha_fin=self.cleaned["fecha_fin"],
             num_huespedes=self.cleaned["num_huespedes"],
             unidades_reservadas=self.cleaned["unidades_reservadas"],
             precio_total=precio_total,
-            hospedaje=self.hospedaje,
+            hospedaje=self.recurso,
             usuario=self.request.user,
         )
         return r
 
     def post_procesamiento(self, reservacion):
-        """Hook para acciones posteriores (notificaciones, logs, etc.)."""
+        """ para acciones posteriores (notificaciones, logs, etc.)."""
         notificador.notificar("creada", reservacion)
         return None
 

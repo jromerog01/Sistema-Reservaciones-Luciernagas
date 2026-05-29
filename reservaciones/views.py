@@ -5,8 +5,8 @@ from django.urls import reverse
 from parques.models import Hospedaje
 from reservaciones.forms import ReservacionForm
 from reservaciones.models import Reservacion
-from reservaciones.utils.template_method import ReservacionHospedajeTemplate
 from reservaciones.utils.notificador import notificador
+from reservaciones.facade import ReservacionFacade
 from parques.parque_cards import obtener_imagen_parque
 
 
@@ -31,8 +31,7 @@ def crear_reservacion(request, hospedaje_id):
     if request.method == "POST":
         form = ReservacionForm(request.POST, hospedaje=hospedaje)
         if form.is_valid():
-            processor = ReservacionHospedajeTemplate(request, hospedaje, form)
-            reservacion = processor.procesar_reservacion()
+            reservacion = ReservacionFacade.crear_reservacion(request, hospedaje, form)
             if reservacion:
                 return redirect("detalle_reservacion", reservacion_id=reservacion.id)
     else:
@@ -54,30 +53,25 @@ def cancelar_reservacion(request, reservacion_id):
         id=reservacion_id,
     )
 
-    es_propietario = reservacion.usuario == request.user
-    es_admin = request.user.es_administrador()
-
-    if not es_propietario and not es_admin:
-        return render_reservacion_forbidden(
-            request,
-            "No tienes permiso para cancelar esta reservación.",
-        )
-
+    # Delegar la verificación y la acción al facade
     if request.method == "POST":
-        if reservacion.estado != Reservacion.EstadoReservacion.ACTIVA:
-            return render(
-                request,
-                "cancelar_reservacion.html",
-                {
-                    "reservacion": reservacion,
-                    "error": "Solo se pueden cancelar reservaciones activas.",
-                    "imagen_parque": obtener_imagen_parque(reservacion.hospedaje.parque),
-                },
-            )
-        reservacion.estado = Reservacion.EstadoReservacion.CANCELADA
-        reservacion.save()
-
-        notificador.notificar("cancelada", reservacion)
+        success, reason = ReservacionFacade.cancelar_reservacion(reservacion, request.user)
+        if not success:
+            if reason == "permiso":
+                return render_reservacion_forbidden(
+                    request,
+                    "No tienes permiso para cancelar esta reservación.",
+                )
+            if reason == "estado":
+                return render(
+                    request,
+                    "cancelar_reservacion.html",
+                    {
+                        "reservacion": reservacion,
+                        "error": "Solo se pueden cancelar reservaciones activas.",
+                        "imagen_parque": obtener_imagen_parque(reservacion.hospedaje.parque),
+                    },
+                )
 
         return redirect("mis_reservaciones")
 
