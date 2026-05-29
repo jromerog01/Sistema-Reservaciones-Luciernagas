@@ -22,6 +22,7 @@ from proyectoLuciernagas import views
 urlpatterns = [
     path('', views.inicio),
     path('admin/', admin.site.urls),
+    path('accounts/', include('allauth.urls')),
     path('parques/', include('parques.urls')),
     path('usuarios/', include('usuarios.urls')),
     path('inicio/', views.inicio, name='inicio'),
