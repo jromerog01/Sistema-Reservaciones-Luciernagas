@@ -1,78 +1,250 @@
 {% load static %}
-<!doctype html>
-<html lang="es">
+<!DOCTYPE html>
+<html class="light" lang="es">
 <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Festival de Luciernagas | Mapa</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
-    <link rel="stylesheet" href="{% static 'css/prototipo_reservaciones.css' %}">
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Lumina Fest | Mapa Interactivo</title>
+<link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+<link rel="stylesheet" href="{% static 'css/stitch_theme.css' %}?v=9">
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "surface-container": "#efeeea",
+                    "secondary-fixed": "#ffe16d",
+                    "on-primary": "#ffffff",
+                    "on-tertiary-container": "#a87d00",
+                    "on-tertiary": "#ffffff",
+                    "inverse-on-surface": "#f2f0ed",
+                    "surface": "#fbf9f5",
+                    "surface-container-lowest": "#ffffff",
+                    "surface-variant": "#e4e2de",
+                    "on-primary-container": "#77887f",
+                    "tertiary-fixed": "#ffdfa0",
+                    "outline-variant": "#c3c8c3",
+                    "on-secondary-container": "#6e5c00",
+                    "error": "#ba1a1a",
+                    "surface-container-highest": "#e4e2de",
+                    "on-surface-variant": "#434845",
+                    "inverse-primary": "#b9cbc1",
+                    "on-tertiary-fixed-variant": "#5c4300",
+                    "surface-container-low": "#f5f3ef",
+                    "error-container": "#ffdad6",
+                    "on-tertiary-fixed": "#261a00",
+                    "primary-container": "#101e18",
+                    "on-surface": "#1b1c1a",
+                    "tertiary-fixed-dim": "#fbbc00",
+                    "surface-bright": "#fbf9f5",
+                    "primary-fixed-dim": "#b9cbc1",
+                    "surface-dim": "#dbdad6",
+                    "on-primary-fixed": "#101e18",
+                    "tertiary-container": "#261a00",
+                    "secondary-container": "#fcd400",
+                    "on-secondary": "#ffffff",
+                    "on-primary-fixed-variant": "#3a4a43",
+                    "background": "#fbf9f5",
+                    "on-background": "#1b1c1a",
+                    "on-secondary-fixed": "#221b00",
+                    "surface-tint": "#52625a",
+                    "primary-fixed": "#d5e7dc",
+                    "on-error-container": "#93000a",
+                    "on-error": "#ffffff",
+                    "inverse-surface": "#30312e",
+                    "tertiary": "#000000",
+                    "surface-container-high": "#eae8e4",
+                    "on-secondary-fixed-variant": "#544600",
+                    "outline": "#737874",
+                    "secondary-fixed-dim": "#e9c400",
+                    "primary": "#000000",
+                    "secondary": "#705d00"
+            },
+            "borderRadius": {
+                    "DEFAULT": "1rem",
+                    "lg": "2rem",
+                    "xl": "3rem",
+                    "full": "9999px"
+            },
+            "spacing": {
+                    "container-max": "1400px",
+                    "base": "8px",
+                    "margin-desktop": "32px",
+                    "gutter": "24px",
+                    "margin-mobile": "16px"
+            },
+            "fontFamily": {
+                    "label-sm": ["Quicksand"],
+                    "headline-md": ["Quicksand"],
+                    "label-md": ["Quicksand"],
+                    "headline-xl-mobile": ["Quicksand"],
+                    "body-lg": ["Quicksand"],
+                    "body-md": ["Quicksand"],
+                    "headline-xl": ["Quicksand"],
+                    "headline-lg": ["Quicksand"]
+            },
+            "fontSize": {
+                    "label-sm": ["12px", {"lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "500"}],
+                    "headline-md": ["24px", {"lineHeight": "32px", "fontWeight": "600"}],
+                    "label-md": ["14px", {"lineHeight": "20px", "letterSpacing": "0.02em", "fontWeight": "600"}],
+                    "headline-xl-mobile": ["32px", {"lineHeight": "40px", "letterSpacing": "-0.01em", "fontWeight": "700"}],
+                    "body-lg": ["18px", {"lineHeight": "28px", "fontWeight": "400"}],
+                    "body-md": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
+                    "headline-xl": ["48px", {"lineHeight": "56px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                    "headline-lg": ["32px", {"lineHeight": "40px", "fontWeight": "600"}]
+            }
+          },
+        },
+      }
+</script>
+<style>
+    /* For the custom leaflet popups if needed */
+    .leaflet-popup-content-wrapper {
+        border-radius: 1rem;
+        box-shadow: 0 10px 30px -10px rgba(16, 30, 24, 0.25);
+    }
+</style>
+<script>window.IS_AUTH = {% if user.is_authenticated %}true{% else %}false{% endif %};</script>
 </head>
-<body>
-    {% include "partials/navbar.html" %}
+<body class="overflow-hidden bg-background">
 
-    <main>
-        <section class="map-page-header">
-            <div>
-                <span class="eyebrow">Mapa de parques</span>
-                <h1>Ubica los parques del festival</h1>
-                <p>Consulta la ubicacion de cada parque registrado y abre su detalle desde los marcadores del mapa.</p>
+<!-- TopAppBar -->
+{% include "partials/tailwind_navbar.html" %}
+
+<main class="flex h-screen pt-[64px] relative overflow-hidden">
+    <!-- Sidebar Filter View -->
+    <aside class="w-80 h-full bg-surface-container-lowest/95 backdrop-blur-lg border-r border-on-secondary-fixed-variant/10 z-[1000] flex flex-col shadow-2xl transition-transform duration-300 transform md:translate-x-0 absolute md:relative left-0 -translate-x-full" id="filter-sidebar">
+        <div class="p-6 flex flex-col gap-6 overflow-y-auto custom-scrollbar h-full">
+            <h2 class="font-headline-md text-primary flex justify-between items-center mb-2">
+                Filtros
+                <span class="text-label-sm font-label-sm bg-secondary-container text-on-secondary-container px-3 py-1 rounded-full shadow-sm" data-map-parks-count>{{ mapa_parques|length }} parques</span>
+            </h2>
+
+            <!-- Estado -->
+            <details open class="group">
+                <summary class="font-label-md text-on-surface-variant mb-3 uppercase tracking-wider cursor-pointer list-none flex justify-between items-center select-none [&::-webkit-details-marker]:hidden">
+                    Estado
+                    <span class="material-symbols-outlined transition-transform group-open:rotate-180">expand_more</span>
+                </summary>
+                <div class="flex flex-col gap-2 mt-2">
+                    {% for valor, etiqueta in estados %}
+                        <button type="button" class="w-full text-left px-4 py-2 bg-surface hover:bg-surface-container-high rounded-full font-body-md transition-colors filter-btn border border-transparent shadow-sm" data-map-filter data-filter-type="estado" data-filter-value="{{ valor|lower }}" aria-pressed="false">{{ etiqueta }}</button>
+                    {% endfor %}
+                </div>
+            </details>
+
+            <!-- Hospedaje -->
+            <details open class="group">
+                <summary class="font-label-md text-on-surface-variant mb-3 uppercase tracking-wider cursor-pointer list-none flex justify-between items-center select-none [&::-webkit-details-marker]:hidden">
+                    Hospedaje
+                    <span class="material-symbols-outlined transition-transform group-open:rotate-180">expand_more</span>
+                </summary>
+                <div class="flex flex-col gap-2 mt-2">
+                    {% for valor, etiqueta in hospedajes %}
+                        <button type="button" class="w-full text-left px-4 py-2 bg-surface hover:bg-surface-container-high rounded-full font-body-md transition-colors filter-btn border border-transparent shadow-sm" data-map-filter data-filter-type="hospedaje" data-filter-value="{{ valor|lower }}" aria-pressed="false">{{ etiqueta }}</button>
+                    {% endfor %}
+                </div>
+            </details>
+
+            <!-- Servicios -->
+            <details class="group">
+                <summary class="font-label-md text-on-surface-variant mb-3 uppercase tracking-wider cursor-pointer list-none flex justify-between items-center select-none [&::-webkit-details-marker]:hidden">
+                    Servicios
+                    <span class="material-symbols-outlined transition-transform group-open:rotate-180">expand_more</span>
+                </summary>
+                <div class="flex flex-col gap-2 mt-2">
+                    {% for servicio in servicios %}
+                        <button type="button" class="w-full text-left px-4 py-2 bg-surface hover:bg-surface-container-high rounded-full font-body-md transition-colors filter-btn border border-transparent shadow-sm" data-map-filter data-filter-type="servicio" data-filter-value="{{ servicio.valor }}" aria-pressed="false">{{ servicio.nombre }}</button>
+                    {% empty %}
+                        <span class="text-sm text-on-surface-variant px-4 py-2">Sin servicios registrados</span>
+                    {% endfor %}
+                </div>
+            </details>
+
+            <button type="button" class="w-full px-4 py-3 border-2 border-primary/20 text-primary hover:bg-primary/5 rounded-xl font-label-md transition-colors flex items-center justify-center gap-2 mt-auto" data-clear-map-filters>
+                <span class="material-symbols-outlined">filter_list_off</span> Limpiar Filtros
+            </button>
+            
+            <div class="active-filter-panel mt-4 bg-surface-container-low p-4 rounded-xl" data-map-active-filter-panel hidden>
+                <span class="font-label-sm text-on-surface-variant block mb-2">Filtros aplicados:</span>
+                <div class="flex flex-wrap gap-2" data-map-active-filters></div>
             </div>
-            <strong data-map-parks-count>{{ mapa_parques|length }} parques</strong>
-        </section>
+            
+            <p class="text-error font-label-md text-center mt-4" data-map-filter-empty hidden>No hay parques con esos filtros.</p>
+        </div>
+    </aside>
 
-        <section class="section map-page-section">
-            <div class="map-layout">
-                <details class="park-filter-sidebar" open>
-                    <summary>Filtros</summary>
-                    <div class="park-filter-content">
-                        <details class="park-filter-group" open>
-                            <summary>Estado</summary>
-                            {% for valor, etiqueta in estados %}
-                                <button type="button" class="park-filter-option" data-map-filter data-filter-type="estado" data-filter-value="{{ valor|lower }}" aria-pressed="false">{{ etiqueta }}</button>
-                            {% endfor %}
-                        </details>
-
-                        <details class="park-filter-group" open>
-                            <summary>Hospedaje</summary>
-                            {% for valor, etiqueta in hospedajes %}
-                                <button type="button" class="park-filter-option" data-map-filter data-filter-type="hospedaje" data-filter-value="{{ valor|lower }}" aria-pressed="false">{{ etiqueta }}</button>
-                            {% endfor %}
-                        </details>
-
-                        <details class="park-filter-group">
-                            <summary>Servicios</summary>
-                            {% for servicio in servicios %}
-                                <button type="button" class="park-filter-option" data-map-filter data-filter-type="servicio" data-filter-value="{{ servicio.valor }}" aria-pressed="false">{{ servicio.nombre }}</button>
-                            {% empty %}
-                                <p class="filter-empty">Sin servicios registrados</p>
-                            {% endfor %}
-                        </details>
-
-                        <div class="active-filter-panel" data-map-active-filter-panel hidden>
-                            <span>Filtros aplicados</span>
-                            <div class="active-filter-list" data-map-active-filters></div>
-                            <button type="button" class="filter-clear" data-clear-map-filters>Limpiar filtros</button>
-                        </div>
-                    </div>
-                </details>
-
-                <div class="parks-map-shell map-page-shell">
-                    <div id="parks-map" class="parks-map map-page-map" aria-label="Mapa interactivo con los parques registrados"></div>
-                    {% if not mapa_parques %}
-                        <p class="map-empty">Agrega parques con coordenadas desde el administrador para mostrarlos en el mapa.</p>
-                    {% endif %}
-                    <p class="map-empty" data-map-filter-empty hidden>No hay parques con esos filtros.</p>
+    <!-- Main Map View -->
+    <section class="flex-1 relative bg-surface-dim overflow-hidden map-container z-0" id="map-canvas">
+        <div id="parks-map" class="w-full h-full z-10" aria-label="Mapa interactivo con los parques registrados"></div>
+        {% if not mapa_parques %}
+            <div class="absolute inset-0 z-20 flex items-center justify-center bg-surface-dim/80 backdrop-blur-sm">
+                <div class="bg-surface p-8 rounded-2xl shadow-xl text-center max-w-md">
+                    <span class="material-symbols-outlined text-4xl text-secondary mb-4">location_off</span>
+                    <h3 class="font-headline-md text-primary mb-2">No hay parques en el mapa</h3>
+                    <p class="text-on-surface-variant">Agrega parques con coordenadas desde el administrador para mostrarlos aquí.</p>
                 </div>
             </div>
-        </section>
-    </main>
+        {% endif %}
+    </section>
 
-    {{ mapa_parques|json_script:"parks-map-data" }}
-    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-    <script src="{% static 'js/prototipo_reservaciones.js' %}"></script>
+    <!-- Mobile Filter Toggle -->
+    <button class="md:hidden absolute bottom-6 left-6 z-[2000] w-14 h-14 bg-primary text-on-primary rounded-full shadow-2xl flex items-center justify-center hover:scale-105 active:scale-95 transition-all" id="sidebar-toggle">
+        <span class="material-symbols-outlined">tune</span>
+    </button>
+</main>
+
+{{ mapa_parques|json_script:"parks-map-data" }}
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script>
+    // Configurar el toggle de sidebar en moviles
+    const sidebar = document.getElementById('filter-sidebar');
+    const toggle = document.getElementById('sidebar-toggle');
+    let isOpen = false;
+
+    toggle?.addEventListener('click', () => {
+        isOpen = !isOpen;
+        if (isOpen) {
+            sidebar.classList.remove('-translate-x-full');
+            sidebar.classList.add('translate-x-0');
+        } else {
+            sidebar.classList.remove('translate-x-0');
+            sidebar.classList.add('-translate-x-full');
+        }
+    });
+
+    // Style toggle for active filter buttons
+    const filterChips = document.querySelectorAll('button.filter-btn');
+    
+    const observer = new MutationObserver((mutations) => {
+        mutations.forEach((mutation) => {
+            if (mutation.type === 'attributes' && mutation.attributeName === 'aria-pressed') {
+                const chip = mutation.target;
+                if (chip.getAttribute('aria-pressed') === 'true') {
+                    chip.classList.remove('bg-surface', 'border-transparent', 'text-on-surface-variant');
+                    chip.classList.add('bg-secondary-container', 'border-secondary/20', 'text-on-secondary-container');
+                } else {
+                    chip.classList.remove('bg-secondary-container', 'border-secondary/20', 'text-on-secondary-container');
+                    chip.classList.add('bg-surface', 'border-transparent', 'text-on-surface-variant');
+                }
+            }
+        });
+    });
+
+    filterChips.forEach(chip => {
+        observer.observe(chip, { attributes: true });
+        if (chip.getAttribute('aria-pressed') === 'true') {
+            chip.classList.remove('bg-surface', 'border-transparent', 'text-on-surface-variant');
+            chip.classList.add('bg-secondary-container', 'border-secondary/20', 'text-on-secondary-container');
+        } else {
+            chip.classList.add('text-on-surface-variant');
+        }
+    });
+</script>
+<script src="{% static 'js/luciernagas_ui.js' %}?v=3"></script>
 </body>
 </html>

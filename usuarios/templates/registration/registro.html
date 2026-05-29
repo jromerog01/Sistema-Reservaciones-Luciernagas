@@ -1,294 +1,222 @@
 {% load static %}
-<!doctype html>
-<html lang="es">
+<!DOCTYPE html>
+<html class="light" lang="es">
 <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Registro | Festival de Luciérnagas</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="{% static 'css/prototipo_reservaciones.css' %}">
-    <style>
-        /* ── Auth page overrides ── */
-        body {
-            background: linear-gradient(145deg, #071912 0%, #0f2e24 55%, #183d32 100%);
-            min-height: 100vh;
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Registro - Lumina Fest</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              "colors": {
+                      "secondary": "#705d00",
+                      "surface-variant": "#e4e2de",
+                      "on-tertiary-fixed": "#261a00",
+                      "tertiary-fixed-dim": "#fbbc00",
+                      "primary-container": "#101e18",
+                      "on-tertiary-container": "#a87d00",
+                      "on-tertiary": "#ffffff",
+                      "on-surface": "#1b1c1a",
+                      "inverse-primary": "#b9cbc1",
+                      "secondary-fixed": "#ffe16d",
+                      "on-secondary": "#ffffff",
+                      "surface-bright": "#fbf9f5",
+                      "inverse-on-surface": "#f2f0ed",
+                      "inverse-surface": "#30312e",
+                      "error": "#ba1a1a",
+                      "on-error": "#ffffff",
+                      "tertiary-fixed": "#ffdfa0",
+                      "on-background": "#1b1c1a",
+                      "surface-container-highest": "#e4e2de",
+                      "outline-variant": "#c3c8c3",
+                      "on-primary-fixed": "#101e18",
+                      "on-secondary-fixed-variant": "#544600",
+                      "error-container": "#ffdad6",
+                      "on-tertiary-fixed-variant": "#5c4300",
+                      "on-secondary-fixed": "#221b00",
+                      "surface-container-low": "#f5f3ef",
+                      "surface-tint": "#52625a",
+                      "surface-dim": "#dbdad6",
+                      "background": "#fbf9f5",
+                      "on-primary-container": "#77887f",
+                      "primary-fixed-dim": "#b9cbc1",
+                      "tertiary-container": "#261a00",
+                      "primary-fixed": "#d5e7dc",
+                      "tertiary": "#000000",
+                      "surface-container-high": "#eae8e4",
+                      "surface-container": "#efeeea",
+                      "primary": "#000000",
+                      "on-secondary-container": "#6e5c00",
+                      "on-surface-variant": "#434845",
+                      "on-primary": "#ffffff",
+                      "surface": "#fbf9f5",
+                      "secondary-container": "#fcd400",
+                      "surface-container-lowest": "#ffffff",
+                      "on-primary-fixed-variant": "#3a4a43",
+                      "on-error-container": "#93000a",
+                      "secondary-fixed-dim": "#e9c400",
+                      "outline": "#737874"
+              },
+              "borderRadius": {
+                      "DEFAULT": "1rem",
+                      "lg": "2rem",
+                      "xl": "3rem",
+                      "full": "9999px"
+              },
+              "spacing": {
+                      "margin-desktop": "48px",
+                      "base": "8px",
+                      "gutter": "24px",
+                      "margin-mobile": "16px",
+                      "container-max": "1280px"
+              },
+              "fontFamily": {
+                      "headline-xl-mobile": ["Quicksand"],
+                      "headline-md": ["Quicksand"],
+                      "body-lg": ["Quicksand"],
+                      "headline-xl": ["Quicksand"],
+                      "label-sm": ["Quicksand"],
+                      "label-md": ["Quicksand"],
+                      "headline-lg": ["Quicksand"],
+                      "body-md": ["Quicksand"]
+              },
+              "fontSize": {
+                      "headline-xl-mobile": ["32px", {"lineHeight": "40px", "letterSpacing": "-0.01em", "fontWeight": "700"}],
+                      "headline-md": ["24px", {"lineHeight": "32px", "fontWeight": "600"}],
+                      "body-lg": ["18px", {"lineHeight": "28px", "fontWeight": "400"}],
+                      "headline-xl": ["48px", {"lineHeight": "56px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                      "label-sm": ["12px", {"lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "500"}],
+                      "label-md": ["14px", {"lineHeight": "20px", "letterSpacing": "0.02em", "fontWeight": "600"}],
+                      "headline-lg": ["32px", {"lineHeight": "40px", "fontWeight": "600"}],
+                      "body-md": ["16px", {"lineHeight": "24px", "fontWeight": "400"}]
+              }
+            },
+          },
         }
-
-        .auth-page {
-            position: relative;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            min-height: calc(100vh - 72px);
-            padding: 2rem 1rem;
-            overflow: hidden;
-        }
-
-        .auth-glow {
-            position: absolute;
-            border-radius: 50%;
-            filter: blur(72px);
-            pointer-events: none;
-            animation: soft-pulse 5s ease-in-out infinite;
-        }
-        .auth-glow-1 {
-            width: 360px; height: 360px;
-            background: rgba(126, 230, 181, .09);
-            top: -40px; left: 8%;
-            animation-delay: 0s;
-        }
-        .auth-glow-2 {
-            width: 300px; height: 300px;
-            background: rgba(248, 248, 113, .10);
-            bottom: 0; right: 8%;
-            animation-delay: 2s;
-        }
-
-        .auth-firefly {
-            position: absolute;
-            width: 5px; height: 5px;
-            border-radius: 50%;
-            background: var(--firefly);
-            box-shadow: 0 0 8px rgba(248, 248, 113, .7);
-            pointer-events: none;
-            animation: soft-pulse 3s ease-in-out infinite;
-        }
-        .auth-firefly:nth-child(1) { top: 14%; left: 82%; animation-delay: 0s; }
-        .auth-firefly:nth-child(2) { top: 55%; left: 6%;  animation-delay: 1.3s; }
-        .auth-firefly:nth-child(3) { top: 75%; left: 90%; animation-delay: .7s; }
-        .auth-firefly:nth-child(4) { top: 30%; left: 16%; animation-delay: 2.1s; }
-
-        .auth-card {
-            position: relative;
-            z-index: 1;
-            width: 100%;
-            max-width: 460px;
-            background: rgba(255, 255, 255, .06);
-            border: 1px solid rgba(255, 255, 255, .13);
-            border-radius: 20px;
-            backdrop-filter: blur(20px);
-            box-shadow: 0 24px 70px rgba(5, 18, 13, .45);
-            padding: 2.5rem 2.25rem 2rem;
-            animation: fade-scale-in .45s ease both;
-            color: white;
-        }
-
-        .auth-brand {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: .6rem;
-            margin-bottom: 1.75rem;
-            text-decoration: none;
-        }
-        .auth-brand-mark {
-            width: 18px; height: 18px;
-            border-radius: 50%;
-            background: var(--firefly);
-            box-shadow: 0 0 14px rgba(248, 248, 113, .7);
-            animation: soft-pulse 3s ease-in-out infinite;
-            flex-shrink: 0;
-        }
-        .auth-brand-name {
-            font-size: 1rem;
-            font-weight: 700;
-            color: rgba(255,255,255,.75);
-            letter-spacing: .02em;
-        }
-
-        .auth-card h1 {
-            font-size: 1.7rem;
-            font-weight: 800;
-            margin: 0 0 .35rem;
-            color: white;
-            text-align: center;
-        }
-        .auth-card .auth-subtitle {
-            text-align: center;
-            color: rgba(255,255,255,.55);
-            font-size: .92rem;
-            margin-bottom: 1.75rem;
-        }
-
-        .auth-card label {
-            display: block;
-            font-size: .82rem;
-            font-weight: 600;
-            color: rgba(255,255,255,.65);
-            letter-spacing: .04em;
-            text-transform: uppercase;
-            margin-bottom: .4rem;
-        }
-        .auth-card input[type="text"],
-        .auth-card input[type="email"],
-        .auth-card input[type="password"] {
-            width: 100%;
-            padding: .72rem 1rem;
-            border: 1px solid rgba(255,255,255,.16);
-            border-radius: 10px;
-            background: rgba(255,255,255,.07);
-            color: white;
-            font-family: inherit;
-            font-size: .97rem;
-            transition: border-color .2s ease, background .2s ease, box-shadow .2s ease;
-            outline: none;
-            margin-bottom: 1.1rem;
-        }
-        .auth-card input:focus {
-            border-color: var(--mint);
-            background: rgba(255,255,255,.11);
-            box-shadow: 0 0 0 3px rgba(126,230,181,.15);
-        }
-        .auth-card input::placeholder { color: rgba(255,255,255,.3); }
-
-        /* Crispy forms overrides */
-        .auth-card .mb-3 { margin-bottom: 0 !important; }
-        .auth-card .form-control {
-            width: 100%;
-            padding: .72rem 1rem;
-            border: 1px solid rgba(255,255,255,.16);
-            border-radius: 10px;
-            background: rgba(255,255,255,.07);
-            color: white;
-            font-family: inherit;
-            font-size: .97rem;
-            transition: border-color .2s ease, background .2s ease, box-shadow .2s ease;
-            outline: none;
-            margin-bottom: .25rem;
-        }
-        .auth-card .form-control:focus {
-            border-color: var(--mint);
-            background: rgba(255,255,255,.11);
-            box-shadow: 0 0 0 3px rgba(126,230,181,.15);
-        }
-        .auth-card .form-label {
-            font-size: .82rem;
-            font-weight: 600;
-            color: rgba(255,255,255,.65);
-            letter-spacing: .04em;
-            text-transform: uppercase;
-        }
-        .auth-card .invalid-feedback,
-        .auth-card .errorlist {
-            color: #ff8f8f;
-            font-size: .83rem;
-        }
-        .auth-card ul.errorlist { list-style: none; padding: 0; margin: 0 0 .5rem; }
-        .auth-card .helptext,
-        .auth-card .form-text {
-            color: rgba(255,255,255,.35);
-            font-size: .8rem;
-        }
-
-        .auth-btn {
-            display: block;
-            width: 100%;
-            margin-top: 1.25rem;
-            padding: .82rem 1rem;
-            border: none;
-            border-radius: 10px;
-            background: var(--mint);
-            color: var(--ink);
-            font-family: inherit;
-            font-size: 1rem;
-            font-weight: 700;
-            cursor: pointer;
-            transition: transform .2s ease, box-shadow .2s ease;
-        }
-        .auth-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 0 22px rgba(126,230,181,.4), 0 8px 22px rgba(5,18,13,.3);
-        }
-
-        .auth-divider {
-            display: flex;
-            align-items: center;
-            gap: .75rem;
-            margin: 1.5rem 0 1.1rem;
-            color: rgba(255,255,255,.28);
-            font-size: .82rem;
-        }
-        .auth-divider::before,
-        .auth-divider::after {
-            content: '';
-            flex: 1;
-            height: 1px;
-            background: rgba(255,255,255,.12);
-        }
-
-        .auth-footer {
-            text-align: center;
-            font-size: .9rem;
-            color: rgba(255,255,255,.5);
-        }
-        .auth-footer a {
-            color: var(--firefly);
-            font-weight: 600;
-            text-decoration: none;
-            transition: color .2s ease;
-        }
-        .auth-footer a:hover { color: var(--mint); }
-
-        .auth-alert {
-            padding: .75rem 1rem;
-            border-radius: 10px;
-            background: rgba(255, 143, 143, .12);
-            border: 1px solid rgba(255, 143, 143, .3);
-            color: #ffb3b3;
-            font-size: .88rem;
-            margin-bottom: 1rem;
-        }
-        .auth-alert.success {
-            background: rgba(126, 230, 181, .10);
-            border-color: rgba(126, 230, 181, .25);
-            color: var(--mint);
-        }
-    </style>
+    </script>
+<style>
+        body { font-family: 'Quicksand', sans-serif; background-color: #fbf9f5; }
+        .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
+        .soft-shadow { box-shadow: 0 4px 20px -2px rgba(16, 30, 24, 0.15); }
+        .forest-gradient { background: linear-gradient(135deg, #fbf9f5 0%, #f5f3ef 100%); }
+        .firefly-glow { filter: drop-shadow(0 0 8px rgba(252, 212, 0, 0.4)); }
+</style>
 </head>
-<body>
-    {% include "partials/navbar.html" %}
+<body class="bg-background text-on-background min-h-screen flex flex-col">
 
-    <section class="auth-page" aria-label="Registro de cuenta">
-        <span class="auth-glow auth-glow-1" aria-hidden="true"></span>
-        <span class="auth-glow auth-glow-2" aria-hidden="true"></span>
-        <span class="auth-firefly" aria-hidden="true"></span>
-        <span class="auth-firefly" aria-hidden="true"></span>
-        <span class="auth-firefly" aria-hidden="true"></span>
-        <span class="auth-firefly" aria-hidden="true"></span>
+<!-- TopNavBar -->
+{% include "partials/tailwind_navbar.html" %}
 
-        <div class="auth-card">
-            <a class="auth-brand" href="{% url 'inicio' %}">
-                <span class="auth-brand-mark"></span>
-                <span class="auth-brand-name">Luciérnagas</span>
-            </a>
+<main class="flex-grow flex items-center justify-center px-4 py-12 forest-gradient relative overflow-hidden">
+<!-- Atmospheric Fireflies -->
+<div class="absolute top-20 left-[10%] w-2 h-2 bg-secondary-container rounded-full animate-pulse firefly-glow"></div>
+<div class="absolute bottom-40 right-[15%] w-3 h-3 bg-secondary-container rounded-full animate-bounce firefly-glow" style="animation-duration: 3s;"></div>
+<div class="absolute top-1/2 left-[5%] w-2 h-2 bg-secondary-container rounded-full animate-pulse firefly-glow" style="animation-delay: 1s;"></div>
 
-            <h1>Crea tu cuenta</h1>
-            <p class="auth-subtitle">Regístrate para reservar tu hospedaje en el festival</p>
+<!-- Registration Card -->
+<div class="w-full max-w-lg bg-surface-container-lowest rounded-lg p-8 md:p-12 soft-shadow relative z-10">
+<div class="text-center mb-4">
+<div class="inline-flex items-center justify-center w-16 h-16 bg-surface-container-low rounded-full mb-6">
+<span class="material-symbols-outlined text-secondary text-4xl" data-icon="forest">forest</span>
+</div>
+<h1 class="font-headline-xl text-headline-xl text-primary mb-2">Crea tu cuenta</h1>
+<p class="font-body-md text-body-md text-on-surface-variant">Regístrate para reservar tu hospedaje en el festival</p>
+</div>
 
-            {% if messages %}
-                {% for message in messages %}
-                    <div class="auth-alert {% if message.tags == 'success' %}success{% endif %}">
-                        {{ message }}
-                    </div>
-                {% endfor %}
-            {% endif %}
-
-            {% load crispy_forms_tags %}
-            <form method="POST">
-                {% csrf_token %}
-                {{ form|crispy }}
-                <button type="submit" class="auth-btn">Crear cuenta</button>
-            </form>
-
-            <div class="auth-divider">o</div>
-
-            <p class="auth-footer">
-                ¿Ya tienes cuenta?
-                <a href="{% url 'usuarios:login' %}">Inicia sesión</a>
-            </p>
+{% if messages %}
+    <div class="mb-6 space-y-2">
+    {% for message in messages %}
+        <div class="p-3 rounded-md {% if message.tags == 'error' %}bg-error-container text-on-error-container{% else %}bg-secondary-container text-on-secondary-container{% endif %} font-body-md text-sm text-center">
+            {{ message }}
         </div>
-    </section>
-</body>
-</html>
+    {% endfor %}
+    </div>
+{% endif %}
+
+
+<form method="POST" class="space-y-6">
+{% csrf_token %}
+
+{% for field in form %}
+<div class="relative">
+    <label class="block font-label-md text-label-md text-on-surface-variant mb-2 ml-4" for="{{ field.id_for_label }}">{{ field.label }}</label>
+    <div class="relative">
+        <input class="w-full px-6 py-4 rounded-full border {% if field.errors %}border-error focus:border-error{% else %}border-primary/10 focus:border-secondary{% endif %} bg-surface-container-low text-on-surface focus:outline-none transition-all font-body-md text-body-md pr-12" id="{{ field.id_for_label }}" name="{{ field.name }}" type="{% if 'password' in field.name %}password{% elif field.name == 'email' %}email{% else %}text{% endif %}" {% if field.value %}value="{{ field.value }}"{% endif %} {% if field.field.required %}required{% endif %}/>
+        {% if 'password' in field.name %}
+        <button class="absolute right-5 top-1/2 -translate-y-1/2 text-on-surface-variant hover:text-secondary" type="button" onclick="const p = document.getElementById('{{ field.id_for_label }}'); p.type = p.type === 'password' ? 'text' : 'password';">
+            <span class="material-symbols-outlined" data-icon="visibility">visibility</span>
+        </button>
+        {% endif %}
+    </div>
+    {% if field.help_text %}
+    <p class="mt-2 ml-4 text-xs text-on-surface-variant opacity-70">{{ field.help_text }}</p>
+    {% endif %}
+    {% for error in field.errors %}
+    <p class="mt-1 ml-4 font-label-sm text-error">{{ error }}</p>
+    {% endfor %}
+</div>
+{% endfor %}
+
+<div class="pt-4">
+<button class="w-full py-4 bg-secondary-container text-on-secondary-container font-headline-md text-headline-md rounded-full font-bold hover:bg-secondary hover:text-on-secondary transition-all transform active:scale-[0.98] soft-shadow" type="submit">
+    Crear cuenta
+</button>
+</div>
+</form>
+<div class=" mt-4 mb-4 relative flex justify-center"><span class="bg-surface-container-lowest px-4 text-sm text-on-surface-variant">O</span></div>
+
+{% if google_oauth_enabled %}
+<form method="POST" action="{% url 'google_login' %}?next={{ next|urlencode }}" class="mb-8">
+{% csrf_token %}
+<button class="relative w-full py-4 px-14 bg-surface-container-lowest text-on-surface border border-outline-variant font-headline-md text-headline-md rounded-full font-bold hover:bg-surface-container-low transition-all transform active:scale-[0.98] soft-shadow flex items-center justify-center text-center" type="submit">
+<img class="absolute left-8 top-1/2 h-6 w-6 -translate-y-1/2" src="{% static 'img/google_g_logo.svg' %}" alt="" aria-hidden="true"/>
+<span>Registrarte con Google</span>
+</button>
+</form>
+<div class="relative mb-8">
+</div>
+{% endif %}
+<div class="mt-10 text-center">
+<p class="font-body-md text-body-md text-on-surface-variant">
+    ¿Ya tienes cuenta? 
+    <a class="text-secondary font-bold hover:underline ml-1" href="{% url 'usuarios:login' %}">Inicia sesión</a>
+</p>
+</div>
+
+</div>
+<!-- Decorative Background Element -->
+<div class="absolute -bottom-20 -left-20 w-96 h-96 bg-secondary/5 rounded-full blur-3xl"></div>
+<div class="absolute -top-20 -right-20 w-96 h-96 bg-tertiary-fixed/10 rounded-full blur-3xl"></div>
+</main>
+<!-- Footer -->
+<footer class="w-full py-8 bg-surface-container-low mt-auto">
+<div class="flex flex-col md:flex-row justify-between items-center w-full px-margin-desktop max-w-container-max mx-auto gap-4">
+<div class="flex flex-col items-center md:items-start gap-1">
+<span class="font-label-md text-label-md font-bold text-secondary">Lumina Fest</span>
+<p class="font-body-md text-body-md font-Quicksand text-on-surface-variant">© 2026 Lumina Fest. Inspired by the Luminous Forest.</p>
+</div>
+<div class="flex gap-8">
+<a class="font-body-md text-body-md font-Quicksand text-on-surface-variant hover:text-secondary transition-colors" href="#">Privacy Policy</a>
+<a class="font-body-md text-body-md font-Quicksand text-on-surface-variant hover:text-secondary transition-colors" href="#">Terms of Service</a>
+</div>
+</div>
+</footer>
+<script>
+        // Simple micro-interaction for fireflies
+        document.addEventListener('mousemove', (e) => {
+            const fireflies = document.querySelectorAll('.firefly-glow');
+            const x = e.clientX / window.innerWidth;
+            const y = e.clientY / window.innerHeight;
+            
+            fireflies.forEach((ff, index) => {
+                const shift = (index + 1) * 10;
+                ff.style.transform = `translate(${x * shift}px, ${y * shift}px)`;
+            });
+        });
+</script>
+</body></html>

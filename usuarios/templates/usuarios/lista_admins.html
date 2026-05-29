@@ -7,19 +7,74 @@
     <title>Administradores | Festival de Luciérnagas</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="{% static 'css/prototipo_reservaciones.css' %}">
+    <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'css/stitch_theme.css' %}">
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <script>
+        tailwind.config = {
+            corePlugins: { preflight: false },
+            theme: {
+                extend: {
+                    colors: {
+                        "surface": "#fbf9f5",
+                        "surface-container-high": "#eae8e4",
+                        "surface-container-highest": "#e4e2de",
+                        "surface-container-low": "#f5f3ef",
+                        "surface-container-lowest": "#ffffff",
+                        "on-surface": "#1b1c1a",
+                        "on-surface-variant": "#434845",
+                        "outline-variant": "#c3c8c3",
+                        "primary": "#000000",
+                        "secondary": "#705d00",
+                        "on-secondary": "#ffffff",
+                        "secondary-container": "#fcd400",
+                        "on-secondary-container": "#6e5c00",
+                        "error": "#ba1a1a",
+                        "error-container": "#ffdad6"
+                    },
+                    fontFamily: {
+                        "body-md": ["Quicksand", "sans-serif"],
+                        "label-md": ["Quicksand", "sans-serif"],
+                        "headline-lg": ["Quicksand", "sans-serif"]
+                    }
+                }
+            }
+        }
+    </script>
     <style>
-        body {
-            background: linear-gradient(145deg, #071912 0%, #0f2e24 55%, #183d32 100%);
-            min-height: 100vh;
-        }
         .admins-page {
-            max-width: 820px;
+            max-width: 860px;
             margin: 0 auto;
-            padding: 3rem 1.25rem 4rem;
-            animation: fade-slide-up .4s ease both;
+            padding: clamp(5rem, 10vw, 7rem) clamp(1rem, 4vw, 2rem) clamp(3rem, 6vw, 5rem);
+            animation: fade-slide-up .45s ease both;
         }
+
+        .back-link {
+            display: inline-flex;
+            align-items: center;
+            gap: .4rem;
+            margin-bottom: 1.75rem;
+            color: var(--home-muted);
+            font-size: .9rem;
+            font-weight: 700;
+            text-decoration: none;
+            transition: color .2s;
+        }
+        .back-link:hover { color: var(--home-primary); }
+
+        /* Alert */
+        .page-alert {
+            padding: .85rem 1.25rem;
+            border-radius: 1.5rem;
+            margin-bottom: 1.25rem;
+            font-size: .9rem;
+            font-weight: 700;
+            background: var(--home-primary-soft);
+            color: var(--home-primary);
+        }
+
+        /* Toolbar */
         .page-toolbar {
             display: flex;
             align-items: center;
@@ -29,54 +84,46 @@
             margin-bottom: 2rem;
         }
         .page-toolbar h1 {
-            margin: 0;
-            font-size: 1.5rem;
+            margin: 0 0 .2rem;
+            font-size: 1.6rem;
             font-weight: 800;
-            color: white;
+            color: var(--home-primary);
         }
         .page-toolbar p {
-            margin: .25rem 0 0;
-            color: rgba(255,255,255,.45);
+            margin: 0;
+            color: var(--home-muted);
             font-size: .9rem;
+            font-weight: 700;
         }
-        .btn-primary-ff {
+
+        .btn-primary {
             display: inline-flex;
             align-items: center;
             gap: .5rem;
-            padding: .7rem 1.25rem;
+            padding: .8rem 1.4rem;
             border: none;
-            border-radius: 10px;
-            background: var(--firefly);
-            color: var(--ink);
-            font-family: inherit;
+            border-radius: 999px;
+            background: var(--home-yellow);
+            color: var(--home-yellow-text);
+            font-family: Quicksand, sans-serif;
             font-size: .92rem;
-            font-weight: 700;
+            font-weight: 800;
             cursor: pointer;
             text-decoration: none;
+            box-shadow: 0 16px 34px rgba(252, 212, 0, .22);
             transition: transform .2s, box-shadow .2s;
         }
-        .btn-primary-ff:hover {
+        .btn-primary:hover {
             transform: translateY(-2px);
-            box-shadow: 0 0 20px rgba(248,248,113,.4), 0 8px 18px rgba(5,18,13,.3);
-        }
-
-        /* Alert */
-        .page-alert {
-            padding: .75rem 1rem;
-            border-radius: 10px;
-            margin-bottom: 1.25rem;
-            font-size: .9rem;
-            background: rgba(126,230,181,.1);
-            border: 1px solid rgba(126,230,181,.25);
-            color: var(--mint);
+            box-shadow: 0 20px 40px rgba(252, 212, 0, .32);
         }
 
         /* Table card */
         .admins-card {
-            background: rgba(255,255,255,.06);
-            border: 1px solid rgba(255,255,255,.12);
-            border-radius: 18px;
-            backdrop-filter: blur(16px);
+            border: 1px solid rgba(195, 200, 195, .45);
+            border-radius: 2.5rem;
+            background: var(--home-surface);
+            box-shadow: var(--home-shadow);
             overflow: hidden;
         }
         .admins-table {
@@ -84,25 +131,26 @@
             border-collapse: collapse;
         }
         .admins-table thead th {
-            padding: .9rem 1.25rem;
+            padding: 1rem 1.5rem;
             text-align: left;
-            font-size: .78rem;
-            font-weight: 700;
-            letter-spacing: .06em;
+            font-size: .75rem;
+            font-weight: 800;
+            letter-spacing: .08em;
             text-transform: uppercase;
-            color: rgba(255,255,255,.4);
-            border-bottom: 1px solid rgba(255,255,255,.1);
+            color: var(--home-muted);
+            border-bottom: 1px solid rgba(195, 200, 195, .4);
         }
         .admins-table tbody tr {
-            border-bottom: 1px solid rgba(255,255,255,.07);
+            border-bottom: 1px solid rgba(195, 200, 195, .3);
             transition: background .15s;
         }
         .admins-table tbody tr:last-child { border-bottom: none; }
-        .admins-table tbody tr:hover { background: rgba(255,255,255,.04); }
+        .admins-table tbody tr:hover { background: var(--home-surface-low); }
         .admins-table td {
-            padding: 1rem 1.25rem;
-            color: rgba(255,255,255,.82);
+            padding: 1rem 1.5rem;
+            color: var(--home-text);
             font-size: .93rem;
+            font-weight: 600;
             vertical-align: middle;
         }
 
@@ -110,14 +158,14 @@
             display: inline-flex;
             align-items: center;
             justify-content: center;
-            width: 34px; height: 34px;
+            width: 36px;
+            height: 36px;
             border-radius: 50%;
-            background: var(--firefly);
-            color: var(--ink);
-            font-size: .8rem;
+            background: var(--home-primary);
+            color: var(--home-yellow);
+            font-size: .78rem;
             font-weight: 800;
-            margin-right: .6rem;
-            box-shadow: 0 0 8px rgba(248,248,113,.35);
+            margin-right: .75rem;
             vertical-align: middle;
             flex-shrink: 0;
         }
@@ -125,56 +173,59 @@
             display: inline-flex;
             flex-direction: column;
             vertical-align: middle;
+            gap: .1rem;
         }
-        .admin-row-name strong { color: white; font-size: .93rem; }
-        .admin-row-name small { color: rgba(255,255,255,.4); font-size: .8rem; }
+        .admin-row-name strong {
+            color: var(--home-text);
+            font-size: .93rem;
+            font-weight: 800;
+        }
+        .admin-row-name small {
+            color: var(--home-muted);
+            font-size: .8rem;
+            font-weight: 600;
+        }
 
         .you-badge {
             margin-left: .5rem;
-            padding: .15rem .5rem;
+            padding: .15rem .55rem;
             border-radius: 999px;
-            background: rgba(126,230,181,.15);
-            border: 1px solid rgba(126,230,181,.3);
-            color: var(--mint);
-            font-size: .72rem;
-            font-weight: 700;
+            background: var(--home-primary-soft);
+            color: var(--home-primary);
+            font-size: .7rem;
+            font-weight: 800;
             letter-spacing: .04em;
             text-transform: uppercase;
             vertical-align: middle;
         }
-        .superuser-badge {
-            padding: .15rem .5rem;
+        .type-badge {
+            display: inline-flex;
+            padding: .28rem .7rem;
             border-radius: 999px;
-            background: rgba(248,248,113,.12);
-            border: 1px solid rgba(248,248,113,.25);
-            color: var(--firefly);
             font-size: .72rem;
-            font-weight: 700;
+            font-weight: 800;
             letter-spacing: .04em;
             text-transform: uppercase;
         }
+        .type-badge.superuser {
+            background: var(--home-yellow);
+            color: var(--home-yellow-text);
+        }
+        .type-badge.staff {
+            background: var(--home-primary-soft);
+            color: var(--home-primary);
+        }
 
         .empty-admins {
-            padding: 3rem;
+            padding: 3.5rem;
             text-align: center;
-            color: rgba(255,255,255,.35);
+            color: var(--home-muted);
+            font-weight: 700;
         }
-
-        .back-link {
-            display: inline-flex;
-            align-items: center;
-            gap: .4rem;
-            margin-bottom: 1.5rem;
-            color: rgba(255,255,255,.45);
-            font-size: .88rem;
-            text-decoration: none;
-            transition: color .2s;
-        }
-        .back-link:hover { color: rgba(255,255,255,.75); }
     </style>
 </head>
-<body>
-    {% include "partials/navbar.html" %}
+<body class="home-stitch-view">
+    {% include "partials/tailwind_navbar.html" %}
 
     <div class="admins-page">
 
@@ -193,7 +244,7 @@
                 <h1>Administradores</h1>
                 <p>{{ admins.count }} cuenta{{ admins.count|pluralize }} con acceso de administrador</p>
             </div>
-            <a class="btn-primary-ff" href="{% url 'usuarios:crear_admin' %}">
+            <a class="btn-primary" href="{% url 'usuarios:crear_admin' %}">
                 <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
                     <path d="M8 3v10M3 8h10" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
                 </svg>
@@ -231,9 +282,9 @@
                             <td>{{ admin.date_joined|date:"d/m/Y" }}</td>
                             <td>
                                 {% if admin.is_superuser %}
-                                    <span class="superuser-badge">Superusuario</span>
+                                    <span class="type-badge superuser">Superusuario</span>
                                 {% else %}
-                                    <span class="superuser-badge" style="background:rgba(126,230,181,.1);border-color:rgba(126,230,181,.25);color:var(--mint)">Staff</span>
+                                    <span class="type-badge staff">Staff</span>
                                 {% endif %}
                             </td>
                         </tr>

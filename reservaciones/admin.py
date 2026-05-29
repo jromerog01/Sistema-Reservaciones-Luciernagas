@@ -6,7 +6,8 @@ from reservaciones.models import Reservacion
 
 @admin.register(Reservacion)
 class ReservacionAdmin(admin.ModelAdmin):
-    # ── Columnas en el listado ──────────────────────────────────────────────
+    """Configuracion del panel administrativo para auditar reservaciones."""
+
     list_display = (
         "id",
         "usuario",
@@ -21,7 +22,6 @@ class ReservacionAdmin(admin.ModelAdmin):
         "fecha_creacion",
     )
 
-    # ── Filtros laterales ───────────────────────────────────────────────────
     list_filter = (
         "estado",
         "hospedaje__tipo_hospedaje",
@@ -29,7 +29,6 @@ class ReservacionAdmin(admin.ModelAdmin):
         "fecha_inicio",
     )
 
-    # ── Búsqueda ────────────────────────────────────────────────────────────
     search_fields = (
         "usuario__username",
         "usuario__email",
@@ -38,18 +37,14 @@ class ReservacionAdmin(admin.ModelAdmin):
         "hospedaje__parque__nombre",
     )
 
-    # ── Campos de sólo lectura en el formulario de detalle ──────────────────
     readonly_fields = (
         "fecha_creacion",
     )
 
-    # ── Orden por defecto ───────────────────────────────────────────────────
     ordering = ("-fecha_creacion",)
 
-    # ── Jerarquía por fecha ─────────────────────────────────────────────────
     date_hierarchy = "fecha_inicio"
 
-    # ── Agrupación de campos en el detalle ──────────────────────────────────
     fieldsets = (
         ("Estancia", {
             "fields": (
@@ -69,19 +64,21 @@ class ReservacionAdmin(admin.ModelAdmin):
         }),
     )
 
-    # ── Columnas calculadas ─────────────────────────────────────────────────
 
     @admin.display(description="Parque", ordering="hospedaje__parque__nombre")
     def parque_nombre(self, obj):
+        """Expone el parque sin duplicar el dato en Reservacion."""
         return obj.hospedaje.parque.nombre
 
     @admin.display(description="Hospedaje", ordering="hospedaje__tipo_hospedaje")
     def tipo_hospedaje(self, obj):
+        """Muestra la etiqueta legible del tipo de hospedaje reservado."""
         return obj.hospedaje.get_tipo_hospedaje_display()
 
 
     @admin.display(description="Estado")
     def estado_badge(self, obj):
+        """Colorea el estado para facilitar lectura en listados largos."""
         colores = {
             Reservacion.EstadoReservacion.ACTIVA:     "#16a34a",   # verde
             Reservacion.EstadoReservacion.CANCELADA:  "#dc2626",   # rojo

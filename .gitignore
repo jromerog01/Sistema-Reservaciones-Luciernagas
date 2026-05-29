@@ -1,16 +1,72 @@
 # Python cache
 __pycache__/
+**/__pycache__/
 *.py[cod]
+*$py.class
+.python-version
+
+# Tool caches
+.cache/
+**/.cache/
+.pytest_cache/
+**/.pytest_cache/
+.mypy_cache/
+**/.mypy_cache/
+.ruff_cache/
+**/.ruff_cache/
+.pyre/
+**/.pyre/
+.tox/
+**/.tox/
+.nox/
+**/.nox/
+.hypothesis/
+**/.hypothesis/
+
+# Coverage and test artifacts
+.coverage
+.coverage.*
+htmlcov/
+**/htmlcov/
+coverage.xml
+
+# Frontend caches
+node_modules/
+**/node_modules/
+.npm/
+**/.npm/
+.yarn/
+**/.yarn/
+.pnpm-store/
+**/.pnpm-store/
+.parcel-cache/
+**/.parcel-cache/
+.next/
+**/.next/
+.nuxt/
+**/.nuxt/
+.vite/
+**/.vite/
+dist/
+**/dist/
+build/
+**/build/
 
 # Virtual environments
 venv/
+.env
 .env/
+.venv/
 
 # Django
-db.sqlite3
+*.sqlite3
+!db.sqlite3
 
 # VSCode
 .vscode/
+
+# JetBrains
+.idea/
 
 # macOS
 .DS_Store

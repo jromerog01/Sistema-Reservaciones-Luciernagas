@@ -7,89 +7,95 @@
     <title>Nuevo Administrador | Festival de Luciérnagas</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="{% static 'css/prototipo_reservaciones.css' %}">
-    <style>
-        body {
-            background: linear-gradient(145deg, #071912 0%, #0f2e24 55%, #183d32 100%);
-            min-height: 100vh;
+    <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'css/stitch_theme.css' %}">
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <script>
+        tailwind.config = {
+            corePlugins: { preflight: false },
+            theme: {
+                extend: {
+                    colors: {
+                        "surface": "#fbf9f5",
+                        "surface-container-high": "#eae8e4",
+                        "surface-container-highest": "#e4e2de",
+                        "surface-container-low": "#f5f3ef",
+                        "surface-container-lowest": "#ffffff",
+                        "on-surface": "#1b1c1a",
+                        "on-surface-variant": "#434845",
+                        "outline-variant": "#c3c8c3",
+                        "primary": "#000000",
+                        "secondary": "#705d00",
+                        "on-secondary": "#ffffff",
+                        "secondary-container": "#fcd400",
+                        "on-secondary-container": "#6e5c00",
+                        "error": "#ba1a1a",
+                        "error-container": "#ffdad6"
+                    },
+                    fontFamily: {
+                        "body-md": ["Quicksand", "sans-serif"],
+                        "label-md": ["Quicksand", "sans-serif"],
+                        "headline-lg": ["Quicksand", "sans-serif"]
+                    }
+                }
+            }
         }
+    </script>
+    <style>
         .create-admin-page {
-            position: relative;
             display: flex;
             align-items: flex-start;
             justify-content: center;
             min-height: calc(100vh - 72px);
-            padding: 3rem 1.25rem 4rem;
-            overflow: hidden;
-        }
-
-        /* Ambient glows */
-        .ca-glow {
-            position: absolute;
-            border-radius: 50%;
-            filter: blur(72px);
-            pointer-events: none;
-            animation: soft-pulse 5s ease-in-out infinite;
-        }
-        .ca-glow-1 {
-            width: 320px; height: 320px;
-            background: rgba(248, 248, 113, .09);
-            top: 0; right: 8%;
-        }
-        .ca-glow-2 {
-            width: 260px; height: 260px;
-            background: rgba(126, 230, 181, .08);
-            bottom: 4rem; left: 5%;
-            animation-delay: 2s;
+            padding: clamp(4rem, 8vw, 6rem) 1.25rem clamp(3rem, 6vw, 5rem);
         }
 
         .ca-card {
-            position: relative;
-            z-index: 1;
             width: 100%;
-            max-width: 480px;
-            background: rgba(255,255,255,.06);
-            border: 1px solid rgba(255,255,255,.13);
-            border-radius: 20px;
-            backdrop-filter: blur(20px);
-            box-shadow: 0 24px 70px rgba(5,18,13,.45);
-            padding: 2.25rem 2rem 2rem;
-            animation: fade-scale-in .4s ease both;
-            color: white;
+            max-width: 520px;
+            border: 1px solid rgba(195, 200, 195, .45);
+            border-radius: 2.5rem;
+            background: var(--home-surface);
+            box-shadow: var(--home-shadow);
+            padding: 2.5rem 2.25rem 2.25rem;
+            animation: fade-slide-up .4s ease both;
         }
 
         .back-link {
             display: inline-flex;
             align-items: center;
             gap: .4rem;
-            margin-bottom: 1.5rem;
-            color: rgba(255,255,255,.4);
-            font-size: .88rem;
+            margin-bottom: 2rem;
+            color: var(--home-muted);
+            font-size: .9rem;
+            font-weight: 700;
             text-decoration: none;
             transition: color .2s;
         }
-        .back-link:hover { color: rgba(255,255,255,.7); }
+        .back-link:hover { color: var(--home-primary); }
 
         .ca-card-icon {
             display: flex;
             align-items: center;
             justify-content: center;
-            width: 48px; height: 48px;
-            border-radius: 14px;
-            background: rgba(248,248,113,.12);
-            border: 1px solid rgba(248,248,113,.25);
-            margin-bottom: 1.1rem;
+            width: 52px;
+            height: 52px;
+            border-radius: 1.25rem;
+            background: var(--home-primary);
+            margin-bottom: 1.25rem;
         }
+
         .ca-card h1 {
-            font-size: 1.5rem;
-            font-weight: 800;
             margin: 0 0 .3rem;
-            color: white;
+            font-size: 1.6rem;
+            font-weight: 800;
+            color: var(--home-primary);
         }
         .ca-card .ca-subtitle {
-            color: rgba(255,255,255,.5);
+            color: var(--home-muted);
             font-size: .9rem;
+            font-weight: 600;
             margin-bottom: 1.75rem;
         }
 
@@ -97,94 +103,95 @@
         .ca-card label,
         .ca-card .form-label {
             display: block;
-            font-size: .8rem;
-            font-weight: 600;
-            color: rgba(255,255,255,.55);
+            font-size: .78rem;
+            font-weight: 800;
+            color: var(--home-muted);
             letter-spacing: .04em;
             text-transform: uppercase;
-            margin-bottom: .35rem;
+            margin-bottom: .4rem;
         }
         .ca-card .form-control,
         .ca-card input[type="text"],
         .ca-card input[type="email"],
         .ca-card input[type="password"] {
             width: 100%;
-            padding: .7rem 1rem;
-            border: 1px solid rgba(255,255,255,.15);
-            border-radius: 10px;
-            background: rgba(255,255,255,.07);
-            color: white;
-            font-family: inherit;
+            padding: .75rem 1rem;
+            border: 1px solid rgba(195, 200, 195, .55);
+            border-radius: 999px;
+            background: var(--home-bg);
+            color: var(--home-text);
+            font-family: Quicksand, sans-serif;
             font-size: .95rem;
+            font-weight: 600;
             outline: none;
-            transition: border-color .2s, background .2s, box-shadow .2s;
+            transition: border-color .2s, box-shadow .2s, background .2s;
             margin-bottom: 1rem;
         }
         .ca-card .form-control:focus,
         .ca-card input:focus {
-            border-color: var(--firefly);
-            background: rgba(255,255,255,.1);
-            box-shadow: 0 0 0 3px rgba(248,248,113,.13);
+            border-color: var(--home-yellow);
+            background: white;
+            box-shadow: 0 0 0 3px rgba(252, 212, 0, .18);
         }
-        .ca-card input::placeholder { color: rgba(255,255,255,.25); }
+        .ca-card input::placeholder { color: var(--home-muted); opacity: .5; }
         .ca-card .mb-3 { margin-bottom: 0 !important; }
         .ca-card .invalid-feedback,
-        .ca-card .errorlist { color: #ff8f8f; font-size: .82rem; }
+        .ca-card .errorlist { color: #ba1a1a; font-size: .82rem; font-weight: 700; }
         .ca-card ul.errorlist { list-style: none; padding: 0; margin: 0 0 .5rem; }
         .ca-card .helptext,
-        .ca-card .form-text { color: rgba(255,255,255,.3); font-size: .78rem; }
+        .ca-card .form-text { color: var(--home-muted); font-size: .78rem; font-weight: 600; }
 
         .ca-info-box {
             display: flex;
-            gap: .6rem;
-            padding: .8rem 1rem;
-            border-radius: 10px;
-            background: rgba(248,248,113,.07);
-            border: 1px solid rgba(248,248,113,.2);
-            color: rgba(248,248,113,.8);
+            gap: .65rem;
+            padding: .9rem 1.1rem;
+            border-radius: 1.25rem;
+            background: var(--home-primary-soft);
+            color: var(--home-primary);
             font-size: .85rem;
-            margin-bottom: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 1.75rem;
             line-height: 1.5;
         }
 
         .btn-create {
-            display: block;
+            display: flex;
+            align-items: center;
+            justify-content: center;
             width: 100%;
             margin-top: .75rem;
-            padding: .82rem 1rem;
+            padding: .9rem 1rem;
             border: none;
-            border-radius: 10px;
-            background: var(--firefly);
-            color: var(--ink);
-            font-family: inherit;
+            border-radius: 999px;
+            background: var(--home-yellow);
+            color: var(--home-yellow-text);
+            font-family: Quicksand, sans-serif;
             font-size: 1rem;
-            font-weight: 700;
+            font-weight: 800;
             cursor: pointer;
-            transition: transform .2s, box-shadow .2s;
+            box-shadow: 0 16px 34px rgba(252, 212, 0, .22);
+            transition: transform .2s ease, box-shadow .2s ease;
         }
         .btn-create:hover {
             transform: translateY(-2px);
-            box-shadow: 0 0 22px rgba(248,248,113,.45), 0 8px 22px rgba(5,18,13,.3);
+            box-shadow: 0 20px 40px rgba(252, 212, 0, .32);
         }
     </style>
 </head>
-<body>
-    {% include "partials/navbar.html" %}
+<body class="home-stitch-view">
+    {% include "partials/tailwind_navbar.html" %}
 
     <div class="create-admin-page">
-        <span class="ca-glow ca-glow-1" aria-hidden="true"></span>
-        <span class="ca-glow ca-glow-2" aria-hidden="true"></span>
-
         <div class="ca-card">
             <a class="back-link" href="{% url 'usuarios:lista_admins' %}">
                 ← Volver a lista de admins
             </a>
 
             <div class="ca-card-icon">
-                <svg width="22" height="22" viewBox="0 0 22 22" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <circle cx="9" cy="7" r="3.5" stroke="#f8f871" stroke-width="1.6"/>
-                    <path d="M2 19c0-3.866 3.134-7 7-7s7 3.134 7 7" stroke="#f8f871" stroke-width="1.6" stroke-linecap="round"/>
-                    <path d="M17 10v6m-3-3h6" stroke="#f8f871" stroke-width="1.8" stroke-linecap="round"/>
+                <svg width="24" height="24" viewBox="0 0 22 22" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <circle cx="9" cy="7" r="3.5" stroke="#fcd400" stroke-width="1.6"/>
+                    <path d="M2 19c0-3.866 3.134-7 7-7s7 3.134 7 7" stroke="#fcd400" stroke-width="1.6" stroke-linecap="round"/>
+                    <path d="M17 10v6m-3-3h6" stroke="#fcd400" stroke-width="1.8" stroke-linecap="round"/>
                 </svg>
             </div>
 

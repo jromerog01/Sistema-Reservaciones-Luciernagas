@@ -16,7 +16,7 @@ def registro_view(request):
         form = RegistroForm(request.POST)
         if form.is_valid():
             usuario = form.save()
-            login(request, usuario)
+            login(request, usuario, backend='django.contrib.auth.backends.ModelBackend')
             messages.success(request, 'Usuario registrado correctamente')
             return redirect('inicio')
     else:

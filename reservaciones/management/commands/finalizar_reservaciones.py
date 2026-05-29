@@ -17,9 +17,12 @@ from reservaciones.models import Reservacion
 
 
 class Command(BaseCommand):
+    """Comando de mantenimiento para cerrar reservas que ya terminaron."""
+
     help = "Finaliza reservaciones activas cuya fecha de salida ya pasó."
 
     def add_arguments(self, parser):
+        """Agrega la opción dry-run para revisar el impacto antes de actualizar."""
         parser.add_argument(
             "--dry-run",
             action="store_true",
@@ -27,6 +30,7 @@ class Command(BaseCommand):
         )
 
     def handle(self, *args, **options):
+        """Busca reservaciones vencidas y actualiza su estado si corresponde."""
         hoy = date.today()
         dry_run = options["dry_run"]
 

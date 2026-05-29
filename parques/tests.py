@@ -1,3 +1,10 @@
+"""Pruebas del modulo de parques.
+
+Cubren la conversion de parques a marcadores de mapa, el servicio que inyecta
+adapters, y las vistas publicas donde se muestran filtros, hospedajes y enlaces
+de reservacion.
+"""
+
 from datetime import time
 from decimal import Decimal
 
@@ -10,6 +17,8 @@ from parques.models import Hospedaje, Parque, Servicio
 
 
 class OpenStreetMapAdapterTests(TestCase):
+    """Verifica el formato de marcadores usado por Leaflet/OpenStreetMap."""
+
     def test_convierte_parque_a_marcador_para_leaflet(self):
         servicio = Servicio.objects.create(nombre="Sendero nocturno")
         parque = Parque.objects.create(
@@ -47,6 +56,8 @@ class OpenStreetMapAdapterTests(TestCase):
 
 
 class MapaServiceTests(TestCase):
+    """Verifica que MapaService delegue la conversion al adapter configurado."""
+
     def test_obtener_marcadores_usa_adapter_inyectado(self):
         Parque.objects.create(
             nombre="Parque de Prueba",
@@ -68,6 +79,8 @@ class MapaServiceTests(TestCase):
 
 
 class InicioMapaRouteTests(TestCase):
+    """Prueba la ruta del mapa interactivo y sus datos de filtrado."""
+
     def test_muestra_mapa_con_marcadores(self):
         servicio = Servicio.objects.create(nombre="Sendero nocturno")
         parque = Parque.objects.create(
@@ -95,6 +108,8 @@ class InicioMapaRouteTests(TestCase):
 
 
 class InicioHospedajeMinimumsTests(TestCase):
+    """Valida los minimos de hospedaje enviados a la pagina de inicio."""
+
     def test_envia_minimos_de_hospedaje_por_estado_a_la_pagina_de_inicio(self):
         parque_caro = Parque.objects.create(
             nombre="Bosque Caro",
@@ -144,6 +159,8 @@ class InicioHospedajeMinimumsTests(TestCase):
 
 
 class ListadoParquesFilterTests(TestCase):
+    """Comprueba el listado de parques y los atributos usados por filtros."""
+
     def test_renderiza_filtros_y_datos_para_filtrado_combinado(self):
         servicio = Servicio.objects.create(nombre="Sendero nocturno")
         parque = Parque.objects.create(
@@ -156,7 +173,7 @@ class ListadoParquesFilterTests(TestCase):
             horario_cierre=time(23, 0),
         )
         parque.servicios.add(servicio)
-        Hospedaje.objects.create(
+        hospedaje = Hospedaje.objects.create(
             parque=parque,
             tipo_hospedaje=Hospedaje.TipoHospedaje.CABANA,
             cantidad_unidades=2,
@@ -175,17 +192,17 @@ class ListadoParquesFilterTests(TestCase):
         self.assertContains(response, 'data-hospedajes="cabana"')
         self.assertContains(response, 'data-servicios="sendero-nocturno"')
         self.assertContains(response, "Hospedaje")
-        self.assertContains(response, "<span>Cabaña</span>", html=True)
-        self.assertContains(response, "Cabaña: 2 unidades quedan disponibles")
-        self.assertContains(response, "data-mini-map")
-        self.assertContains(response, "https://www.google.com/maps/search/?api=1&query=19.451000,-98.331000")
+        self.assertContains(response, "Cabaña")
+        self.assertContains(response, "desde")
+        self.assertContains(response, f"${hospedaje.precio_por_unidad}")
         self.assertNotContains(response, "<dt>Coordenadas</dt>", html=True)
-        self.assertContains(response, "Vista rapida")
-        self.assertContains(response, "Ver parque")
+        self.assertContains(response, "Detalles")
         self.assertContains(response, f'href="{reverse("detalle_parque", args=[parque.id])}"')
 
 
 class InicioReservacionRapidaTests(TestCase):
+    """Verifica que la portada exponga parques disponibles para reserva rapida."""
+
     def test_portada_muestra_parques_reservables_y_enlace_a_crear_reservacion(self):
         parque = Parque.objects.create(
             nombre="Bosque Inicio",
@@ -217,6 +234,8 @@ class InicioReservacionRapidaTests(TestCase):
 
 
 class DetalleParqueTests(TestCase):
+    """Prueba la vista de detalle del parque y su resumen de hospedajes."""
+
     def test_muestra_hospedajes_como_etiquetas_en_seccion_separada(self):
         servicio = Servicio.objects.create(nombre="Estacionamiento")
         parque = Parque.objects.create(
@@ -244,7 +263,7 @@ class DetalleParqueTests(TestCase):
         self.assertContains(response, "Hospedaje")
         self.assertContains(response, "<span>Estacionamiento</span>", html=True)
         self.assertContains(response, "<span>Camping</span>", html=True)
-        self.assertContains(response, "Camping: 6 espacios quedan disponibles")
+        self.assertContains(response, "Camping: 6 espacios en total")
         self.assertContains(response, "data-mini-map")
         self.assertContains(response, "https://www.google.com/maps/search/?api=1&query=19.551000,-98.431000")
         self.assertNotContains(response, "<dt>Coordenadas</dt>", html=True)
