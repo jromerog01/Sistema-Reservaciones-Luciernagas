@@ -6,25 +6,54 @@ from django.contrib.auth.decorators import login_required, user_passes_test
 from .forms import RegistroForm, LoginForm, CrearAdminForm, EditarPerfilForm
 from .models import Usuario
 
+from django.conf import settings
+from django.urls import reverse
+from django.utils.http import url_has_allowed_host_and_scheme
+
 def es_staff(user):
     return user.is_authenticated and user.is_staff
+
+def _next_url(request):
+    """Obtiene una URL de regreso segura para login local y social."""
+    next_url = request.GET.get('next') or request.POST.get('next')
+
+    if next_url and url_has_allowed_host_and_scheme(
+        url=next_url,
+        allowed_hosts={request.get_host()},
+        require_https=request.is_secure()
+    ):
+        return next_url
+
+    return reverse('inicio')
+
+
+def _google_oauth_context(request):
+    return {
+        'next': _next_url(request),
+        'google_oauth_enabled': getattr(settings, 'GOOGLE_OAUTH_ENABLED', False),
+    }
 
 # ── Registro / Login / Logout ──────────────────────────────────────────────
 
 def registro_view(request):
+    next_url = _next_url(request)
     if request.method == 'POST':
         form = RegistroForm(request.POST)
         if form.is_valid():
             usuario = form.save()
             login(request, usuario, backend='django.contrib.auth.backends.ModelBackend')
             messages.success(request, 'Usuario registrado correctamente')
-            return redirect('inicio')
+            return redirect(next_url)
     else:
         form = RegistroForm()
-    return render(request, 'registration/registro.html', {'form': form})
+
+    context = _google_oauth_context(request)
+    context['form'] = form
+    return render(request, 'registration/registro.html', context)
 
 
 def login_view(request):
+    next_url = _next_url(request)
     if request.method == 'POST':
         form = LoginForm(request, data=request.POST)
         if form.is_valid():
@@ -37,12 +66,15 @@ def login_view(request):
             )
             if usuario is not None:
                 login(request, usuario)
-                if usuario.is_staff:
-                    return redirect('/admin/')
-                return redirect('inicio')
+                if usuario.is_staff and next_url == reverse('inicio'):
+                    return redirect('inicio')
+                return redirect(next_url)
     else:
         form = LoginForm()
-    return render(request, 'registration/login.html', {'form': form})
+
+    context = _google_oauth_context(request)
+    context['form'] = form
+    return render(request, 'registration/login.html', context)
 
 
 def logout_view(request):
