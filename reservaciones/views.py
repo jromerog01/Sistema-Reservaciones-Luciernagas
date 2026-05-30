@@ -6,7 +6,7 @@ from parques.models import Hospedaje
 from reservaciones.forms import ReservacionForm
 from reservaciones.models import Reservacion
 from reservaciones.utils.notificador import notificador
-from reservaciones.facade import ReservacionFacade
+from reservaciones.utils.facade import ReservacionFacade
 from parques.parque_cards import obtener_imagen_parque
 
 
