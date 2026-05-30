@@ -40,10 +40,16 @@
                             <span class="nav-user-badge">Admin</span>
                         {% endif %}
                     </div>
+                    <a href="{% url 'usuarios:perfil' %}" class="nav-user-dropdown-item" role="menuitem">
+                        Mi perfil
+                    </a>
                     <a href="{% url 'mis_reservaciones' %}" class="nav-user-dropdown-item" role="menuitem">
                         Mis reservaciones
                     </a>
                     {% if user.is_staff %}
+                        <a href="{% url 'usuarios:lista_admins' %}" class="nav-user-dropdown-item" role="menuitem">
+                            Gestionar admins
+                        </a>
                         <a href="/admin/" class="nav-user-dropdown-item" role="menuitem">
                             Panel de admin
                         </a>

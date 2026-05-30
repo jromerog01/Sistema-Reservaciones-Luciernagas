@@ -1,0 +1,303 @@
+{% load static %}
+<!doctype html>
+<html lang="es">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Administradores | Festival de Luciérnagas</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'css/stitch_theme.css' %}">
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <script>
+        tailwind.config = {
+            corePlugins: { preflight: false },
+            theme: {
+                extend: {
+                    colors: {
+                        "surface": "#fbf9f5",
+                        "surface-container-high": "#eae8e4",
+                        "surface-container-highest": "#e4e2de",
+                        "surface-container-low": "#f5f3ef",
+                        "surface-container-lowest": "#ffffff",
+                        "on-surface": "#1b1c1a",
+                        "on-surface-variant": "#434845",
+                        "outline-variant": "#c3c8c3",
+                        "primary": "#000000",
+                        "secondary": "#705d00",
+                        "on-secondary": "#ffffff",
+                        "secondary-container": "#fcd400",
+                        "on-secondary-container": "#6e5c00",
+                        "error": "#ba1a1a",
+                        "error-container": "#ffdad6"
+                    },
+                    fontFamily: {
+                        "body-md": ["Quicksand", "sans-serif"],
+                        "label-md": ["Quicksand", "sans-serif"],
+                        "headline-lg": ["Quicksand", "sans-serif"]
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        .admins-page {
+            max-width: 860px;
+            margin: 0 auto;
+            padding: clamp(5rem, 10vw, 7rem) clamp(1rem, 4vw, 2rem) clamp(3rem, 6vw, 5rem);
+            animation: fade-slide-up .45s ease both;
+        }
+
+        .back-link {
+            display: inline-flex;
+            align-items: center;
+            gap: .4rem;
+            margin-bottom: 1.75rem;
+            color: var(--home-muted);
+            font-size: .9rem;
+            font-weight: 700;
+            text-decoration: none;
+            transition: color .2s;
+        }
+        .back-link:hover { color: var(--home-primary); }
+
+        /* Alert */
+        .page-alert {
+            padding: .85rem 1.25rem;
+            border-radius: 1.5rem;
+            margin-bottom: 1.25rem;
+            font-size: .9rem;
+            font-weight: 700;
+            background: var(--home-primary-soft);
+            color: var(--home-primary);
+        }
+
+        /* Toolbar */
+        .page-toolbar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+        .page-toolbar h1 {
+            margin: 0 0 .2rem;
+            font-size: 1.6rem;
+            font-weight: 800;
+            color: var(--home-primary);
+        }
+        .page-toolbar p {
+            margin: 0;
+            color: var(--home-muted);
+            font-size: .9rem;
+            font-weight: 700;
+        }
+
+        .btn-primary {
+            display: inline-flex;
+            align-items: center;
+            gap: .5rem;
+            padding: .8rem 1.4rem;
+            border: none;
+            border-radius: 999px;
+            background: var(--home-yellow);
+            color: var(--home-yellow-text);
+            font-family: Quicksand, sans-serif;
+            font-size: .92rem;
+            font-weight: 800;
+            cursor: pointer;
+            text-decoration: none;
+            box-shadow: 0 16px 34px rgba(252, 212, 0, .22);
+            transition: transform .2s, box-shadow .2s;
+        }
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 20px 40px rgba(252, 212, 0, .32);
+        }
+
+        /* Table card */
+        .admins-card {
+            border: 1px solid rgba(195, 200, 195, .45);
+            border-radius: 2.5rem;
+            background: var(--home-surface);
+            box-shadow: var(--home-shadow);
+            overflow: hidden;
+        }
+        .admins-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        .admins-table thead th {
+            padding: 1rem 1.5rem;
+            text-align: left;
+            font-size: .75rem;
+            font-weight: 800;
+            letter-spacing: .08em;
+            text-transform: uppercase;
+            color: var(--home-muted);
+            border-bottom: 1px solid rgba(195, 200, 195, .4);
+        }
+        .admins-table tbody tr {
+            border-bottom: 1px solid rgba(195, 200, 195, .3);
+            transition: background .15s;
+        }
+        .admins-table tbody tr:last-child { border-bottom: none; }
+        .admins-table tbody tr:hover { background: var(--home-surface-low); }
+        .admins-table td {
+            padding: 1rem 1.5rem;
+            color: var(--home-text);
+            font-size: .93rem;
+            font-weight: 600;
+            vertical-align: middle;
+        }
+
+        .admin-row-avatar {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: var(--home-primary);
+            color: var(--home-yellow);
+            font-size: .78rem;
+            font-weight: 800;
+            margin-right: .75rem;
+            vertical-align: middle;
+            flex-shrink: 0;
+        }
+        .admin-row-name {
+            display: inline-flex;
+            flex-direction: column;
+            vertical-align: middle;
+            gap: .1rem;
+        }
+        .admin-row-name strong {
+            color: var(--home-text);
+            font-size: .93rem;
+            font-weight: 800;
+        }
+        .admin-row-name small {
+            color: var(--home-muted);
+            font-size: .8rem;
+            font-weight: 600;
+        }
+
+        .you-badge {
+            margin-left: .5rem;
+            padding: .15rem .55rem;
+            border-radius: 999px;
+            background: var(--home-primary-soft);
+            color: var(--home-primary);
+            font-size: .7rem;
+            font-weight: 800;
+            letter-spacing: .04em;
+            text-transform: uppercase;
+            vertical-align: middle;
+        }
+        .type-badge {
+            display: inline-flex;
+            padding: .28rem .7rem;
+            border-radius: 999px;
+            font-size: .72rem;
+            font-weight: 800;
+            letter-spacing: .04em;
+            text-transform: uppercase;
+        }
+        .type-badge.superuser {
+            background: var(--home-yellow);
+            color: var(--home-yellow-text);
+        }
+        .type-badge.staff {
+            background: var(--home-primary-soft);
+            color: var(--home-primary);
+        }
+
+        .empty-admins {
+            padding: 3.5rem;
+            text-align: center;
+            color: var(--home-muted);
+            font-weight: 700;
+        }
+    </style>
+</head>
+<body class="home-stitch-view">
+    {% include "partials/tailwind_navbar.html" %}
+
+    <div class="admins-page">
+
+        <a class="back-link" href="{% url 'usuarios:perfil' %}">
+            ← Volver a mi perfil
+        </a>
+
+        {% if messages %}
+            {% for message in messages %}
+                <div class="page-alert">{{ message }}</div>
+            {% endfor %}
+        {% endif %}
+
+        <div class="page-toolbar">
+            <div>
+                <h1>Administradores</h1>
+                <p>{{ admins.count }} cuenta{{ admins.count|pluralize }} con acceso de administrador</p>
+            </div>
+            <a class="btn-primary" href="{% url 'usuarios:crear_admin' %}">
+                <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M8 3v10M3 8h10" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                </svg>
+                Nuevo administrador
+            </a>
+        </div>
+
+        <div class="admins-card">
+            {% if admins %}
+                <table class="admins-table">
+                    <thead>
+                        <tr>
+                            <th>Usuario</th>
+                            <th>Correo</th>
+                            <th>Miembro desde</th>
+                            <th>Tipo</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for admin in admins %}
+                        <tr>
+                            <td>
+                                <span class="admin-row-avatar">{{ admin.get_username|first|upper }}</span>
+                                <span class="admin-row-name">
+                                    <strong>
+                                        {{ admin.get_username }}
+                                        {% if admin == user %}
+                                            <span class="you-badge">Tú</span>
+                                        {% endif %}
+                                    </strong>
+                                    <small>{{ admin.get_full_name }}</small>
+                                </span>
+                            </td>
+                            <td>{{ admin.email }}</td>
+                            <td>{{ admin.date_joined|date:"d/m/Y" }}</td>
+                            <td>
+                                {% if admin.is_superuser %}
+                                    <span class="type-badge superuser">Superusuario</span>
+                                {% else %}
+                                    <span class="type-badge staff">Staff</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            {% else %}
+                <div class="empty-admins">
+                    <p>No hay administradores registrados.</p>
+                </div>
+            {% endif %}
+        </div>
+
+    </div>
+</body>
+</html>

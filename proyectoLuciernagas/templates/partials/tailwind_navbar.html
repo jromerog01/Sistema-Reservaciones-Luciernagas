@@ -17,28 +17,47 @@
             {% if user.is_authenticated %}
             <div class="relative group" id="user-menu-container">
                 <button id="user-menu-btn"
+                    type="button"
+                    aria-haspopup="true"
+                    aria-expanded="false"
+                    aria-controls="user-dropdown"
                     class="flex items-center gap-2 bg-surface-container-high px-3 py-1.5 rounded-full border border-outline-variant/30 hover:bg-surface-container-highest transition-colors cursor-pointer">
                     <div
                         class="w-8 h-8 rounded-full bg-secondary text-on-secondary flex items-center justify-center font-bold text-sm uppercase">
-                        <span class="material-symbols-outlined text-[18px]">person</span>
+                        {{ user.get_username|first|upper }}
                     </div>
                     <span class="font-label-md text-on-surface hidden md:inline">{{ user.get_username|truncatechars:15 }}</span>
                     <span class="material-symbols-outlined text-on-surface-variant">expand_more</span>
                 </button>
                 <!-- Dropdown menu -->
                 <div id="user-dropdown"
+                    role="menu"
                     class="absolute right-0 mt-2 w-56 bg-surface-container-lowest rounded-xl shadow-lg border border-outline-variant/30 overflow-hidden hidden flex-col">
+                    <div class="px-4 py-3 border-b border-outline-variant/30 flex items-center justify-between gap-2">
+                        <span class="font-label-md text-on-surface font-bold truncate">{{ user.get_username }}</span>
+                        {% if user.is_staff %}
+                        <span class="text-[10px] font-bold uppercase tracking-wide px-2 py-0.5 rounded-full bg-secondary text-on-secondary">Admin</span>
+                        {% endif %}
+                    </div>
+                    <a href="{% url 'usuarios:perfil' %}"
+                        class="px-4 py-3 font-body-md text-on-surface hover:bg-surface-container-low transition-colors block" role="menuitem">
+                        Mi perfil
+                    </a>
                     <a href="{% url 'mis_reservaciones' %}"
-                        class="px-4 py-3 font-body-md text-on-surface hover:bg-surface-container-low transition-colors block">
+                        class="px-4 py-3 font-body-md text-on-surface hover:bg-surface-container-low transition-colors block" role="menuitem">
                         Ver mis reservaciones
                     </a>
-                    {% if user.es_administrador %}
+                    {% if user.is_staff %}
+                    <a href="{% url 'usuarios:lista_admins' %}"
+                        class="px-4 py-3 font-body-md text-on-surface hover:bg-surface-container-low transition-colors block" role="menuitem">
+                        Gestionar admins
+                    </a>
                     <a href="{% url 'todas_las_reservaciones' %}"
-                        class="px-4 py-3 font-body-md text-on-surface hover:bg-surface-container-low transition-colors block">
+                        class="px-4 py-3 font-body-md text-on-surface hover:bg-surface-container-low transition-colors block" role="menuitem">
                         Todas (Admin)
                     </a>
                     <a href="/admin/"
-                        class="px-4 py-3 font-body-md text-on-surface hover:bg-surface-container-low transition-colors block">
+                        class="px-4 py-3 font-body-md text-on-surface hover:bg-surface-container-low transition-colors block" role="menuitem">
                         Panel de admin
                     </a>
                     {% endif %}
@@ -68,13 +87,16 @@
         if (btn && dropdown) {
             btn.addEventListener('click', function (e) {
                 e.stopPropagation();
+                const isOpen = !dropdown.classList.contains('hidden');
                 dropdown.classList.toggle('hidden');
                 dropdown.classList.toggle('flex');
+                btn.setAttribute('aria-expanded', String(!isOpen));
             });
             document.addEventListener('click', function (e) {
                 if (!btn.contains(e.target) && !dropdown.contains(e.target)) {
                     dropdown.classList.add('hidden');
                     dropdown.classList.remove('flex');
+                    btn.setAttribute('aria-expanded', 'false');
                 }
             });
         }

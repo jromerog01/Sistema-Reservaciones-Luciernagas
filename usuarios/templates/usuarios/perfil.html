@@ -1,0 +1,353 @@
+{% load static %}
+<!doctype html>
+<html lang="es">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Mi Perfil | Festival de Luciérnagas</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'css/stitch_theme.css' %}">
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <script>
+        tailwind.config = {
+            corePlugins: { preflight: false },
+            theme: {
+                extend: {
+                    colors: {
+                        "surface": "#fbf9f5",
+                        "surface-container-high": "#eae8e4",
+                        "surface-container-highest": "#e4e2de",
+                        "surface-container-low": "#f5f3ef",
+                        "surface-container-lowest": "#ffffff",
+                        "on-surface": "#1b1c1a",
+                        "on-surface-variant": "#434845",
+                        "outline-variant": "#c3c8c3",
+                        "primary": "#000000",
+                        "secondary": "#705d00",
+                        "on-secondary": "#ffffff",
+                        "secondary-container": "#fcd400",
+                        "on-secondary-container": "#6e5c00",
+                        "error": "#ba1a1a",
+                        "error-container": "#ffdad6"
+                    },
+                    fontFamily: {
+                        "body-md": ["Quicksand", "sans-serif"],
+                        "label-md": ["Quicksand", "sans-serif"],
+                        "headline-lg": ["Quicksand", "sans-serif"]
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        .profile-page {
+            max-width: 760px;
+            margin: 0 auto;
+            padding: clamp(5rem, 10vw, 7rem) clamp(1rem, 4vw, 2rem) clamp(3rem, 6vw, 5rem);
+            animation: fade-slide-up .45s ease both;
+        }
+
+        /* Header */
+        .profile-header {
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+            margin-bottom: 2.5rem;
+        }
+        .profile-avatar-large {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 72px;
+            height: 72px;
+            border-radius: 50%;
+            background: var(--home-primary);
+            color: var(--home-yellow);
+            font-size: 1.8rem;
+            font-weight: 800;
+            flex-shrink: 0;
+            box-shadow: 0 20px 40px -15px rgba(16, 30, 24, .28);
+        }
+        .profile-header-info h1 {
+            margin: 0 0 .2rem;
+            font-size: 1.6rem;
+            font-weight: 800;
+            color: var(--home-primary);
+            line-height: 1.2;
+        }
+        .profile-header-info p {
+            margin: 0 0 .4rem;
+            color: var(--home-muted);
+            font-size: .95rem;
+        }
+        .profile-role-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: .35rem;
+            padding: .28rem .8rem;
+            border-radius: 999px;
+            font-size: .76rem;
+            font-weight: 800;
+            letter-spacing: .04em;
+            text-transform: uppercase;
+        }
+        .profile-role-badge.admin {
+            background: var(--home-yellow);
+            color: var(--home-yellow-text);
+        }
+        .profile-role-badge.cliente {
+            background: var(--home-primary-soft);
+            color: var(--home-primary);
+            border: 1px solid rgba(16, 30, 24, .14);
+        }
+
+        /* Cards */
+        .profile-card {
+            border: 1px solid rgba(195, 200, 195, .45);
+            border-radius: 2.5rem;
+            background: var(--home-surface);
+            box-shadow: var(--home-shadow);
+            padding: 2rem 2rem 1.75rem;
+            margin-bottom: 1.25rem;
+        }
+        .profile-card h2 {
+            margin: 0 0 1.5rem;
+            font-size: .78rem;
+            font-weight: 800;
+            color: var(--home-muted);
+            letter-spacing: .08em;
+            text-transform: uppercase;
+        }
+
+        /* Info rows (solo lectura) */
+        .info-row {
+            display: flex;
+            align-items: baseline;
+            gap: 1rem;
+            padding: .7rem 0;
+            border-bottom: 1px solid rgba(195, 200, 195, .4);
+        }
+        .info-row:last-child { border-bottom: none; }
+        .info-label {
+            min-width: 130px;
+            font-size: .78rem;
+            font-weight: 800;
+            color: var(--home-muted);
+            letter-spacing: .04em;
+            text-transform: uppercase;
+            flex-shrink: 0;
+        }
+        .info-value {
+            color: var(--home-text);
+            font-size: .95rem;
+            font-weight: 700;
+        }
+        .info-value.empty {
+            color: var(--home-muted);
+            font-style: italic;
+            font-weight: 600;
+        }
+
+        /* Edit form */
+        .profile-card label,
+        .profile-card .form-label {
+            display: block;
+            font-size: .78rem;
+            font-weight: 800;
+            color: var(--home-muted);
+            letter-spacing: .04em;
+            text-transform: uppercase;
+            margin-bottom: .4rem;
+        }
+        .profile-card .form-control,
+        .profile-card input[type="text"],
+        .profile-card input[type="email"] {
+            width: 100%;
+            padding: .75rem 1rem;
+            border: 1px solid rgba(195, 200, 195, .55);
+            border-radius: 999px;
+            background: var(--home-bg);
+            color: var(--home-text);
+            font-family: Quicksand, sans-serif;
+            font-size: .95rem;
+            font-weight: 600;
+            outline: none;
+            transition: border-color .2s, box-shadow .2s, background .2s;
+            margin-bottom: 1rem;
+        }
+        .profile-card .form-control:focus,
+        .profile-card input:focus {
+            border-color: var(--home-yellow);
+            background: white;
+            box-shadow: 0 0 0 3px rgba(252, 212, 0, .18);
+        }
+        .profile-card input::placeholder { color: var(--home-muted); opacity: .5; }
+        .profile-card .mb-3 { margin-bottom: 0 !important; }
+        .profile-card .invalid-feedback,
+        .profile-card .errorlist { color: #ba1a1a; font-size: .82rem; font-weight: 700; }
+        .profile-card ul.errorlist { list-style: none; padding: 0; margin: 0 0 .5rem; }
+
+        /* Save button */
+        .btn-save {
+            display: inline-flex;
+            align-items: center;
+            gap: .45rem;
+            margin-top: .5rem;
+            padding: .85rem 2rem;
+            border: none;
+            border-radius: 999px;
+            background: var(--home-yellow);
+            color: var(--home-yellow-text);
+            font-family: Quicksand, sans-serif;
+            font-size: .97rem;
+            font-weight: 800;
+            cursor: pointer;
+            box-shadow: 0 16px 34px rgba(252, 212, 0, .22);
+            transition: transform .2s ease, box-shadow .2s ease;
+        }
+        .btn-save:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 20px 40px rgba(252, 212, 0, .32);
+        }
+
+        /* Admin actions */
+        .admin-actions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: .75rem;
+        }
+        .admin-link {
+            display: inline-flex;
+            align-items: center;
+            gap: .5rem;
+            padding: .7rem 1.2rem;
+            border: 1px solid rgba(16, 30, 24, .14);
+            border-radius: 999px;
+            background: var(--home-surface-low);
+            color: var(--home-primary);
+            font-size: .9rem;
+            font-weight: 800;
+            text-decoration: none;
+            transition: background .2s, transform .2s, border-color .2s;
+        }
+        .admin-link:hover {
+            background: var(--home-primary-soft);
+            border-color: rgba(16, 30, 24, .22);
+            transform: translateY(-2px);
+        }
+
+        /* Alert */
+        .profile-alert {
+            padding: .85rem 1.25rem;
+            border-radius: 1.5rem;
+            margin-bottom: 1.25rem;
+            font-size: .9rem;
+            font-weight: 700;
+        }
+        .profile-alert.success {
+            background: var(--home-primary-soft);
+            color: var(--home-primary);
+        }
+        .profile-alert.error {
+            background: #ffdad6;
+            color: #ba1a1a;
+        }
+    </style>
+</head>
+<body class="home-stitch-view">
+    {% include "partials/tailwind_navbar.html" %}
+
+    <div class="profile-page">
+
+        {% if messages %}
+            {% for message in messages %}
+                <div class="profile-alert {% if 'error' in message.tags %}error{% else %}success{% endif %}">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        {% endif %}
+
+        <!-- Header con avatar -->
+        <div class="profile-header">
+            <div class="profile-avatar-large">
+                {{ user.get_username|first|upper }}
+            </div>
+            <div class="profile-header-info">
+                <h1>{{ user.get_full_name|default:user.get_username }}</h1>
+                <p>{{ user.email }}</p>
+                {% if user.is_staff %}
+                    <span class="profile-role-badge admin">Administrador</span>
+                {% else %}
+                    <span class="profile-role-badge cliente">Cliente</span>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Información de cuenta (solo lectura) -->
+        <div class="profile-card">
+            <h2>Información de cuenta</h2>
+            <div class="info-row">
+                <span class="info-label">Usuario</span>
+                <span class="info-value">{{ user.get_username }}</span>
+            </div>
+            <div class="info-row">
+                <span class="info-label">Nombre</span>
+                <span class="info-value {% if not user.get_full_name %}empty{% endif %}">
+                    {{ user.get_full_name|default:"Sin nombre registrado" }}
+                </span>
+            </div>
+            <div class="info-row">
+                <span class="info-label">Correo</span>
+                <span class="info-value">{{ user.email }}</span>
+            </div>
+            <div class="info-row">
+                <span class="info-label">Miembro desde</span>
+                <span class="info-value">{{ user.date_joined|date:"d \d\e F \d\e Y" }}</span>
+            </div>
+            <div class="info-row">
+                <span class="info-label">Último acceso</span>
+                <span class="info-value">{{ user.last_login|date:"d/m/Y, H:i"|default:"—" }}</span>
+            </div>
+        </div>
+
+        <!-- Editar perfil -->
+        <div class="profile-card">
+            <h2>Editar información</h2>
+            {% load crispy_forms_tags %}
+            <form method="POST">
+                {% csrf_token %}
+                {{ form|crispy }}
+                <button type="submit" class="btn-save">Guardar cambios</button>
+            </form>
+        </div>
+
+        <!-- Acciones de admin -->
+        {% if user.is_staff %}
+        <div class="profile-card">
+            <h2>Herramientas de administrador</h2>
+            <div class="admin-actions">
+                <a class="admin-link" href="{% url 'usuarios:lista_admins' %}">
+                    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <circle cx="6" cy="5" r="2.5" stroke="currentColor" stroke-width="1.5"/>
+                        <path d="M1 13c0-2.76 2.24-5 5-5s5 2.24 5 5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                        <path d="M12 7v4m-2-2h4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                    </svg>
+                    Gestionar admins
+                </a>
+                <a class="admin-link" href="/admin/">
+                    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <rect x="1.5" y="1.5" width="13" height="13" rx="2" stroke="currentColor" stroke-width="1.5"/>
+                        <path d="M5 8h6M5 5h6M5 11h4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                    </svg>
+                    Panel de Django Admin
+                </a>
+            </div>
+        </div>
+        {% endif %}
+
+    </div>
+</body>
+</html>
