@@ -1,4 +1,4 @@
-name: proyectoLuciernagas
+name: proyectoFinal-404TeamNotFound
 
 channels:
   - defaults
@@ -14,4 +14,3 @@ dependencies:
     - PyJWT
     - cryptography
 
-prefix: /home/jesusrg/miniconda3
