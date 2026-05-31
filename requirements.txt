@@ -1,0 +1,10 @@
+django==6.0.1
+django-allauth[socialaccount]==65.15.0
+django-crispy-forms==2.3
+crispy-bootstrap5==2024.10
+django-environ==0.11.2
+requests
+PyJWT
+cryptography
+gunicorn
+whitenoise[brotli]
