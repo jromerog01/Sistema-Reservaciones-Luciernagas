@@ -5,7 +5,9 @@ from .models import Usuario
 
 class RegistroForm(UserCreationForm):
 
-    email = forms.EmailField()
+    first_name = forms.CharField(label='Nombre', max_length=150, required=True)
+    last_name = forms.CharField(label='Apellidos', max_length=150, required=True)
+    email = forms.EmailField(label='Correo electrónico')
 
     class Meta:
         model = Usuario
