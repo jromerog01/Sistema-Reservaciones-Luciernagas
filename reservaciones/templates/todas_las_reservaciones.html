@@ -142,7 +142,7 @@
 <label class="font-label-sm text-on-surface-variant mb-2 block uppercase tracking-wider">Buscar</label>
 <div class="relative">
 <span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-outline">search</span>
-<input class="w-full pl-12 pr-4 py-3 rounded-full border-outline-variant/30 focus:ring-gold-accent focus:border-gold-accent bg-surface-container-lowest font-body-md transition-all" placeholder="Cliente, parque, hospedaje o estado" type="search" data-reservation-search id="admin-reservation-search">
+<input class="w-full pl-12 pr-4 py-3 rounded-full border-outline-variant/30 focus:ring-gold-accent focus:border-gold-accent bg-surface-container-lowest font-body-md transition-all" placeholder="Cliente, correo, parque, hospedaje o estado" type="search" data-reservation-search id="admin-reservation-search">
 </div>
 </div>
 <div class="flex flex-wrap gap-2" id="filterButtonsContainer">
@@ -159,7 +159,7 @@
 
 {% if reservaciones %}
 <div class="bg-white rounded-lg shadow-sm border border-outline-variant/30 overflow-x-auto" data-reservation-table>
-<table class="w-full text-left border-collapse min-w-[1200px] min-w-full">
+<table class="w-full text-left border-collapse min-w-[1350px]">
 <thead>
 <tr class="bg-surface-container-low border-b border-outline-variant/30">
 <th class="py-4 font-label-sm text-on-surface-variant uppercase px-3">#</th>
@@ -179,9 +179,12 @@
 </thead>
 <tbody class="divide-y divide-outline-variant/20">
 {% for r in reservaciones %}
-<tr class="hover:bg-surface-container-lowest transition-colors group" data-reservation-row data-status="{{ r.estado|lower }}" data-search="{{ r.id }} {{ r.usuario }} {{ r.hospedaje.parque }} {{ r.hospedaje.get_tipo_hospedaje_display }} {{ r.get_estado_display }}">
+<tr class="hover:bg-surface-container-lowest transition-colors group" data-reservation-row data-status="{{ r.estado|lower }}" data-search="{{ r.id }} {{ r.usuario.get_full_name }} {{ r.usuario.username }} {{ r.usuario.email }} {{ r.hospedaje.parque }} {{ r.hospedaje.get_tipo_hospedaje_display }} {{ r.get_estado_display }}">
 <td class="py-6 font-medium text-outline text-sm px-3">#{{ r.id }}</td>
-<td class="py-6 font-bold text-on-surface px-3">{{ r.usuario }}</td>
+<td class="py-6 px-3">
+<div class="font-bold text-on-surface">{{ r.usuario.get_full_name|default:r.usuario.username }}</div>
+<div class="text-xs text-on-surface-variant mt-1 break-all">{{ r.usuario.email|default:"-" }}</div>
+</td>
 <td class="py-6 text-sm text-on-surface-variant px-3">{{ r.hospedaje.parque.nombre }}</td>
 <td class="py-6 text-sm text-on-surface-variant px-3">{{ r.hospedaje.get_tipo_hospedaje_display }}</td>
 <td class="py-6 text-sm px-3">{{ r.fecha_inicio|date:"d M Y" }}</td>

@@ -14,6 +14,52 @@ from django.urls import reverse
 from parques.mapa_adapters import OpenStreetMapAdapter
 from parques.mapa_service import MapaService
 from parques.models import Hospedaje, Parque, Servicio
+from parques.parque_cards import (
+    BOSQUE_HOME_HERO_IMAGE,
+    BOSQUE_IMAGES_BY_PARK_ID,
+    obtener_asignaciones_imagenes_principales,
+)
+
+
+class ServicioIconoTests(TestCase):
+    """Verifica los iconos semanticos usados para representar servicios."""
+
+    def test_obtiene_icono_relacionado_con_el_servicio(self):
+        self.assertEqual(Servicio(nombre="Alberca").icono_material, "pool")
+        self.assertEqual(Servicio(nombre="Wi-Fi").icono_material, "wifi")
+
+    def test_normaliza_acentos_del_nombre(self):
+        self.assertEqual(Servicio(nombre="Calefacción").icono_material, "mode_heat")
+
+    def test_usa_icono_de_respaldo_para_servicio_nuevo(self):
+        self.assertEqual(Servicio(nombre="Sendero nocturno").icono_material, "room_service")
+
+
+class ParqueImagenPrincipalTests(TestCase):
+    """Valida el reparto estable de imagenes principales entre parques."""
+
+    PARQUES_IDS = [1, 2, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18]
+
+    def test_conserva_asignaciones_manuales_y_excluye_imagen_de_portada(self):
+        asignaciones = obtener_asignaciones_imagenes_principales(self.PARQUES_IDS)
+
+        for parque_id, imagen in BOSQUE_IMAGES_BY_PARK_ID.items():
+            self.assertEqual(asignaciones[parque_id], imagen)
+
+        self.assertNotIn(BOSQUE_HOME_HERO_IMAGE, asignaciones.values())
+
+    def test_no_repite_imagenes_principales(self):
+        asignaciones = obtener_asignaciones_imagenes_principales(self.PARQUES_IDS)
+        imagenes_manuales = set(BOSQUE_IMAGES_BY_PARK_ID.values())
+        imagenes_automaticas = [
+            imagen
+            for parque_id, imagen in asignaciones.items()
+            if parque_id not in BOSQUE_IMAGES_BY_PARK_ID
+        ]
+
+        self.assertEqual(len(imagenes_automaticas), len(set(imagenes_automaticas)))
+        self.assertFalse(set(imagenes_automaticas) & imagenes_manuales)
+        self.assertEqual(len(asignaciones), len(set(asignaciones.values())))
 
 
 class OpenStreetMapAdapterTests(TestCase):
@@ -105,6 +151,9 @@ class InicioMapaRouteTests(TestCase):
         self.assertContains(response, 'data-filter-value="camping"')
         self.assertContains(response, 'data-filter-value="sendero-nocturno"')
         self.assertContains(response, 'data-map-active-filter-panel')
+        self.assertContains(response, 'id="filter-sidebar" aria-hidden="false"')
+        self.assertContains(response, 'id="sidebar-close-button"')
+        self.assertContains(response, 'id="sidebar-open-button"')
 
 
 class InicioHospedajeMinimumsTests(TestCase):

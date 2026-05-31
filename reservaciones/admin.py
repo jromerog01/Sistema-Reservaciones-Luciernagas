@@ -10,7 +10,8 @@ class ReservacionAdmin(admin.ModelAdmin):
 
     list_display = (
         "id",
-        "usuario",
+        "cliente_nombre",
+        "correo_cliente",
         "parque_nombre",
         "tipo_hospedaje",
         "fecha_inicio",
@@ -38,6 +39,7 @@ class ReservacionAdmin(admin.ModelAdmin):
     )
 
     readonly_fields = (
+        "correo_cliente",
         "fecha_creacion",
     )
 
@@ -57,7 +59,7 @@ class ReservacionAdmin(admin.ModelAdmin):
             ),
         }),
         ("Cliente", {
-            "fields": ("usuario",),
+            "fields": ("usuario", "correo_cliente"),
         }),
         ("Estado", {
             "fields": ("estado", "fecha_creacion"),
@@ -75,6 +77,15 @@ class ReservacionAdmin(admin.ModelAdmin):
         """Muestra la etiqueta legible del tipo de hospedaje reservado."""
         return obj.hospedaje.get_tipo_hospedaje_display()
 
+    @admin.display(description="Cliente", ordering="usuario__username")
+    def cliente_nombre(self, obj):
+        """Muestra nombre completo o username sin repetir el correo."""
+        return obj.usuario.get_full_name() or obj.usuario.username
+
+    @admin.display(description="Correo cliente", ordering="usuario__email")
+    def correo_cliente(self, obj):
+        """Muestra el correo del cliente asociado a la reservacion."""
+        return obj.usuario.email or "-"
 
     @admin.display(description="Estado")
     def estado_badge(self, obj):

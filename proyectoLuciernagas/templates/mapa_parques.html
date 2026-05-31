@@ -110,19 +110,19 @@
 </style>
 <script>window.IS_AUTH = {% if user.is_authenticated %}true{% else %}false{% endif %};</script>
 </head>
-<body class="overflow-hidden bg-background">
+<body class="h-screen flex flex-col overflow-hidden bg-background">
 
 <!-- TopAppBar -->
 {% include "partials/tailwind_navbar.html" %}
 
-<main class="flex h-screen pt-[64px] relative overflow-hidden">
+<main class="flex flex-1 min-h-0 relative overflow-hidden">
     <!-- Sidebar Filter View -->
-    <aside class="w-80 h-full bg-surface-container-lowest/95 backdrop-blur-lg border-r border-on-secondary-fixed-variant/10 z-[1000] flex flex-col shadow-2xl transition-transform duration-300 transform md:translate-x-0 absolute md:relative left-0 -translate-x-full" id="filter-sidebar">
+    <aside class="w-80 max-w-[calc(100vw-3rem)] h-full bg-surface-container-lowest/95 backdrop-blur-lg border-r border-on-secondary-fixed-variant/10 z-[1000] flex flex-col shadow-2xl transition-transform duration-300 transform absolute inset-y-0 left-0 translate-x-0" id="filter-sidebar" aria-hidden="false">
         <div class="p-6 flex flex-col gap-6 overflow-y-auto custom-scrollbar h-full">
-            <h2 class="font-headline-md text-primary flex justify-between items-center mb-2">
-                Filtros
+            <div class="flex justify-between items-center gap-3 mb-2">
+                <h2 class="font-headline-md text-primary">Filtros</h2>
                 <span class="text-label-sm font-label-sm bg-secondary-container text-on-secondary-container px-3 py-1 rounded-full shadow-sm" data-map-parks-count>{{ mapa_parques|length }} parques</span>
-            </h2>
+            </div>
 
             <!-- Estado -->
             <details open class="group">
@@ -176,6 +176,9 @@
             
             <p class="text-error font-label-md text-center mt-4" data-map-filter-empty hidden>No hay parques con esos filtros.</p>
         </div>
+        <button type="button" class="absolute top-1/2 right-0 translate-x-full -translate-y-1/2 w-8 h-16 flex items-center justify-center rounded-r-xl bg-surface-container-lowest text-primary border border-l-0 border-on-secondary-fixed-variant/10 shadow-lg hover:bg-surface-container-high transition-colors" id="sidebar-close-button" aria-controls="filter-sidebar" aria-label="Ocultar filtros" title="Ocultar filtros">
+            <span class="material-symbols-outlined">chevron_left</span>
+        </button>
     </aside>
 
     <!-- Main Map View -->
@@ -192,30 +195,39 @@
         {% endif %}
     </section>
 
-    <!-- Mobile Filter Toggle -->
-    <button class="md:hidden absolute bottom-6 left-6 z-[2000] w-14 h-14 bg-primary text-on-primary rounded-full shadow-2xl flex items-center justify-center hover:scale-105 active:scale-95 transition-all" id="sidebar-toggle">
-        <span class="material-symbols-outlined">tune</span>
+    <!-- Filter Sidebar Toggle -->
+    <button type="button" class="hidden absolute top-1/2 left-0 -translate-y-1/2 z-[2000] w-8 h-16 bg-surface-container-lowest text-primary rounded-r-xl border border-l-0 border-on-secondary-fixed-variant/10 shadow-lg items-center justify-center hover:bg-surface-container-high transition-colors" id="sidebar-open-button" aria-controls="filter-sidebar" aria-expanded="true" aria-label="Mostrar filtros" title="Mostrar filtros">
+        <span class="material-symbols-outlined">chevron_right</span>
     </button>
 </main>
 
 {{ mapa_parques|json_script:"parks-map-data" }}
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script>
-    // Configurar el toggle de sidebar en moviles
+    // Permite ocultar el panel para aprovechar todo el espacio del mapa.
     const sidebar = document.getElementById('filter-sidebar');
-    const toggle = document.getElementById('sidebar-toggle');
-    let isOpen = false;
+    const sidebarOpenButton = document.getElementById('sidebar-open-button');
+    const sidebarCloseButton = document.getElementById('sidebar-close-button');
 
-    toggle?.addEventListener('click', () => {
-        isOpen = !isOpen;
+    const setSidebarOpen = (isOpen) => {
         if (isOpen) {
             sidebar.classList.remove('-translate-x-full');
             sidebar.classList.add('translate-x-0');
+            sidebarOpenButton.classList.add('hidden');
+            sidebarOpenButton.classList.remove('flex');
         } else {
             sidebar.classList.remove('translate-x-0');
             sidebar.classList.add('-translate-x-full');
+            sidebarOpenButton.classList.remove('hidden');
+            sidebarOpenButton.classList.add('flex');
         }
-    });
+
+        sidebar.setAttribute('aria-hidden', String(!isOpen));
+        sidebarOpenButton.setAttribute('aria-expanded', String(isOpen));
+    };
+
+    sidebarCloseButton?.addEventListener('click', () => setSidebarOpen(false));
+    sidebarOpenButton?.addEventListener('click', () => setSidebarOpen(true));
 
     // Style toggle for active filter buttons
     const filterChips = document.querySelectorAll('button.filter-btn');

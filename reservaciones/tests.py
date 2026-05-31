@@ -656,6 +656,12 @@ class TodasLasReservacionesTests(TestCase):
         resp = self.client.get(self.url)
         self.assertContains(resp, str(self.cliente))
 
+    def test_admin_ve_correo_del_cliente_en_respuesta(self):
+        reservacion_directa(self.hospedaje, self.cliente)
+        self.client.force_login(self.admin)
+        resp = self.client.get(self.url)
+        self.assertContains(resp, self.cliente.email)
+
 
 class DetalleReservacionTests(TestCase):
     """Prueba permisos y datos mostrados en el detalle de una reservacion."""
@@ -688,3 +694,13 @@ class DetalleReservacionTests(TestCase):
         resp = self.client.get(self.url)
         self.assertEqual(resp.context["duracion"], 2)
         self.assertContains(resp, "2 noches")
+
+    def test_muestra_direccion_y_enlace_a_google_maps(self):
+        self.client.force_login(self.cliente)
+        resp = self.client.get(self.url)
+        parque = self.reservacion.hospedaje.parque
+        self.assertContains(resp, parque.direccion)
+        self.assertContains(
+            resp,
+            f"https://www.google.com/maps/search/?api=1&query={parque.latitud:.6f},{parque.longitud:.6f}",
+        )

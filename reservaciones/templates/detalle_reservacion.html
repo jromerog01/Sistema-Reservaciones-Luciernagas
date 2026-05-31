@@ -177,7 +177,7 @@
 </div>
 </div>
 <!-- Amenities & Info -->
-<div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+<div class="grid grid-cols-1 md:grid-cols-2 items-start gap-8">
 <!-- Amenities -->
 <div class="bg-surface-container-low p-8 rounded-xl border border-surface-variant/30">
 <h4 class="font-headline-md text-headline-md text-primary mb-6 flex items-center gap-2">
@@ -188,7 +188,7 @@
 {% for servicio in reservacion.hospedaje.parque.servicios.all %}
 <li class="flex items-center gap-4 group">
 <div class="w-10 h-10 rounded-full bg-white flex items-center justify-center text-secondary shadow-sm group-hover:scale-110 transition-transform">
-<span class="material-symbols-outlined">check_circle</span>
+<span class="material-symbols-outlined">{{ servicio.icono_material }}</span>
 </div>
 <span class="font-body-md text-body-md text-on-surface">{{ servicio.nombre }}</span>
 </li>
@@ -209,7 +209,12 @@
     <div class="w-full h-full mini-park-map" data-mini-map data-lat="{{ reservacion.hospedaje.parque.latitud|floatformat:6 }}" data-lng="{{ reservacion.hospedaje.parque.longitud|floatformat:6 }}" data-title="{{ reservacion.hospedaje.parque.nombre }}"></div>
 </div>
 <p class="font-label-md text-label-md text-primary">{{ reservacion.hospedaje.parque.nombre }}</p>
+<p class="font-body-md text-body-md text-on-surface-variant mt-1">{{ reservacion.hospedaje.parque.direccion }}</p>
 <p class="font-label-sm text-label-sm text-on-surface-variant mt-1">Acude al área de recepción en la entrada del santuario.</p>
+<a class="inline-flex items-center gap-2 mt-4 font-label-md text-label-md text-secondary hover:underline underline-offset-4 transition-all" href="https://www.google.com/maps/search/?api=1&query={{ reservacion.hospedaje.parque.latitud|floatformat:6 }},{{ reservacion.hospedaje.parque.longitud|floatformat:6 }}" target="_blank" rel="noopener noreferrer">
+<span class="material-symbols-outlined text-[20px]">near_me</span>
+                            Abrir en Google Maps
+                        </a>
 </div>
 </div>
 </div>

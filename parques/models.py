@@ -1,3 +1,4 @@
+import unicodedata
 from decimal import Decimal
 
 from django.core.validators import MinValueValidator, MaxValueValidator
@@ -9,8 +10,39 @@ class Servicio(models.Model):
 
     nombre = models.CharField(max_length=100, unique=True)
 
+    ICONOS_MATERIAL = {
+        "aire acondicionado": "ac_unit",
+        "alberca": "pool",
+        "asador": "outdoor_grill",
+        "calefaccion": "mode_heat",
+        "estacionamiento": "local_parking",
+        "gimnasio": "fitness_center",
+        "jacuzzi": "hot_tub",
+        "lavanderia": "local_laundry_service",
+        "lockers": "lock",
+        "pet-friendly": "pets",
+        "restaurante": "restaurant",
+        "sanitarios": "wc",
+        "servicio medico": "medical_services",
+        "tiendas de autoservicio": "store",
+        "tirolesa": "cable",
+        "tv": "tv",
+        "wi-fi": "wifi",
+        "zona de fogatas": "local_fire_department",
+    }
+
     def __str__(self):
         return self.nombre
+
+    @property
+    def icono_material(self):
+        """Devuelve un icono relacionado con el servicio para la interfaz."""
+        nombre_normalizado = unicodedata.normalize("NFKD", self.nombre.casefold())
+        nombre_normalizado = "".join(
+            caracter for caracter in nombre_normalizado
+            if not unicodedata.combining(caracter)
+        )
+        return self.ICONOS_MATERIAL.get(nombre_normalizado, "room_service")
 
 
 class Parque(models.Model):
