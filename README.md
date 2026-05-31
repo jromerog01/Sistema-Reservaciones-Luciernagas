@@ -8,21 +8,23 @@
 
 Proyecto final desarrollado con Django para consultar parques participantes del Festival de Luciérnagas, explorar sus servicios y hospedajes, visualizar su ubicación en un mapa interactivo y crear reservaciones con reglas de disponibilidad, temporada y permisos de usuario.
 
-El sistema está pensado para tres tipos de uso:
+El sistema está pensado para varios tipos de uso:
 
-- Visitantes: pueden consultar la página de inicio, explorar parques, usar filtros y revisar el mapa.
-- Clientes autenticados: pueden registrarse, iniciar sesión, editar su perfil, crear reservaciones, consultar sus reservaciones y cancelarlas.
-- Administradores: pueden gestionar parques, servicios, hospedajes, usuarios administradores y consultar todas las reservaciones.
+- **Visitantes**: pueden consultar la página de inicio, explorar parques, usar filtros y revisar el mapa.
+- **Clientes** autenticados: pueden registrarse, iniciar sesión, editar su perfil, crear reservaciones, consultar sus reservaciones y cancelarlas.
+- **Administradores**: pueden gestionar parques, servicios, hospedajes, usuarios administradores y consultar todas las reservaciones.
 
 ## Equipo: `<404> Team Not Found`
 
 **Alumnos:**
 
-- Chávez Martínez Marco Antonio
-- Cruz Campos Pablo Isaías
-- Romero Godoy Jesús Antonio
-- Trejo Maya Diego Alexander
-- Vega Alonso Diego Hazael
+| Nombre Completo              | Número de cuenta |
+|------------------------------| --- |
+| Chávez Martínez Marco Antonio | 320328594 |
+| Cruz Campos Pablo Isaías     | 424022084 |
+| Romero Godoy Jesús Antonio   | 321144292 |
+| Trejo Maya Diego Alexander   | 424033338 |
+| Vega Alonso Diego Hazael     | 321301183 |
 
 ## Tecnologías principales
 
@@ -70,7 +72,7 @@ Centraliza la información de los parques participantes.
 - Modelo `Servicio`: servicios ofrecidos por los parques.
 - Modelo `Hospedaje`: opciones de hospedaje por parque, actualmente `CABAÑA` y `CAMPING`.
 - Catálogo público de parques con filtros por estado, hospedaje y servicios.
-- Vista de detalle con galería, hospedajes disponibles, servicios y enlace a mapas.
+- Vista de detalle con galería, hospedajes disponibles, servicios y enlace a Google Maps.
 - Panel de administración con filtros personalizados y sincronización del hospedaje base de camping.
 
 El mapa usa un patrón Adapter:
@@ -113,7 +115,7 @@ Las reservas no se guardan directamente desde la vista: pasan por el formulario,
 - El precio se calcula por unidades, precio por unidad y número de noches.
 - Las reservaciones en temporada reciben un recargo del 20%.
 
-## Rutas principales
+## URL's principales
 
 | Ruta | Descripción |
 | --- | --- |
