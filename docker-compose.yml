@@ -1,0 +1,14 @@
+services:
+  web:
+    container_name: proyecto-luciernagas
+    build: .
+    env_file:
+      - .env
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./db.sqlite3:/app/db.sqlite3
+      - staticfiles:/app/staticfiles
+
+volumes:
+  staticfiles:
